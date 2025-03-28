@@ -12,7 +12,9 @@
       margin: 0;
       padding: 0;
       background-color: #f0f0f0;
-      /* Allow sidebar and content to be positioned separately */
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
     }
     header {
       background-color: #63AB8F;
@@ -24,24 +26,19 @@
     }
     header h1 { margin: 0; }
     .container {
+      flex: 1;
       display: flex;
-      margin-top: 0;
     }
-    /* Fixed sidebar */
     .sidebar {
-      position: fixed;
-      top: 80px; /* Adjust if your header height changes */
-      left: 0;
-      bottom: 0;
       width: 250px;
       background-color: #ccc;
       padding: 20px;
       display: flex;
       flex-direction: column;
       gap: 10px;
-      overflow-y: auto;
     }
     .sidebar button {
+      type: button;
       background-color: #ccc;
       border: none;
       padding: 10px;
@@ -56,13 +53,10 @@
       background-color: #63AB8F;
       color: white;
     }
-    /* Content area with margin-left equal to sidebar width */
     .content {
-      margin-left: 250px;
+      flex: 1;
       padding: 20px;
       background-color: white;
-      min-height: calc(100vh - 80px);
-      margin-top: 80px; /* Height of the header */
       overflow-y: auto;
     }
     .tabcontent { display: none; }
@@ -189,12 +183,17 @@
   </header>
   <div class="container">
     <div class="sidebar">
-      <button class="tablink" onclick="openTab(event, 'wfmManagement')">WFM Management Unit Search</button>
-      <button class="tablink" onclick="openTab(event, 'externalWork')">External Work Creation</button>
-      <button class="tablink" onclick="openTab(event, 'activityCode')">Activity Code Management</button>
-      <button class="tablink" onclick="openTab(event, 'bulkChanges')">Bulk Skill & Queues Changes</button>
+      <button type="button" class="tablink" onclick="openTab(event, 'wfmActivity')">WFM Activity Management</button>
+      <button type="button" class="tablink" onclick="openTab(event, 'wfmManagement')">WFM Management Unit Search</button>
+      <button type="button" class="tablink" onclick="openTab(event, 'externalWork')">External Work Creation</button>
+      <button type="button" class="tablink" onclick="openTab(event, 'activityCode')">Activity Code Management</button>
+      <button type="button" class="tablink" onclick="openTab(event, 'bulkChanges')">Bulk Skill & Queues Changes</button>
     </div>
     <div class="content">
+      <div id="wfmActivity" class="tabcontent">
+        <h2>WFM Activity Management</h2>
+        <p>Content goes here...</p>
+      </div>
       <div id="wfmManagement" class="tabcontent">
         <!-- Management Unit Search Code -->
         <div id="mu-search-container">
@@ -306,13 +305,13 @@
     let activityCodeInitialized = false;
     
     function openTab(evt, tabName) {
-      var i, tabcontent, tablinks;
-      tabcontent = document.getElementsByClassName("tabcontent");
-      for (i = 0; i < tabcontent.length; i++) {
+      evt.preventDefault(); // Prevent default action if any
+      let tabcontent = document.getElementsByClassName("tabcontent");
+      for (let i = 0; i < tabcontent.length; i++) {
         tabcontent[i].style.display = "none";
       }
-      tablinks = document.getElementsByClassName("tablink");
-      for (i = 0; i < tablinks.length; i++) {
+      let tablinks = document.getElementsByClassName("tablink");
+      for (let i = 0; i < tablinks.length; i++) {
         tablinks[i].classList.remove("active");
       }
       document.getElementById(tabName).style.display = "block";
@@ -670,7 +669,7 @@
     }
     
     // =======================
-    // Activity Code Management Code
+    // Activity Code Management Code (wrapped in its own initializer)
     function initActivityCodeManagement() {
       let actAccessToken = null;
       const actClientId = 'f93a488c-73e9-40cf-b4fd-5c05ff043c81';
