@@ -67,6 +67,36 @@
     .tabcontent {
       display: none;
     }
+    /* Scoped styles for External Work Creation */
+    #external-work-container {
+      margin: 20px;
+      padding: 20px;
+      font-family: 'Aptos', Arial, sans-serif;
+    }
+    #external-work-container #logo-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    #external-work-container #logo {
+      width: 300px;
+    }
+    #external-work-container label {
+      margin-top: 10px;
+      display: block;
+      font-weight: bold;
+    }
+    #external-work-container select,
+    #external-work-container input,
+    #external-work-container button {
+      margin-top: 5px;
+      padding: 8px;
+      width: 100%;
+      max-width: 300px;
+    }
+    #external-work-container #statusMessage {
+      margin-top: 20px;
+      color: green;
+    }
   </style>
 </head>
 <body>
@@ -93,8 +123,21 @@
         <p>Content goes here...</p>
       </div>
       <div id="externalWork" class="tabcontent">
-        <h2>External Work Creation</h2>
-        <p>Content goes here...</p>
+        <!-- External Work Creation Code -->
+        <div id="external-work-container">
+          <div id="logo-container">
+            <img id="logo" src="https://raw.githubusercontent.com/gmcglynn88/ExternalWorkCreation/main/Consultinglogo.png" alt="Company Logo">
+          </div>
+          <h1>External Work Creation</h1>
+          <label for="queueSelect">Select Queue:</label>
+          <select id="queueSelect"></select>
+          <label for="userSelect">Select User:</label>
+          <select id="userSelect"></select>
+          <label for="externalReference">External Reference:</label>
+          <input type="text" id="externalReference" placeholder="Enter external reference (optional)">
+          <button id="createInteractionBtn">Create Proxy Interaction</button>
+          <div id="statusMessage"></div>
+        </div>
       </div>
       <div id="bulkChanges" class="tabcontent">
         <h2>Bulk Skill & Queues Changes</h2>
@@ -103,6 +146,8 @@
     </div>
   </div>
   <script>
+    // Tab functionality
+    let externalWorkInitialized = false;
     function openTab(evt, tabName) {
       var i, tabcontent, tablinks;
       tabcontent = document.getElementsByClassName("tabcontent");
@@ -115,11 +160,167 @@
       }
       document.getElementById(tabName).style.display = "block";
       evt.currentTarget.classList.add("active");
+      
+      // Initialize External Work Creation if that tab is activated for the first time
+      if(tabName === 'externalWork' && !externalWorkInitialized) {
+        initExternalWorkCreation();
+        externalWorkInitialized = true;
+      }
     }
     // Open the first tab by default on page load
     document.addEventListener("DOMContentLoaded", function() {
       document.getElementsByClassName("tablink")[0].click();
     });
+
+    // External Work Creation code refactored into a function
+    function initExternalWorkCreation() {
+      const clientId = '35987d94-e13b-4da4-afd2-25b85bc1c3d6';
+      const redirectUri = 'https://gmcglynn88.github.io/ExternalWorkCreation/';
+      const responseType = 'token';
+      const oauthUrl = `https://login.mypurecloud.ie/oauth/authorize?client_id=${clientId}&response_type=${responseType}&redirect_uri=${encodeURIComponent(redirectUri)}`;
+
+      // Check for token in URL hash
+      const hash = window.location.hash.substring(1);
+      const params = new URLSearchParams(hash);
+      const token = params.get('access_token');
+
+      if (!token) {
+        window.location.href = oauthUrl;
+      } else {
+        initializeApp(token);
+      }
+    }
+
+    function initializeApp(token) {
+      populateDropdowns(token);
+      document.getElementById('createInteractionBtn').addEventListener('click', () => {
+        createInteraction(token);
+      });
+    }
+
+    async function populateDropdowns(token) {
+      try {
+        const queues = await fetchAllPages('https://api.mypurecloud.ie/api/v2/routing/queues', token);
+        const users = await fetchAllPages('https://api.mypurecloud.ie/api/v2/users', token);
+
+        const queueSelect = document.getElementById('queueSelect');
+        queues.forEach(queue => {
+          const option = document.createElement('option');
+          option.value = queue.id;
+          option.text = queue.name;
+          queueSelect.add(option);
+        });
+
+        const userSelect = document.getElementById('userSelect');
+        users.forEach(user => {
+          const option = document.createElement('option');
+          option.value = user.id;
+          option.text = user.name;
+          userSelect.add(option);
+        });
+
+      } catch (error) {
+        console.error('Error populating dropdowns:', error);
+        document.getElementById('statusMessage').innerText = `Error loading data: ${error.message}`;
+      }
+    }
+
+    async function fetchAllPages(url, token) {
+      let allItems = [];
+      let pageNumber = 1;
+      let hasMorePages = true;
+
+      while (hasMorePages) {
+        const response = await fetch(`${url}?pageNumber=${pageNumber}&pageSize=25`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) {
+          throw new Error(`Error fetching data: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        allItems = allItems.concat(data.entities);
+
+        if (data.pageCount > pageNumber) {
+          pageNumber++;
+        } else {
+          hasMorePages = false;
+        }
+      }
+      return allItems;
+    }
+
+    async function createInteraction(token) {
+      const queueId = document.getElementById('queueSelect').value;
+      const userId = document.getElementById('userSelect').value;
+      const externalReference = document.getElementById('externalReference').value;
+
+      try {
+        const interactionResponse = await fetch('https://api.mypurecloud.ie/api/v2/conversations/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            queueId: queueId,
+            provider: 'QualityForm',
+            direction: 'INBOUND',
+            fromName: 'External Work',
+            attributes: { 'External Link': externalReference }
+          })
+        });
+
+        if (!interactionResponse.ok) {
+          throw new Error(`Error creating interaction: ${interactionResponse.status} ${interactionResponse.statusText}`);
+        }
+
+        const interaction = await interactionResponse.json();
+        const conversationId = interaction.id;
+
+        const conversationDetailsResponse = await fetch(`https://api.mypurecloud.ie/api/v2/conversations/${conversationId}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!conversationDetailsResponse.ok) {
+          throw new Error(`Error fetching conversation details: ${conversationDetailsResponse.status} ${conversationDetailsResponse.statusText}`);
+        }
+        const conversationDetails = await conversationDetailsResponse.json();
+        const participantId = conversationDetails.participants[1].id;
+
+        const assignResponse = await fetch(`https://api.mypurecloud.ie/api/v2/conversations/emails/${conversationId}/participants/${participantId}/replace`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ userId: userId })
+        });
+
+        if (!assignResponse.ok) {
+          throw new Error(`Error assigning user: ${assignResponse.status} ${assignResponse.statusText}`);
+        }
+
+        const disconnectResponse = await fetch(`https://api.mypurecloud.ie/api/v2/conversations/emails/${conversationId}`, {
+          method: 'PATCH',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ state: 'disconnected' })
+        });
+
+        if (!disconnectResponse.ok) {
+          throw new Error(`Error disconnecting conversation: ${disconnectResponse.status} ${disconnectResponse.statusText}`);
+        }
+
+        document.getElementById('statusMessage').innerText = 'Interaction created and assigned successfully!';
+
+      } catch (error) {
+        console.error('Error during interaction creation:', error);
+        document.getElementById('statusMessage').innerText = `Error: ${error.message}`;
+      }
+    }
   </script>
 </body>
 </html>
