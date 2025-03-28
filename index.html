@@ -12,9 +12,7 @@
       margin: 0;
       padding: 0;
       background-color: #f0f0f0;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
+      /* Allow sidebar and content to be positioned separately */
     }
     header {
       background-color: #63AB8F;
@@ -26,16 +24,22 @@
     }
     header h1 { margin: 0; }
     .container {
-      flex: 1;
       display: flex;
+      margin-top: 0;
     }
+    /* Fixed sidebar */
     .sidebar {
+      position: fixed;
+      top: 80px; /* Adjust if your header height changes */
+      left: 0;
+      bottom: 0;
       width: 250px;
       background-color: #ccc;
       padding: 20px;
       display: flex;
       flex-direction: column;
       gap: 10px;
+      overflow-y: auto;
     }
     .sidebar button {
       background-color: #ccc;
@@ -52,10 +56,13 @@
       background-color: #63AB8F;
       color: white;
     }
+    /* Content area with margin-left equal to sidebar width */
     .content {
-      flex: 1;
+      margin-left: 250px;
       padding: 20px;
       background-color: white;
+      min-height: calc(100vh - 80px);
+      margin-top: 80px; /* Height of the header */
       overflow-y: auto;
     }
     .tabcontent { display: none; }
@@ -668,16 +675,14 @@
     }
     
     // =======================
-    // Activity Code Management Code (wrapped in its own initializer)
+    // Activity Code Management Code
     function initActivityCodeManagement() {
-      // Use a separate token name in sessionStorage for this module.
       let actAccessToken = null;
       const actClientId = 'f93a488c-73e9-40cf-b4fd-5c05ff043c81';
       const actRedirectUri = window.location.href.split('?')[0];
       const actResponseType = 'token';
       const actOauthUrl = `https://login.mypurecloud.ie/oauth/authorize?client_id=${actClientId}&response_type=${actResponseType}&redirect_uri=${encodeURIComponent(actRedirectUri)}`;
     
-      // Check for token in URL hash or sessionStorage
       const hash = window.location.hash.substring(1);
       const params = new URLSearchParams(hash);
       actAccessToken = params.get('access_token');
@@ -693,12 +698,10 @@
         sessionStorage.setItem('purecloud_token_act', actAccessToken);
       }
     
-      // Once authenticated, initialize the Activity Code Management UI
       initializeActivityApp(actAccessToken);
     }
     
     function initializeActivityApp(token) {
-      // Hide authentication message and enable form elements
       const authMsg = document.getElementById('auth-message');
       authMsg.textContent = 'Authenticated successfully!';
       authMsg.style.display = 'none';
@@ -715,7 +718,6 @@
       document.getElementById('interruptible').disabled = false;
       document.getElementById('create-button').disabled = false;
     
-      // Fetch business units for Activity Code Management
       fetchBusinessUnitsAct(token);
     }
     
@@ -756,7 +758,6 @@
       }
     }
     
-    // Function to create the activity code
     async function createActivityCode() {
       const resultsDiv = document.getElementById('results');
       resultsDiv.innerHTML = '';
