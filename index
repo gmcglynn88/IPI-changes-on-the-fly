@@ -97,6 +97,47 @@
       margin-top: 20px;
       color: green;
     }
+    /* Scoped styles for Management Unit Search */
+    #mu-search-container {
+      margin: 20px;
+      padding: 20px;
+      font-family: 'Aptos', Arial, sans-serif;
+    }
+    #mu-search-container #logo-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    #mu-search-container #logo {
+      width: 300px;
+    }
+    #mu-search-container h1 {
+      font-size: 24px;
+    }
+    #mu-search-container label,
+    #mu-search-container select,
+    #mu-search-container input,
+    #mu-search-container button {
+      display: block;
+      margin: 10px 0;
+    }
+    #mu-search-container label {
+      font-weight: bold;
+    }
+    #mu-search-container select,
+    #mu-search-container input,
+    #mu-search-container button {
+      margin-top: 10px;
+      padding: 12px;
+      width: 100%;
+      max-width: 400px;
+      font-size: 16px;
+    }
+    #mu-search-container #results {
+      margin-top: 20px;
+    }
+    #mu-search-container #results p {
+      font-weight: normal;
+    }
   </style>
 </head>
 <body>
@@ -119,8 +160,19 @@
         <p>Content goes here...</p>
       </div>
       <div id="wfmManagement" class="tabcontent">
-        <h2>WFM Management Unit Search</h2>
-        <p>Content goes here...</p>
+        <!-- Management Unit Search Code -->
+        <div id="mu-search-container">
+          <div id="logo-container">
+            <img id="logo" src="https://raw.githubusercontent.com/gmcglynn88/Management-Unit-Search/main/Consultinglogo%20(2).png" alt="Company Logo">
+          </div>
+          <h1>Which MU did I put you in?</h1>
+          <label for="searchUser">Search users:</label>
+          <input type="text" id="searchUser" placeholder="Type to filter users...">
+          <label for="agentSelect">Select an Agent:</label>
+          <select id="agentSelect"></select>
+          <button id="lookupBtn">Get Management Unit</button>
+          <div id="results"></div>
+        </div>
       </div>
       <div id="externalWork" class="tabcontent">
         <!-- External Work Creation Code -->
@@ -146,12 +198,18 @@
     </div>
   </div>
   <script>
-    // New client credentials (for testing only)
+    // =======================
+    // Global Client Credentials
+    // (For testing only – do not expose secrets in production!)
+    // External Work Creation Credentials:
     const clientId = '80d7c7c9-600e-478e-8d41-1bfb7b8c6bc1';
-    const clientSecret = 'BQQBxTIiCO-mY1RFm9TL0NcmhtRewKlqozD0GUdiMdE'; // Do not expose in production!
-
-    // Tab functionality
+    const clientSecret = 'BQQBxTIiCO-mY1RFm9TL0NcmhtRewKlqozD0GUdiMdE';
+    
+    // =======================
+    // Tab Functionality & Initialization Flags
     let externalWorkInitialized = false;
+    let muSearchInitialized = false;
+    
     function openTab(evt, tabName) {
       var i, tabcontent, tablinks;
       tabcontent = document.getElementsByClassName("tabcontent");
@@ -165,49 +223,54 @@
       document.getElementById(tabName).style.display = "block";
       evt.currentTarget.classList.add("active");
       
-      // Initialize External Work Creation if that tab is activated for the first time
+      // Initialize External Work Creation on first activation
       if(tabName === 'externalWork' && !externalWorkInitialized) {
         initExternalWorkCreation();
         externalWorkInitialized = true;
       }
+      // Initialize Management Unit Search on first activation
+      if(tabName === 'wfmManagement' && !muSearchInitialized) {
+        initManagementUnitSearch();
+        muSearchInitialized = true;
+      }
     }
+    
     // Open the first tab by default on page load
     document.addEventListener("DOMContentLoaded", function() {
       document.getElementsByClassName("tablink")[0].click();
     });
-
-    // External Work Creation code refactored into a function
+    
+    // =======================
+    // External Work Creation Code
     function initExternalWorkCreation() {
-      // For OAuth, using the new client ID.
-      // Note: The client secret is defined above but not used in client-side OAuth flows.
       const redirectUri = 'https://gmcglynn88.github.io/ExternalWorkCreation/';
       const responseType = 'token';
       const oauthUrl = `https://login.mypurecloud.ie/oauth/authorize?client_id=${clientId}&response_type=${responseType}&redirect_uri=${encodeURIComponent(redirectUri)}`;
-
+    
       // Check for token in URL hash
       const hash = window.location.hash.substring(1);
       const params = new URLSearchParams(hash);
       const token = params.get('access_token');
-
+    
       if (!token) {
         window.location.href = oauthUrl;
       } else {
         initializeApp(token);
       }
     }
-
+    
     function initializeApp(token) {
       populateDropdowns(token);
       document.getElementById('createInteractionBtn').addEventListener('click', () => {
         createInteraction(token);
       });
     }
-
+    
     async function populateDropdowns(token) {
       try {
         const queues = await fetchAllPages('https://api.mypurecloud.ie/api/v2/routing/queues', token);
         const users = await fetchAllPages('https://api.mypurecloud.ie/api/v2/users', token);
-
+    
         const queueSelect = document.getElementById('queueSelect');
         queues.forEach(queue => {
           const option = document.createElement('option');
@@ -215,7 +278,7 @@
           option.text = queue.name;
           queueSelect.add(option);
         });
-
+    
         const userSelect = document.getElementById('userSelect');
         users.forEach(user => {
           const option = document.createElement('option');
@@ -223,30 +286,30 @@
           option.text = user.name;
           userSelect.add(option);
         });
-
+    
       } catch (error) {
         console.error('Error populating dropdowns:', error);
         document.getElementById('statusMessage').innerText = `Error loading data: ${error.message}`;
       }
     }
-
+    
     async function fetchAllPages(url, token) {
       let allItems = [];
       let pageNumber = 1;
       let hasMorePages = true;
-
+    
       while (hasMorePages) {
         const response = await fetch(`${url}?pageNumber=${pageNumber}&pageSize=25`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-
+    
         if (!response.ok) {
           throw new Error(`Error fetching data: ${response.status} ${response.statusText}`);
         }
-
+    
         const data = await response.json();
         allItems = allItems.concat(data.entities);
-
+    
         if (data.pageCount > pageNumber) {
           pageNumber++;
         } else {
@@ -255,12 +318,12 @@
       }
       return allItems;
     }
-
+    
     async function createInteraction(token) {
       const queueId = document.getElementById('queueSelect').value;
       const userId = document.getElementById('userSelect').value;
       const externalReference = document.getElementById('externalReference').value;
-
+    
       try {
         const interactionResponse = await fetch('https://api.mypurecloud.ie/api/v2/conversations/emails', {
           method: 'POST',
@@ -276,14 +339,14 @@
             attributes: { 'External Link': externalReference }
           })
         });
-
+    
         if (!interactionResponse.ok) {
           throw new Error(`Error creating interaction: ${interactionResponse.status} ${interactionResponse.statusText}`);
         }
-
+    
         const interaction = await interactionResponse.json();
         const conversationId = interaction.id;
-
+    
         const conversationDetailsResponse = await fetch(`https://api.mypurecloud.ie/api/v2/conversations/${conversationId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -292,7 +355,7 @@
         }
         const conversationDetails = await conversationDetailsResponse.json();
         const participantId = conversationDetails.participants[1].id;
-
+    
         const assignResponse = await fetch(`https://api.mypurecloud.ie/api/v2/conversations/emails/${conversationId}/participants/${participantId}/replace`, {
           method: 'POST',
           headers: {
@@ -301,11 +364,11 @@
           },
           body: JSON.stringify({ userId: userId })
         });
-
+    
         if (!assignResponse.ok) {
           throw new Error(`Error assigning user: ${assignResponse.status} ${assignResponse.statusText}`);
         }
-
+    
         const disconnectResponse = await fetch(`https://api.mypurecloud.ie/api/v2/conversations/emails/${conversationId}`, {
           method: 'PATCH',
           headers: {
@@ -314,17 +377,200 @@
           },
           body: JSON.stringify({ state: 'disconnected' })
         });
-
+    
         if (!disconnectResponse.ok) {
           throw new Error(`Error disconnecting conversation: ${disconnectResponse.status} ${disconnectResponse.statusText}`);
         }
-
+    
         document.getElementById('statusMessage').innerText = 'Interaction created and assigned successfully!';
-
+    
       } catch (error) {
         console.error('Error during interaction creation:', error);
         document.getElementById('statusMessage').innerText = `Error: ${error.message}`;
       }
+    }
+    
+    // =======================
+    // Management Unit Search Code (mu-prefixed)
+    let muAccessToken = null;
+    let muAllUsers = [];
+    const muRegion = "mypurecloud.ie";
+    
+    function muExtractTokenFromUrl() {
+      const hash = window.location.hash.substring(1);
+      const params = new URLSearchParams(hash);
+      return params.get("access_token");
+    }
+    
+    async function initManagementUnitSearch() {
+      const muClientId = "5f8da5c2-f8ef-4168-a321-f06e16f558f3";
+      const muRedirectUri = "https://gmcglynn88.github.io/Management-Unit-Search/";
+      const muResponseType = "token";
+      const muOauthUrl = `https://login.${muRegion}/oauth/authorize?client_id=${muClientId}&response_type=${muResponseType}&redirect_uri=${encodeURIComponent(muRedirectUri)}`;
+    
+      const token = muExtractTokenFromUrl();
+      if (!token) {
+        window.location.href = muOauthUrl;
+      } else {
+        muAccessToken = token;
+        await muLoadAllUsers();
+        muInitSearchAndDropdown();
+        document.getElementById("lookupBtn").addEventListener("click", onMuGetManagementUnitClick);
+        document.getElementById("searchUser").addEventListener("keypress", function(event) {
+          if (event.key === "Enter") {
+            onMuGetManagementUnitClick();
+          }
+        });
+      }
+    }
+    
+    async function muLoadAllUsers() {
+      try {
+        let pageNumber = 1;
+        let morePages = true;
+        muAllUsers = [];
+        while (morePages) {
+          const url = `https://api.${muRegion}/api/v2/users?pageNumber=${pageNumber}&pageSize=100`;
+          const resp = await fetch(url, {
+            headers: {
+              "Authorization": `Bearer ${muAccessToken}`,
+              "Content-Type": "application/json"
+            }
+          });
+          if (!resp.ok) {
+            throw new Error(`Failed to fetch users (page ${pageNumber}): ${resp.status}`);
+          }
+          const data = await resp.json();
+          if (data.entities) {
+            muAllUsers = muAllUsers.concat(data.entities);
+          }
+          if (pageNumber < data.pageCount) {
+            pageNumber++;
+          } else {
+            morePages = false;
+          }
+        }
+        console.log(`Loaded ${muAllUsers.length} total users.`);
+      } catch (err) {
+        console.error("Error loading all users:", err);
+        document.getElementById("results").textContent = `Error: ${err.message}`;
+      }
+    }
+    
+    function muInitSearchAndDropdown() {
+      const searchBox = document.getElementById("searchUser");
+      searchBox.addEventListener("input", () => {
+        muFilterAndPopulateUsers(searchBox.value);
+      });
+      muFilterAndPopulateUsers("");
+    }
+    
+    function muFilterAndPopulateUsers(searchTerm) {
+      const agentSelect = document.getElementById("agentSelect");
+      agentSelect.innerHTML = "";
+      const lowerSearch = searchTerm.toLowerCase();
+      const filtered = muAllUsers.filter(u => {
+        const nameMatch = (u.name || "").toLowerCase().includes(lowerSearch);
+        const userNameMatch = (u.username || "").toLowerCase().includes(lowerSearch);
+        return nameMatch || userNameMatch;
+      });
+    
+      if (filtered.length === 0) {
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.text = "No users found";
+        agentSelect.add(opt);
+        return;
+      }
+    
+      filtered.forEach(u => {
+        const opt = document.createElement("option");
+        opt.value = u.id;
+        opt.text = u.name || u.username || u.id;
+        agentSelect.add(opt);
+      });
+    }
+    
+    async function onMuGetManagementUnitClick() {
+      const agentSelect = document.getElementById("agentSelect");
+      const selectedAgentId = agentSelect.value;
+      const resultsDiv = document.getElementById("results");
+    
+      if (!selectedAgentId) {
+        resultsDiv.textContent = "Please select an agent.";
+        return;
+      }
+    
+      resultsDiv.textContent = "Looking up Management Unit and Manager...";
+    
+      try {
+        const user = muAllUsers.find(u => u.id === selectedAgentId);
+    
+        const muId = await muGetAgentManagementUnitId(selectedAgentId);
+        const muName = muId ? await muGetManagementUnitName(muId) : "No Management Unit found";
+    
+        const managerName = user.manager ? await muGetManagerName(user.manager.id) : "No manager assigned";
+    
+        resultsDiv.innerHTML = `<p><strong>Management Unit:</strong> ${muName}</p><p><strong>Manager:</strong> ${managerName}</p>`;
+      } catch (err) {
+        console.error("MU or Manager lookup error:", err);
+        resultsDiv.textContent = "Error: " + err.message;
+      }
+    }
+    
+    async function muGetManagerName(managerId) {
+      try {
+        const url = `https://api.${muRegion}/api/v2/users/${managerId}`;
+        const resp = await fetch(url, {
+          headers: {
+            "Authorization": `Bearer ${muAccessToken}`,
+            "Content-Type": "application/json"
+          }
+        });
+        if (!resp.ok) {
+          throw new Error(`Manager fetch failed: HTTP ${resp.status}`);
+        }
+        const data = await resp.json();
+        return data.name || "Manager not found";
+      } catch (err) {
+        console.error("Error fetching manager:", err);
+        return "Manager not found";
+      }
+    }
+    
+    async function muGetAgentManagementUnitId(userId) {
+      const url = `https://api.${muRegion}/api/v2/workforcemanagement/agents/${userId}/managementunit`;
+      const resp = await fetch(url, {
+        headers: {
+          "Authorization": `Bearer ${muAccessToken}`,
+          "Content-Type": "application/json"
+        }
+      });
+      if (!resp.ok) {
+        throw new Error(`MU ID fetch failed: HTTP ${resp.status}`);
+      }
+      const data = await resp.json();
+      return data.managementUnit?.id || null;
+    }
+    
+    async function muGetManagementUnitName(muId) {
+      const url = `https://api.${muRegion}/api/v2/workforcemanagement/managementunits?expand=businessUnit`;
+      const resp = await fetch(url, {
+        headers: {
+          "Authorization": `Bearer ${muAccessToken}`,
+          "Content-Type": "application/json"
+        }
+      });
+      if (!resp.ok) {
+        throw new Error(`ManagementUnits fetch failed: HTTP ${resp.status}`);
+      }
+      const data = await resp.json();
+      const muArray = data.entities || [];
+      const muObj = muArray.find(mu => mu.id === muId);
+      if (!muObj) {
+        return "No Management Unit found";
+      }
+      return muObj.name || "Unnamed Management Unit";
     }
   </script>
 </body>
