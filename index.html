@@ -6,9 +6,7 @@
   <title>Changes on the fly by IPI</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Aptos:wght@400;700&display=swap">
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
     body {
       font-family: 'Aptos', Arial, sans-serif;
       margin: 0;
@@ -26,9 +24,7 @@
       align-items: center;
       justify-content: space-between;
     }
-    header h1 {
-      margin: 0;
-    }
+    header h1 { margin: 0; }
     .container {
       flex: 1;
       display: flex;
@@ -51,9 +47,7 @@
       color: black;
       width: 100%;
     }
-    .sidebar button:hover {
-      background-color: #bbb;
-    }
+    .sidebar button:hover { background-color: #bbb; }
     .sidebar button.active {
       background-color: #63AB8F;
       color: white;
@@ -64,27 +58,16 @@
       background-color: white;
       overflow-y: auto;
     }
-    .tabcontent {
-      display: none;
-    }
-    /* Scoped styles for External Work Creation */
+    .tabcontent { display: none; }
+    /* External Work Creation Styles */
     #external-work-container {
       margin: 20px;
       padding: 20px;
       font-family: 'Aptos', Arial, sans-serif;
     }
-    #external-work-container #logo-container {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    #external-work-container #logo {
-      width: 300px;
-    }
-    #external-work-container label {
-      margin-top: 10px;
-      display: block;
-      font-weight: bold;
-    }
+    #external-work-container #logo-container { text-align: center; margin-bottom: 20px; }
+    #external-work-container #logo { width: 300px; }
+    #external-work-container label { margin-top: 10px; display: block; font-weight: bold; }
     #external-work-container select,
     #external-work-container input,
     #external-work-container button {
@@ -93,26 +76,16 @@
       width: 100%;
       max-width: 300px;
     }
-    #external-work-container #statusMessage {
-      margin-top: 20px;
-      color: green;
-    }
-    /* Scoped styles for Management Unit Search */
+    #external-work-container #statusMessage { margin-top: 20px; color: green; }
+    /* Management Unit Search Styles */
     #mu-search-container {
       margin: 20px;
       padding: 20px;
       font-family: 'Aptos', Arial, sans-serif;
     }
-    #mu-search-container #logo-container {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    #mu-search-container #logo {
-      width: 300px;
-    }
-    #mu-search-container h1 {
-      font-size: 24px;
-    }
+    #mu-search-container #logo-container { text-align: center; margin-bottom: 20px; }
+    #mu-search-container #logo { width: 300px; }
+    #mu-search-container h1 { font-size: 24px; }
     #mu-search-container label,
     #mu-search-container select,
     #mu-search-container input,
@@ -120,9 +93,7 @@
       display: block;
       margin: 10px 0;
     }
-    #mu-search-container label {
-      font-weight: bold;
-    }
+    #mu-search-container label { font-weight: bold; }
     #mu-search-container select,
     #mu-search-container input,
     #mu-search-container button {
@@ -132,12 +103,74 @@
       max-width: 400px;
       font-size: 16px;
     }
-    #mu-search-container #results {
-      margin-top: 20px;
+    #mu-search-container #results { margin-top: 20px; }
+    #mu-search-container #results p { font-weight: normal; }
+    /* Activity Code Management Styles */
+    #activity-code-container {
+      margin: 20px;
+      padding: 20px;
+      font-family: 'Aptos', Arial, sans-serif;
     }
-    #mu-search-container #results p {
+    #activity-code-container #logo-container { text-align: center; margin-bottom: 20px; }
+    #activity-code-container #logo { width: 300px; }
+    #activity-code-container h1 { font-size: 24px; }
+    #activity-code-container label,
+    #activity-code-container select,
+    #activity-code-container input,
+    #activity-code-container button {
+      display: block;
+      margin: 10px 0;
+    }
+    #activity-code-container label { font-weight: bold; }
+    #activity-code-container select,
+    #activity-code-container input,
+    #activity-code-container button {
+      margin-top: 10px;
+      padding: 12px;
+      width: 100%;
+      max-width: 400px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+    #activity-code-container #results { margin-top: 20px; }
+    #activity-code-container #results p { font-weight: normal; }
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+      margin: 5px 0;
+      width: 100%;
+      max-width: 400px;
+      flex-wrap: nowrap;
+    }
+    .checkbox-container label {
+      flex-grow: 1;
+      white-space: nowrap;
       font-weight: normal;
+      margin: 0;
     }
+    .checkbox-container input[type="checkbox"] {
+      margin-right: 10px;
+      width: auto;
+    }
+    select[multiple] { height: auto; min-height: 120px; }
+    button {
+      background-color: #63AB8F;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover { background-color: #63AB8F; }
+    .error { color: #dc3545; }
+    .success { color: #28a745; }
+    #auth-message {
+      margin: 20px 0;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    .auth-loading { background-color: #fff3cd; color: #856404; }
+    .auth-error { background-color: #f8d7da; color: #721c24; }
   </style>
 </head>
 <body>
@@ -152,6 +185,7 @@
       <button class="tablink" onclick="openTab(event, 'wfmActivity')">WFM Activity Management</button>
       <button class="tablink" onclick="openTab(event, 'wfmManagement')">WFM Management Unit Search</button>
       <button class="tablink" onclick="openTab(event, 'externalWork')">External Work Creation</button>
+      <button class="tablink" onclick="openTab(event, 'activityCode')">Activity Code Management</button>
       <button class="tablink" onclick="openTab(event, 'bulkChanges')">Bulk Skill & Queues Changes</button>
     </div>
     <div class="content">
@@ -191,6 +225,66 @@
           <div id="statusMessage"></div>
         </div>
       </div>
+      <div id="activityCode" class="tabcontent">
+        <!-- Activity Code Management Code -->
+        <div id="activity-code-container">
+          <div id="logo-container">
+            <img id="logo" src="https://raw.githubusercontent.com/gmcglynn88/Management-Unit-Search/main/Consultinglogo%20(2).png" alt="Company Logo">
+          </div>
+          <h1>Manage Business Units and Activity Codes</h1>
+          <div id="auth-message" class="auth-loading">Authenticating with PureCloud...</div>
+          <!-- Business Units Dropdown -->
+          <label for="business-units">Select Business Units:</label>
+          <select id="business-units" multiple disabled></select>
+          <hr>
+          <!-- Activity Code Creation Form -->
+          <h2>Create Activity Code</h2>
+          <label for="activity-name">Activity Name:</label>
+          <input type="text" id="activity-name" placeholder="Enter activity name" required disabled>
+          <label for="category">Category:</label>
+          <select id="category" required disabled>
+            <option value="">Select category</option>
+            <option value="OnQueueWork">OnQueueWork</option>
+            <option value="Break">Break</option>
+            <option value="Meal">Meal</option>
+            <option value="Meeting">Meeting</option>
+            <option value="OffQueueWork">OffQueueWork</option>
+            <option value="TimeOff">TimeOff</option>
+            <option value="Training">Training</option>
+            <option value="Unavailable">Unavailable</option>
+            <option value="Unscheduled">Unscheduled</option>
+          </select>
+          <label for="length">Default Length (minutes):</label>
+          <input type="number" id="length" placeholder="Enter default length" disabled>
+          <label>Options:</label>
+          <div class="checkbox-container">
+            <input type="checkbox" id="paid-time" value="countsAsPaidTime" disabled>
+            <label for="paid-time">Counts as Paid Time</label>
+          </div>
+          <div class="checkbox-container">
+            <input type="checkbox" id="work-time" value="countsAsWorkTime" disabled>
+            <label for="work-time">Counts as Work Time</label>
+          </div>
+          <div class="checkbox-container">
+            <input type="checkbox" id="time-off-selectable" value="agentTimeOffSelectable" disabled>
+            <label for="time-off-selectable">Agent Time Off Selectable</label>
+          </div>
+          <div class="checkbox-container">
+            <input type="checkbox" id="shrinkage" value="countsTowardShrinkage" disabled>
+            <label for="shrinkage">Counts Toward Shrinkage</label>
+          </div>
+          <div class="checkbox-container">
+            <input type="checkbox" id="planned-shrinkage" value="plannedShrinkage" disabled>
+            <label for="planned-shrinkage">Planned Shrinkage</label>
+          </div>
+          <div class="checkbox-container">
+            <input type="checkbox" id="interruptible" value="interruptible" disabled>
+            <label for="interruptible">Interruptible</label>
+          </div>
+          <button id="create-button" onclick="createActivityCode()" disabled>Create Activity Code for Selected Business Units</button>
+          <div id="results"></div>
+        </div>
+      </div>
       <div id="bulkChanges" class="tabcontent">
         <h2>Bulk Skill & Queues Changes</h2>
         <p>Content goes here...</p>
@@ -199,9 +293,7 @@
   </div>
   <script>
     // =======================
-    // Global Client Credentials
-    // (For testing only – do not expose secrets in production!)
-    // External Work Creation Credentials:
+    // Global Client Credentials (for External Work Creation, MU Search, etc.)
     const clientId = '80d7c7c9-600e-478e-8d41-1bfb7b8c6bc1';
     const clientSecret = 'BQQBxTIiCO-mY1RFm9TL0NcmhtRewKlqozD0GUdiMdE';
     
@@ -209,6 +301,7 @@
     // Tab Functionality & Initialization Flags
     let externalWorkInitialized = false;
     let muSearchInitialized = false;
+    let activityCodeInitialized = false;
     
     function openTab(evt, tabName) {
       var i, tabcontent, tablinks;
@@ -223,15 +316,17 @@
       document.getElementById(tabName).style.display = "block";
       evt.currentTarget.classList.add("active");
       
-      // Initialize External Work Creation on first activation
       if(tabName === 'externalWork' && !externalWorkInitialized) {
         initExternalWorkCreation();
         externalWorkInitialized = true;
       }
-      // Initialize Management Unit Search on first activation
       if(tabName === 'wfmManagement' && !muSearchInitialized) {
         initManagementUnitSearch();
         muSearchInitialized = true;
+      }
+      if(tabName === 'activityCode' && !activityCodeInitialized) {
+        initActivityCodeManagement();
+        activityCodeInitialized = true;
       }
     }
     
@@ -241,13 +336,12 @@
     });
     
     // =======================
-    // External Work Creation Code
+    // External Work Creation Code (as before)
     function initExternalWorkCreation() {
       const redirectUri = 'https://gmcglynn88.github.io/ExternalWorkCreation/';
       const responseType = 'token';
       const oauthUrl = `https://login.mypurecloud.ie/oauth/authorize?client_id=${clientId}&response_type=${responseType}&redirect_uri=${encodeURIComponent(redirectUri)}`;
     
-      // Check for token in URL hash
       const hash = window.location.hash.substring(1);
       const params = new URLSearchParams(hash);
       const token = params.get('access_token');
@@ -571,6 +665,182 @@
         return "No Management Unit found";
       }
       return muObj.name || "Unnamed Management Unit";
+    }
+    
+    // =======================
+    // Activity Code Management Code (wrapped in its own initializer)
+    function initActivityCodeManagement() {
+      // Use a separate token name in sessionStorage for this module.
+      let actAccessToken = null;
+      const actClientId = 'f93a488c-73e9-40cf-b4fd-5c05ff043c81';
+      const actRedirectUri = window.location.href.split('?')[0];
+      const actResponseType = 'token';
+      const actOauthUrl = `https://login.mypurecloud.ie/oauth/authorize?client_id=${actClientId}&response_type=${actResponseType}&redirect_uri=${encodeURIComponent(actRedirectUri)}`;
+    
+      // Check for token in URL hash or sessionStorage
+      const hash = window.location.hash.substring(1);
+      const params = new URLSearchParams(hash);
+      actAccessToken = params.get('access_token');
+    
+      if (!actAccessToken) {
+        if (sessionStorage.getItem('purecloud_token_act')) {
+          actAccessToken = sessionStorage.getItem('purecloud_token_act');
+        } else {
+          window.location.href = actOauthUrl;
+          return;
+        }
+      } else {
+        sessionStorage.setItem('purecloud_token_act', actAccessToken);
+      }
+    
+      // Once authenticated, initialize the Activity Code Management UI
+      initializeActivityApp(actAccessToken);
+    }
+    
+    function initializeActivityApp(token) {
+      // Hide authentication message and enable form elements
+      const authMsg = document.getElementById('auth-message');
+      authMsg.textContent = 'Authenticated successfully!';
+      authMsg.style.display = 'none';
+    
+      document.getElementById('business-units').disabled = false;
+      document.getElementById('activity-name').disabled = false;
+      document.getElementById('category').disabled = false;
+      document.getElementById('length').disabled = false;
+      document.getElementById('paid-time').disabled = false;
+      document.getElementById('work-time').disabled = false;
+      document.getElementById('time-off-selectable').disabled = false;
+      document.getElementById('shrinkage').disabled = false;
+      document.getElementById('planned-shrinkage').disabled = false;
+      document.getElementById('interruptible').disabled = false;
+      document.getElementById('create-button').disabled = false;
+    
+      // Fetch business units for Activity Code Management
+      fetchBusinessUnitsAct(token);
+    }
+    
+    async function fetchBusinessUnitsAct(token) {
+      try {
+        const apiUrl = 'https://api.mypurecloud.ie/api/v2/workforcemanagement/businessunits?pageSize=100';
+        let businessUnits = [];
+        let nextPageUrl = apiUrl;
+    
+        while (nextPageUrl) {
+          const response = await fetch(nextPageUrl, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+          });
+    
+          const data = await response.json();
+    
+          if (response.ok) {
+            businessUnits = businessUnits.concat(data.entities);
+            nextPageUrl = data.pageCount > data.pageNumber ? `${apiUrl}&pageNumber=${data.pageNumber + 1}` : null;
+          } else {
+            throw new Error(data.message || 'Error fetching business units');
+          }
+        }
+    
+        const businessUnitsSelect = document.getElementById('business-units');
+        businessUnits.forEach(unit => {
+          const option = document.createElement('option');
+          option.value = unit.id;
+          option.textContent = unit.name;
+          businessUnitsSelect.appendChild(option);
+        });
+      } catch (error) {
+        document.getElementById('results').innerHTML = `<p class="error">Error loading business units: ${error.message}</p>`;
+      }
+    }
+    
+    // Function to create the activity code
+    async function createActivityCode() {
+      const resultsDiv = document.getElementById('results');
+      resultsDiv.innerHTML = '';
+    
+      const name = document.getElementById('activity-name').value.trim();
+      const category = document.getElementById('category').value;
+      const businessUnits = Array.from(document.getElementById('business-units').selectedOptions).map(option => option.value);
+    
+      if (!name) {
+        resultsDiv.innerHTML = '<p class="error">Please enter an activity name</p>';
+        return;
+      }
+      if (!category) {
+        resultsDiv.innerHTML = '<p class="error">Please select a category</p>';
+        return;
+      }
+      if (businessUnits.length === 0) {
+        resultsDiv.innerHTML = '<p class="error">Please select at least one business unit</p>';
+        return;
+      }
+    
+      const lengthInMinutes = parseInt(document.getElementById('length').value, 10) || null;
+      const countsAsPaidTime = document.getElementById('paid-time').checked;
+      const countsAsWorkTime = document.getElementById('work-time').checked;
+      const agentTimeOffSelectable = document.getElementById('time-off-selectable').checked;
+      const countsTowardShrinkage = document.getElementById('shrinkage').checked;
+      const plannedShrinkage = document.getElementById('planned-shrinkage').checked;
+      const interruptible = document.getElementById('interruptible').checked;
+    
+      try {
+        let successCount = 0;
+        let errorCount = 0;
+        let errorMessages = [];
+    
+        for (const businessUnitId of businessUnits) {
+          const createUrl = `https://api.mypurecloud.ie/api/v2/workforcemanagement/businessunits/${businessUnitId}/activitycodes`;
+    
+          try {
+            const response = await fetch(createUrl, {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${sessionStorage.getItem('purecloud_token_act')}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                name,
+                category,
+                lengthInMinutes,
+                countsAsPaidTime,
+                countsAsWorkTime,
+                agentTimeOffSelectable,
+                countsTowardShrinkage,
+                plannedShrinkage,
+                interruptible
+              }),
+            });
+    
+            const data = await response.json();
+    
+            if (response.ok) {
+              successCount++;
+            } else {
+              errorCount++;
+              errorMessages.push(`Business Unit ${businessUnitId}: ${data.message || 'Unknown error'}`);
+            }
+          } catch (error) {
+            errorCount++;
+            errorMessages.push(`Business Unit ${businessUnitId}: ${error.message}`);
+          }
+        }
+    
+        if (errorCount === 0) {
+          resultsDiv.innerHTML = `<p class="success">Activity code created successfully in all ${successCount} business units.</p>`;
+        } else if (successCount === 0) {
+          resultsDiv.innerHTML = `<p class="error">Failed to create activity code in all business units.</p>
+                                 <ul>${errorMessages.map(msg => `<li>${msg}</li>`).join('')}</ul>`;
+        } else {
+          resultsDiv.innerHTML = `<p class="success">Activity code created successfully in ${successCount} business units.</p>
+                                 <p class="error">Failed to create in ${errorCount} business units:</p>
+                                 <ul>${errorMessages.map(msg => `<li>${msg}</li>`).join('')}</ul>`;
+        }
+      } catch (error) {
+        resultsDiv.innerHTML = `<p class="error">Error creating activity code: ${error.message}</p>`;
+      }
     }
   </script>
 </body>
