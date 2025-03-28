@@ -6,202 +6,368 @@
   <title>Changes on the fly by IPI</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Aptos:wght@400;700&display=swap">
   <style>
-    * { box-sizing: border-box; }
-    body {
-      font-family: 'Aptos', Arial, sans-serif;
+    * { 
+      box-sizing: border-box; 
       margin: 0;
       padding: 0;
-      background-color: #eaeaea;
+    }
+    body {
+      font-family: 'Aptos', Arial, sans-serif;
+      background-color: #f5f7fa;
       display: flex;
       flex-direction: column;
       min-height: 100vh;
+      color: #333;
     }
     header {
       background-color: #63AB8F;
       color: white;
-      padding: 20px;
+      padding: 15px 30px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
-    header h1 { margin: 0; }
-    .container {
-      flex: 1;
+    header h1 { 
+      margin: 0; 
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+    .logo img {
+      height: 40px;
+    }
+    .main-container {
       display: flex;
-      background-color: #eaeaea;
+      flex: 1;
       padding: 20px;
+      gap: 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
     }
     .sidebar {
       width: 250px;
-      background-color: #ddd;
-      padding: 20px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      padding: 15px 0;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      border-radius: 8px;
-      margin-right: 20px;
+      flex-shrink: 0;
     }
     .sidebar button {
-      type: button;
-      background-color: #ddd;
+      background-color: transparent;
       border: none;
-      padding: 10px;
+      padding: 12px 20px;
       text-align: left;
       cursor: pointer;
-      font-size: 16px;
-      color: #333;
+      font-size: 15px;
+      color: #555;
       width: 100%;
-      border-radius: 4px;
+      transition: all 0.2s;
+      position: relative;
+      border-left: 3px solid transparent;
     }
-    .sidebar button:hover { background-color: #ccc; }
+    .sidebar button:hover { 
+      background-color: #f0f4f8;
+      color: #333;
+    }
     .sidebar button.active {
-      background-color: #63AB8F;
-      color: white;
+      background-color: #f0f4f8;
+      color: #63AB8F;
+      border-left: 3px solid #63AB8F;
+      font-weight: 600;
     }
-    .content {
+    .sidebar button.active::after {
+      content: "";
+      position: absolute;
+      right: -1px;
+      top: 0;
+      height: 100%;
+      width: 2px;
+      background-color: white;
+    }
+    .content-area {
       flex: 1;
-      padding: 40px;
-      background-color: #ffffff;
-      max-width: 1200px;
-      margin: auto;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      background-color: white;
       border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      padding: 25px;
+      min-height: calc(100vh - 110px);
     }
-    .tabcontent { display: none; }
-    /* Center app containers within tabs */
+    .tabcontent { 
+      display: none;
+      height: 100%;
+    }
+    .tabcontent.active {
+      display: block;
+    }
     .app-container {
-      max-width: 800px;
+      max-width: 100%;
       margin: 0 auto;
-      padding: 20px;
-      background-color: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
     }
     /* External Work Creation Styles */
     #external-work-container {
       font-family: 'Aptos', Arial, sans-serif;
     }
-    #external-work-container #logo-container { text-align: center; margin-bottom: 20px; }
-    #external-work-container #logo { width: 300px; }
-    #external-work-container label { margin-top: 10px; display: block; font-weight: bold; }
-    #external-work-container select,
-    #external-work-container input,
-    #external-work-container button {
-      margin-top: 5px;
-      padding: 8px;
-      width: 100%;
-      max-width: 300px;
+    #external-work-container #logo-container { 
+      text-align: center; 
+      margin-bottom: 25px; 
     }
-    #external-work-container #statusMessage { margin-top: 20px; color: green; }
+    #external-work-container #logo { 
+      max-width: 250px; 
+      height: auto;
+    }
+    #external-work-container h1 {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      color: #2c3e50;
+      text-align: center;
+    }
+    #external-work-container label { 
+      margin-top: 15px; 
+      display: block; 
+      font-weight: 600;
+      color: #555;
+    }
+    #external-work-container select,
+    #external-work-container input {
+      margin-top: 8px;
+      padding: 10px 12px;
+      width: 100%;
+      max-width: 400px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 15px;
+      transition: border 0.2s;
+    }
+    #external-work-container select:focus,
+    #external-work-container input:focus {
+      border-color: #63AB8F;
+      outline: none;
+    }
+    #external-work-container button {
+      margin-top: 20px;
+      padding: 12px 20px;
+      font-size: 15px;
+      font-weight: 600;
+    }
+    #external-work-container #statusMessage { 
+      margin-top: 20px; 
+      padding: 10px;
+      border-radius: 4px;
+    }
     /* Management Unit Search Styles */
     #mu-search-container {
       font-family: 'Aptos', Arial, sans-serif;
     }
-    #mu-search-container #logo-container { text-align: center; margin-bottom: 20px; }
-    #mu-search-container #logo { width: 300px; }
-    #mu-search-container h1 { font-size: 24px; }
-    #mu-search-container label,
-    #mu-search-container select,
-    #mu-search-container input,
-    #mu-search-container button {
-      display: block;
-      margin: 10px 0;
+    #mu-search-container #logo-container { 
+      text-align: center; 
+      margin-bottom: 25px; 
     }
-    #mu-search-container label { font-weight: bold; }
+    #mu-search-container #logo { 
+      max-width: 250px;
+      height: auto;
+    }
+    #mu-search-container h1 { 
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      color: #2c3e50;
+      text-align: center;
+    }
+    #mu-search-container label {
+      font-weight: 600;
+      color: #555;
+    }
     #mu-search-container select,
-    #mu-search-container input,
-    #mu-search-container button {
-      margin-top: 10px;
-      padding: 12px;
+    #mu-search-container input {
+      margin-top: 8px;
+      padding: 10px 12px;
       width: 100%;
       max-width: 400px;
-      font-size: 16px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 15px;
     }
-    #mu-search-container #results { margin-top: 20px; }
-    #mu-search-container #results p { font-weight: normal; }
+    #mu-search-container button {
+      margin-top: 20px;
+      padding: 12px 20px;
+      font-size: 15px;
+      font-weight: 600;
+    }
+    #mu-search-container #results { 
+      margin-top: 25px;
+      padding: 15px;
+      background-color: #f9f9f9;
+      border-radius: 4px;
+      border-left: 4px solid #63AB8F;
+    }
+    #mu-search-container #results p { 
+      margin: 5px 0;
+    }
     /* Activity Code Management Styles */
     #activity-code-container {
       font-family: 'Aptos', Arial, sans-serif;
     }
-    #activity-code-container #logo-container { text-align: center; margin-bottom: 20px; }
-    #activity-code-container #logo { width: 300px; }
-    #activity-code-container h1 { font-size: 24px; }
-    #activity-code-container label,
-    #activity-code-container select,
-    #activity-code-container input,
-    #activity-code-container button {
-      display: block;
-      margin: 10px 0;
+    #activity-code-container #logo-container { 
+      text-align: center; 
+      margin-bottom: 25px; 
     }
-    #activity-code-container label { font-weight: bold; }
+    #activity-code-container #logo { 
+      max-width: 250px;
+      height: auto;
+    }
+    #activity-code-container h1 { 
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      color: #2c3e50;
+      text-align: center;
+    }
+    #activity-code-container h2 {
+      font-size: 1.2rem;
+      margin: 25px 0 15px;
+      color: #2c3e50;
+    }
+    #activity-code-container label {
+      font-weight: 600;
+      color: #555;
+    }
     #activity-code-container select,
-    #activity-code-container input,
-    #activity-code-container button {
-      margin-top: 10px;
-      padding: 12px;
+    #activity-code-container input {
+      margin-top: 8px;
+      padding: 10px 12px;
       width: 100%;
       max-width: 400px;
-      font-size: 16px;
-      box-sizing: border-box;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 15px;
     }
-    #activity-code-container #results { margin-top: 20px; }
-    #activity-code-container #results p { font-weight: normal; }
+    #activity-code-container button {
+      margin-top: 25px;
+      padding: 12px 20px;
+      font-size: 15px;
+      font-weight: 600;
+    }
+    #activity-code-container #results { 
+      margin-top: 25px;
+      padding: 15px;
+      border-radius: 4px;
+    }
     .checkbox-container {
       display: flex;
       align-items: center;
-      margin: 5px 0;
+      margin: 8px 0;
       width: 100%;
       max-width: 400px;
-      flex-wrap: nowrap;
     }
     .checkbox-container label {
       flex-grow: 1;
-      white-space: nowrap;
       font-weight: normal;
       margin: 0;
+      color: #555;
     }
     .checkbox-container input[type="checkbox"] {
       margin-right: 10px;
       width: auto;
+      transform: scale(1.2);
     }
-    select[multiple] { height: auto; min-height: 120px; }
+    select[multiple] { 
+      height: auto; 
+      min-height: 150px;
+      padding: 5px !important;
+    }
+    select[multiple] option {
+      padding: 8px 10px;
+      border-bottom: 1px solid #eee;
+    }
+    select[multiple] option:hover {
+      background-color: #f0f4f8;
+    }
     button {
       background-color: #63AB8F;
       color: white;
       border: none;
       border-radius: 4px;
       cursor: pointer;
-      transition: background-color 0.3s;
+      transition: background-color 0.2s;
+      width: auto;
     }
-    button:hover { background-color: #549e7a; }
-    .error { color: #dc3545; }
-    .success { color: #28a745; }
-    #auth-message {
-      margin: 20px 0;
+    button:hover { 
+      background-color: #549e7a; 
+    }
+    button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+    .error { 
+      color: #dc3545;
+      background-color: #f8d7da;
       padding: 10px;
       border-radius: 4px;
+      border-left: 4px solid #dc3545;
     }
-    .auth-loading { background-color: #fff3cd; color: #856404; }
-    .auth-error { background-color: #f8d7da; color: #721c24; }
+    .success { 
+      color: #28a745;
+      background-color: #d4edda;
+      padding: 10px;
+      border-radius: 4px;
+      border-left: 4px solid #28a745;
+    }
+    .info {
+      color: #004085;
+      background-color: #cce5ff;
+      padding: 10px;
+      border-radius: 4px;
+      border-left: 4px solid #004085;
+    }
+    #auth-message {
+      margin: 20px 0;
+      padding: 15px;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+    .auth-loading { 
+      background-color: #fff3cd; 
+      color: #856404;
+      border-left: 4px solid #ffc107;
+    }
+    .auth-error { 
+      background-color: #f8d7da; 
+      color: #721c24;
+      border-left: 4px solid #dc3545;
+    }
+    .auth-success {
+      background-color: #d4edda;
+      color: #155724;
+      border-left: 4px solid #28a745;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #eee;
+      margin: 20px 0;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
   </style>
 </head>
 <body>
   <header>
     <h1>Changes on the fly by IPI</h1>
     <div class="logo">
-      <img src="https://raw.githubusercontent.com/gmcglynn88/TimeoffApp/main/IPI_Primary%20Identity_Corporate_REVERSED_ECC.png" alt="Consulting Logo" height="50">
+      <img src="https://raw.githubusercontent.com/gmcglynn88/TimeoffApp/main/IPI_Primary%20Identity_Corporate_REVERSED_ECC.png" alt="IPI Logo">
     </div>
   </header>
-  <div class="container">
+  <div class="main-container">
     <div class="sidebar">
-      <button type="button" class="tablink" onclick="openTab(event, 'wfmActivity')">WFM Activity Management</button>
+      <button type="button" class="tablink active" onclick="openTab(event, 'wfmActivity')">WFM Activity Management</button>
       <button type="button" class="tablink" onclick="openTab(event, 'wfmManagement')">WFM Management Unit Search</button>
       <button type="button" class="tablink" onclick="openTab(event, 'externalWork')">External Work Creation</button>
       <button type="button" class="tablink" onclick="openTab(event, 'activityCode')">Activity Code Management</button>
       <button type="button" class="tablink" onclick="openTab(event, 'bulkChanges')">Bulk Skill & Queues Changes</button>
     </div>
-    <div class="content">
-      <div id="wfmActivity" class="tabcontent">
+    <div class="content-area">
+      <div id="wfmActivity" class="tabcontent active">
         <div class="app-container">
           <h2>WFM Activity Management</h2>
           <p>Content goes here...</p>
@@ -213,10 +379,14 @@
             <img id="logo" src="https://raw.githubusercontent.com/gmcglynn88/Management-Unit-Search/main/Consultinglogo%20(2).png" alt="Company Logo">
           </div>
           <h1>Which MU did I put you in?</h1>
-          <label for="searchUser">Search users:</label>
-          <input type="text" id="searchUser" placeholder="Type to filter users...">
-          <label for="agentSelect">Select an Agent:</label>
-          <select id="agentSelect"></select>
+          <div class="form-group">
+            <label for="searchUser">Search users:</label>
+            <input type="text" id="searchUser" placeholder="Type to filter users...">
+          </div>
+          <div class="form-group">
+            <label for="agentSelect">Select an Agent:</label>
+            <select id="agentSelect"></select>
+          </div>
           <button id="lookupBtn">Get Management Unit</button>
           <div id="results"></div>
         </div>
@@ -227,12 +397,18 @@
             <img id="logo" src="https://raw.githubusercontent.com/gmcglynn88/ExternalWorkCreation/main/Consultinglogo.png" alt="Company Logo">
           </div>
           <h1>External Work Creation</h1>
-          <label for="queueSelect">Select Queue:</label>
-          <select id="queueSelect"></select>
-          <label for="userSelect">Select User:</label>
-          <select id="userSelect"></select>
-          <label for="externalReference">External Reference:</label>
-          <input type="text" id="externalReference" placeholder="Enter external reference (optional)">
+          <div class="form-group">
+            <label for="queueSelect">Select Queue:</label>
+            <select id="queueSelect"></select>
+          </div>
+          <div class="form-group">
+            <label for="userSelect">Select User:</label>
+            <select id="userSelect"></select>
+          </div>
+          <div class="form-group">
+            <label for="externalReference">External Reference:</label>
+            <input type="text" id="externalReference" placeholder="Enter external reference (optional)">
+          </div>
           <button id="createInteractionBtn">Create Proxy Interaction</button>
           <div id="statusMessage"></div>
         </div>
@@ -244,53 +420,64 @@
           </div>
           <h1>Manage Business Units and Activity Codes</h1>
           <div id="auth-message" class="auth-loading">Authenticating with PureCloud...</div>
-          <!-- Business Units Dropdown -->
-          <label for="business-units">Select Business Units:</label>
-          <select id="business-units" multiple disabled></select>
+          
+          <div class="form-group">
+            <label for="business-units">Select Business Units:</label>
+            <select id="business-units" multiple disabled></select>
+          </div>
+          
           <hr>
-          <!-- Activity Code Creation Form -->
+          
           <h2>Create Activity Code</h2>
-          <label for="activity-name">Activity Name:</label>
-          <input type="text" id="activity-name" placeholder="Enter activity name" required disabled>
-          <label for="category">Category:</label>
-          <select id="category" required disabled>
-            <option value="">Select category</option>
-            <option value="OnQueueWork">OnQueueWork</option>
-            <option value="Break">Break</option>
-            <option value="Meal">Meal</option>
-            <option value="Meeting">Meeting</option>
-            <option value="OffQueueWork">OffQueueWork</option>
-            <option value="TimeOff">TimeOff</option>
-            <option value="Training">Training</option>
-            <option value="Unavailable">Unavailable</option>
-            <option value="Unscheduled">Unscheduled</option>
-          </select>
-          <label for="length">Default Length (minutes):</label>
-          <input type="number" id="length" placeholder="Enter default length" disabled>
-          <label>Options:</label>
-          <div class="checkbox-container">
-            <input type="checkbox" id="paid-time" value="countsAsPaidTime" disabled>
-            <label for="paid-time">Counts as Paid Time</label>
+          <div class="form-group">
+            <label for="activity-name">Activity Name:</label>
+            <input type="text" id="activity-name" placeholder="Enter activity name" required disabled>
           </div>
-          <div class="checkbox-container">
-            <input type="checkbox" id="work-time" value="countsAsWorkTime" disabled>
-            <label for="work-time">Counts as Work Time</label>
+          <div class="form-group">
+            <label for="category">Category:</label>
+            <select id="category" required disabled>
+              <option value="">Select category</option>
+              <option value="OnQueueWork">OnQueueWork</option>
+              <option value="Break">Break</option>
+              <option value="Meal">Meal</option>
+              <option value="Meeting">Meeting</option>
+              <option value="OffQueueWork">OffQueueWork</option>
+              <option value="TimeOff">TimeOff</option>
+              <option value="Training">Training</option>
+              <option value="Unavailable">Unavailable</option>
+              <option value="Unscheduled">Unscheduled</option>
+            </select>
           </div>
-          <div class="checkbox-container">
-            <input type="checkbox" id="time-off-selectable" value="agentTimeOffSelectable" disabled>
-            <label for="time-off-selectable">Agent Time Off Selectable</label>
+          <div class="form-group">
+            <label for="length">Default Length (minutes):</label>
+            <input type="number" id="length" placeholder="Enter default length" disabled>
           </div>
-          <div class="checkbox-container">
-            <input type="checkbox" id="shrinkage" value="countsTowardShrinkage" disabled>
-            <label for="shrinkage">Counts Toward Shrinkage</label>
-          </div>
-          <div class="checkbox-container">
-            <input type="checkbox" id="planned-shrinkage" value="plannedShrinkage" disabled>
-            <label for="planned-shrinkage">Planned Shrinkage</label>
-          </div>
-          <div class="checkbox-container">
-            <input type="checkbox" id="interruptible" value="interruptible" disabled>
-            <label for="interruptible">Interruptible</label>
+          <div class="form-group">
+            <label>Options:</label>
+            <div class="checkbox-container">
+              <input type="checkbox" id="paid-time" value="countsAsPaidTime" disabled>
+              <label for="paid-time">Counts as Paid Time</label>
+            </div>
+            <div class="checkbox-container">
+              <input type="checkbox" id="work-time" value="countsAsWorkTime" disabled>
+              <label for="work-time">Counts as Work Time</label>
+            </div>
+            <div class="checkbox-container">
+              <input type="checkbox" id="time-off-selectable" value="agentTimeOffSelectable" disabled>
+              <label for="time-off-selectable">Agent Time Off Selectable</label>
+            </div>
+            <div class="checkbox-container">
+              <input type="checkbox" id="shrinkage" value="countsTowardShrinkage" disabled>
+              <label for="shrinkage">Counts Toward Shrinkage</label>
+            </div>
+            <div class="checkbox-container">
+              <input type="checkbox" id="planned-shrinkage" value="plannedShrinkage" disabled>
+              <label for="planned-shrinkage">Planned Shrinkage</label>
+            </div>
+            <div class="checkbox-container">
+              <input type="checkbox" id="interruptible" value="interruptible" disabled>
+              <label for="interruptible">Interruptible</label>
+            </div>
           </div>
           <button id="create-button" onclick="createActivityCode()" disabled>Create Activity Code for Selected Business Units</button>
           <div id="results"></div>
@@ -317,18 +504,23 @@
     let activityCodeInitialized = false;
     
     function openTab(evt, tabName) {
-      evt.preventDefault(); // Prevent default action
-      let tabcontent = document.getElementsByClassName("tabcontent");
-      for (let i = 0; i < tabcontent.length; i++) {
-        tabcontent[i].style.display = "none";
-      }
-      let tablinks = document.getElementsByClassName("tablink");
+      evt.preventDefault();
+      
+      // Update tab buttons
+      const tablinks = document.getElementsByClassName("tablink");
       for (let i = 0; i < tablinks.length; i++) {
         tablinks[i].classList.remove("active");
       }
-      document.getElementById(tabName).style.display = "block";
       evt.currentTarget.classList.add("active");
       
+      // Update tab content
+      const tabcontent = document.getElementsByClassName("tabcontent");
+      for (let i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].classList.remove("active");
+      }
+      document.getElementById(tabName).classList.add("active");
+      
+      // Initialize tab if needed
       if(tabName === 'externalWork' && !externalWorkInitialized) {
         initExternalWorkCreation();
         externalWorkInitialized = true;
@@ -349,9 +541,9 @@
     });
     
     // =======================
-    // External Work Creation Code (as before)
+    // External Work Creation Code
     function initExternalWorkCreation() {
-      const redirectUri = 'https://gmcglynn88.github.io/ExternalWorkCreation/';
+      const redirectUri = window.location.href.split('?')[0];
       const responseType = 'token';
       const oauthUrl = `https://login.mypurecloud.ie/oauth/authorize?client_id=${clientId}&response_type=${responseType}&redirect_uri=${encodeURIComponent(redirectUri)}`;
     
@@ -360,8 +552,13 @@
       const token = params.get('access_token');
     
       if (!token) {
-        window.location.href = oauthUrl;
+        if (sessionStorage.getItem('purecloud_token_extwork')) {
+          initializeApp(sessionStorage.getItem('purecloud_token_extwork'));
+        } else {
+          window.location.href = oauthUrl;
+        }
       } else {
+        sessionStorage.setItem('purecloud_token_extwork', token);
         initializeApp(token);
       }
     }
@@ -376,9 +573,10 @@
     async function populateDropdowns(token) {
       try {
         const queues = await fetchAllPages('https://api.mypurecloud.ie/api/v2/routing/queues', token);
-        const users = await fetchAllPages('https://api.mypurecloud.ie/api/v2/users', token);
+        const users = await fetchAllPages('https://api.mypurecloud.ie/api/v2/users?pageSize=100', token);
     
         const queueSelect = document.getElementById('queueSelect');
+        queueSelect.innerHTML = '<option value="">Select a queue</option>';
         queues.forEach(queue => {
           const option = document.createElement('option');
           option.value = queue.id;
@@ -387,6 +585,7 @@
         });
     
         const userSelect = document.getElementById('userSelect');
+        userSelect.innerHTML = '<option value="">Select a user</option>';
         users.forEach(user => {
           const option = document.createElement('option');
           option.value = user.id;
@@ -396,7 +595,7 @@
     
       } catch (error) {
         console.error('Error populating dropdowns:', error);
-        document.getElementById('statusMessage').innerText = `Error loading data: ${error.message}`;
+        document.getElementById('statusMessage').innerHTML = `<div class="error">Error loading data: ${error.message}</div>`;
       }
     }
     
@@ -406,7 +605,7 @@
       let hasMorePages = true;
     
       while (hasMorePages) {
-        const response = await fetch(`${url}?pageNumber=${pageNumber}&pageSize=25`, {
+        const response = await fetch(`${url}${url.includes('?') ? '&' : '?'}pageNumber=${pageNumber}&pageSize=100`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
     
@@ -415,9 +614,13 @@
         }
     
         const data = await response.json();
-        allItems = allItems.concat(data.entities);
+        if (data.entities) {
+          allItems = allItems.concat(data.entities);
+        } else if (Array.isArray(data)) {
+          allItems = allItems.concat(data);
+        }
     
-        if (data.pageCount > pageNumber) {
+        if (data.pageCount && data.pageCount > pageNumber) {
           pageNumber++;
         } else {
           hasMorePages = false;
@@ -430,8 +633,22 @@
       const queueId = document.getElementById('queueSelect').value;
       const userId = document.getElementById('userSelect').value;
       const externalReference = document.getElementById('externalReference').value;
-    
+      const statusMessage = document.getElementById('statusMessage');
+      
+      if (!queueId) {
+        statusMessage.innerHTML = '<div class="error">Please select a queue</div>';
+        return;
+      }
+      
+      if (!userId) {
+        statusMessage.innerHTML = '<div class="error">Please select a user</div>';
+        return;
+      }
+      
+      statusMessage.innerHTML = '<div class="info">Creating interaction...</div>';
+
       try {
+        // Create the email interaction
         const interactionResponse = await fetch('https://api.mypurecloud.ie/api/v2/conversations/emails', {
           method: 'POST',
           headers: {
@@ -443,7 +660,7 @@
             provider: 'QualityForm',
             direction: 'INBOUND',
             fromName: 'External Work',
-            attributes: { 'External Link': externalReference }
+            attributes: { 'External Link': externalReference || 'No reference provided' }
           })
         });
     
@@ -454,15 +671,19 @@
         const interaction = await interactionResponse.json();
         const conversationId = interaction.id;
     
+        // Get conversation details to find participant ID
         const conversationDetailsResponse = await fetch(`https://api.mypurecloud.ie/api/v2/conversations/${conversationId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
+        
         if (!conversationDetailsResponse.ok) {
           throw new Error(`Error fetching conversation details: ${conversationDetailsResponse.status} ${conversationDetailsResponse.statusText}`);
         }
+        
         const conversationDetails = await conversationDetailsResponse.json();
         const participantId = conversationDetails.participants[1].id;
     
+        // Assign the user to the interaction
         const assignResponse = await fetch(`https://api.mypurecloud.ie/api/v2/conversations/emails/${conversationId}/participants/${participantId}/replace`, {
           method: 'POST',
           headers: {
@@ -476,6 +697,7 @@
           throw new Error(`Error assigning user: ${assignResponse.status} ${assignResponse.statusText}`);
         }
     
+        // Disconnect the conversation
         const disconnectResponse = await fetch(`https://api.mypurecloud.ie/api/v2/conversations/emails/${conversationId}`, {
           method: 'PATCH',
           headers: {
@@ -489,11 +711,11 @@
           throw new Error(`Error disconnecting conversation: ${disconnectResponse.status} ${disconnectResponse.statusText}`);
         }
     
-        document.getElementById('statusMessage').innerText = 'Interaction created and assigned successfully!';
+        statusMessage.innerHTML = '<div class="success">Interaction created and assigned successfully!</div>';
     
       } catch (error) {
         console.error('Error during interaction creation:', error);
-        document.getElementById('statusMessage').innerText = `Error: ${error.message}`;
+        statusMessage.innerHTML = `<div class="error">Error: ${error.message}</div>`;
       }
     }
     
@@ -511,14 +733,27 @@
     
     async function initManagementUnitSearch() {
       const muClientId = "5f8da5c2-f8ef-4168-a321-f06e16f558f3";
-      const muRedirectUri = "https://gmcglynn88.github.io/Management-Unit-Search/";
+      const muRedirectUri = window.location.href.split('?')[0];
       const muResponseType = "token";
       const muOauthUrl = `https://login.${muRegion}/oauth/authorize?client_id=${muClientId}&response_type=${muResponseType}&redirect_uri=${encodeURIComponent(muRedirectUri)}`;
     
       const token = muExtractTokenFromUrl();
       if (!token) {
-        window.location.href = muOauthUrl;
+        if (sessionStorage.getItem('purecloud_token_mu')) {
+          muAccessToken = sessionStorage.getItem('purecloud_token_mu');
+          await muLoadAllUsers();
+          muInitSearchAndDropdown();
+          document.getElementById("lookupBtn").addEventListener("click", onMuGetManagementUnitClick);
+          document.getElementById("searchUser").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+              onMuGetManagementUnitClick();
+            }
+          });
+        } else {
+          window.location.href = muOauthUrl;
+        }
       } else {
+        sessionStorage.setItem('purecloud_token_mu', token);
         muAccessToken = token;
         await muLoadAllUsers();
         muInitSearchAndDropdown();
@@ -536,6 +771,9 @@
         let pageNumber = 1;
         let morePages = true;
         muAllUsers = [];
+        
+        document.getElementById("results").innerHTML = '<div class="info">Loading user data...</div>';
+        
         while (morePages) {
           const url = `https://api.${muRegion}/api/v2/users?pageNumber=${pageNumber}&pageSize=100`;
           const resp = await fetch(url, {
@@ -544,23 +782,28 @@
               "Content-Type": "application/json"
             }
           });
+          
           if (!resp.ok) {
             throw new Error(`Failed to fetch users (page ${pageNumber}): ${resp.status}`);
           }
+          
           const data = await resp.json();
           if (data.entities) {
             muAllUsers = muAllUsers.concat(data.entities);
           }
+          
           if (pageNumber < data.pageCount) {
             pageNumber++;
           } else {
             morePages = false;
           }
         }
-        console.log(`Loaded ${muAllUsers.length} total users.`);
+        
+        document.getElementById("results").innerHTML = `<div class="success">Loaded ${muAllUsers.length} users. Search for an agent above.</div>`;
+        
       } catch (err) {
         console.error("Error loading all users:", err);
-        document.getElementById("results").textContent = `Error: ${err.message}`;
+        document.getElementById("results").innerHTML = `<div class="error">Error: ${err.message}</div>`;
       }
     }
     
@@ -576,10 +819,13 @@
       const agentSelect = document.getElementById("agentSelect");
       agentSelect.innerHTML = "";
       const lowerSearch = searchTerm.toLowerCase();
+      
+      // Filter users - include name, username, or email matches
       const filtered = muAllUsers.filter(u => {
         const nameMatch = (u.name || "").toLowerCase().includes(lowerSearch);
         const userNameMatch = (u.username || "").toLowerCase().includes(lowerSearch);
-        return nameMatch || userNameMatch;
+        const emailMatch = (u.email || "").toLowerCase().includes(lowerSearch);
+        return nameMatch || userNameMatch || emailMatch;
       });
     
       if (filtered.length === 0) {
@@ -590,6 +836,16 @@
         return;
       }
     
+      // Sort by name
+      filtered.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+      
+      // Add default option
+      const defaultOpt = document.createElement("option");
+      defaultOpt.value = "";
+      defaultOpt.text = "Select an agent";
+      agentSelect.add(defaultOpt);
+      
+      // Add filtered users
       filtered.forEach(u => {
         const opt = document.createElement("option");
         opt.value = u.id;
@@ -604,24 +860,36 @@
       const resultsDiv = document.getElementById("results");
     
       if (!selectedAgentId) {
-        resultsDiv.textContent = "Please select an agent.";
+        resultsDiv.innerHTML = '<div class="error">Please select an agent.</div>';
         return;
       }
     
-      resultsDiv.textContent = "Looking up Management Unit and Manager...";
+      resultsDiv.innerHTML = '<div class="info">Looking up Management Unit and Manager...</div>';
     
       try {
         const user = muAllUsers.find(u => u.id === selectedAgentId);
+        if (!user) {
+          throw new Error("Selected user not found");
+        }
     
         const muId = await muGetAgentManagementUnitId(selectedAgentId);
         const muName = muId ? await muGetManagementUnitName(muId) : "No Management Unit found";
     
-        const managerName = user.manager ? await muGetManagerName(user.manager.id) : "No manager assigned";
+        let managerName = "No manager assigned";
+        if (user.manager && user.manager.id) {
+          managerName = await muGetManagerName(user.manager.id);
+        }
     
-        resultsDiv.innerHTML = `<p><strong>Management Unit:</strong> ${muName}</p><p><strong>Manager:</strong> ${managerName}</p>`;
+        resultsDiv.innerHTML = `
+          <div class="success">
+            <p><strong>Agent:</strong> ${user.name || selectedAgentId}</p>
+            <p><strong>Management Unit:</strong> ${muName}</p>
+            <p><strong>Manager:</strong> ${managerName}</p>
+          </div>
+        `;
       } catch (err) {
         console.error("MU or Manager lookup error:", err);
-        resultsDiv.textContent = "Error: " + err.message;
+        resultsDiv.innerHTML = `<div class="error">Error: ${err.message}</div>`;
       }
     }
     
@@ -634,9 +902,11 @@
             "Content-Type": "application/json"
           }
         });
+        
         if (!resp.ok) {
-          throw new Error(`Manager fetch failed: HTTP ${resp.status}`);
+          return "Manager details not available";
         }
+        
         const data = await resp.json();
         return data.name || "Manager not found";
       } catch (err) {
@@ -646,38 +916,47 @@
     }
     
     async function muGetAgentManagementUnitId(userId) {
-      const url = `https://api.${muRegion}/api/v2/workforcemanagement/agents/${userId}/managementunit`;
-      const resp = await fetch(url, {
-        headers: {
-          "Authorization": `Bearer ${muAccessToken}`,
-          "Content-Type": "application/json"
+      try {
+        const url = `https://api.${muRegion}/api/v2/workforcemanagement/agents/${userId}/managementunit`;
+        const resp = await fetch(url, {
+          headers: {
+            "Authorization": `Bearer ${muAccessToken}`,
+            "Content-Type": "application/json"
+          }
+        });
+        
+        if (!resp.ok) {
+          return null;
         }
-      });
-      if (!resp.ok) {
-        throw new Error(`MU ID fetch failed: HTTP ${resp.status}`);
+        
+        const data = await resp.json();
+        return data.managementUnit?.id || null;
+      } catch (err) {
+        console.error("Error fetching management unit:", err);
+        return null;
       }
-      const data = await resp.json();
-      return data.managementUnit?.id || null;
     }
     
     async function muGetManagementUnitName(muId) {
-      const url = `https://api.${muRegion}/api/v2/workforcemanagement/managementunits?expand=businessUnit`;
-      const resp = await fetch(url, {
-        headers: {
-          "Authorization": `Bearer ${muAccessToken}`,
-          "Content-Type": "application/json"
+      try {
+        const url = `https://api.${muRegion}/api/v2/workforcemanagement/managementunits/${muId}`;
+        const resp = await fetch(url, {
+          headers: {
+            "Authorization": `Bearer ${muAccessToken}`,
+            "Content-Type": "application/json"
+          }
+        });
+        
+        if (!resp.ok) {
+          return "Management Unit details not available";
         }
-      });
-      if (!resp.ok) {
-        throw new Error(`ManagementUnits fetch failed: HTTP ${resp.status}`);
+        
+        const data = await resp.json();
+        return data.name || "Unnamed Management Unit";
+      } catch (err) {
+        console.error("Error fetching management unit:", err);
+        return "Management Unit not found";
       }
-      const data = await resp.json();
-      const muArray = data.entities || [];
-      const muObj = muArray.find(mu => mu.id === muId);
-      if (!muObj) {
-        return "No Management Unit found";
-      }
-      return muObj.name || "Unnamed Management Unit";
     }
     
     // =======================
@@ -696,22 +975,26 @@
       if (!actAccessToken) {
         if (sessionStorage.getItem('purecloud_token_act')) {
           actAccessToken = sessionStorage.getItem('purecloud_token_act');
+          initializeActivityApp(actAccessToken);
         } else {
           window.location.href = actOauthUrl;
-          return;
         }
       } else {
         sessionStorage.setItem('purecloud_token_act', actAccessToken);
+        initializeActivityApp(actAccessToken);
       }
-    
-      initializeActivityApp(actAccessToken);
     }
     
     function initializeActivityApp(token) {
       const authMsg = document.getElementById('auth-message');
       authMsg.textContent = 'Authenticated successfully!';
-      authMsg.style.display = 'none';
+      authMsg.className = 'auth-success';
+      
+      setTimeout(() => {
+        authMsg.style.display = 'none';
+      }, 2000);
     
+      // Enable form elements
       document.getElementById('business-units').disabled = false;
       document.getElementById('activity-name').disabled = false;
       document.getElementById('category').disabled = false;
@@ -732,6 +1015,8 @@
         const apiUrl = 'https://api.mypurecloud.ie/api/v2/workforcemanagement/businessunits?pageSize=100';
         let businessUnits = [];
         let nextPageUrl = apiUrl;
+        
+        document.getElementById('results').innerHTML = '<div class="info">Loading business units...</div>';
     
         while (nextPageUrl) {
           const response = await fetch(nextPageUrl, {
@@ -742,46 +1027,53 @@
             },
           });
     
-          const data = await response.json();
-    
-          if (response.ok) {
-            businessUnits = businessUnits.concat(data.entities);
-            nextPageUrl = data.pageCount > data.pageNumber ? `${apiUrl}&pageNumber=${data.pageNumber + 1}` : null;
-          } else {
-            throw new Error(data.message || 'Error fetching business units');
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Error fetching business units');
           }
+    
+          const data = await response.json();
+          businessUnits = businessUnits.concat(data.entities);
+          nextPageUrl = data.pageCount > data.pageNumber ? `${apiUrl}&pageNumber=${data.pageNumber + 1}` : null;
         }
     
         const businessUnitsSelect = document.getElementById('business-units');
+        businessUnitsSelect.innerHTML = '';
+        
+        // Sort business units by name
+        businessUnits.sort((a, b) => a.name.localeCompare(b.name));
+        
         businessUnits.forEach(unit => {
           const option = document.createElement('option');
           option.value = unit.id;
           option.textContent = unit.name;
           businessUnitsSelect.appendChild(option);
         });
+        
+        document.getElementById('results').innerHTML = `<div class="success">Loaded ${businessUnits.length} business units. Select one or more to create an activity code.</div>`;
       } catch (error) {
-        document.getElementById('results').innerHTML = `<p class="error">Error loading business units: ${error.message}</p>`;
+        document.getElementById('results').innerHTML = `<div class="error">Error loading business units: ${error.message}</div>`;
       }
     }
     
     async function createActivityCode() {
       const resultsDiv = document.getElementById('results');
-      resultsDiv.innerHTML = '';
+      resultsDiv.innerHTML = '<div class="info">Creating activity code...</div>';
     
       const name = document.getElementById('activity-name').value.trim();
       const category = document.getElementById('category').value;
       const businessUnits = Array.from(document.getElementById('business-units').selectedOptions).map(option => option.value);
     
       if (!name) {
-        resultsDiv.innerHTML = '<p class="error">Please enter an activity name</p>';
+        resultsDiv.innerHTML = '<div class="error">Please enter an activity name</div>';
         return;
       }
       if (!category) {
-        resultsDiv.innerHTML = '<p class="error">Please select a category</p>';
+        resultsDiv.innerHTML = '<div class="error">Please select a category</div>';
         return;
       }
       if (businessUnits.length === 0) {
-        resultsDiv.innerHTML = '<p class="error">Please select at least one business unit</p>';
+        resultsDiv.innerHTML = '<div class="error">Please select at least one business unit</div>';
         return;
       }
     
@@ -817,18 +1109,17 @@
                 agentTimeOffSelectable,
                 countsTowardShrinkage,
                 plannedShrinkage,
-                interruptible
+                interruptible,
+                secondaryPresences: []
               }),
             });
     
-            const data = await response.json();
-    
-            if (response.ok) {
-              successCount++;
-            } else {
-              errorCount++;
-              errorMessages.push(`Business Unit ${businessUnitId}: ${data.message || 'Unknown error'}`);
+            if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(errorData.message || 'Unknown error');
             }
+            
+            successCount++;
           } catch (error) {
             errorCount++;
             errorMessages.push(`Business Unit ${businessUnitId}: ${error.message}`);
@@ -836,17 +1127,17 @@
         }
     
         if (errorCount === 0) {
-          resultsDiv.innerHTML = `<p class="success">Activity code created successfully in all ${successCount} business units.</p>`;
+          resultsDiv.innerHTML = `<div class="success">Activity code "${name}" created successfully in all ${successCount} business units.</div>`;
         } else if (successCount === 0) {
-          resultsDiv.innerHTML = `<p class="error">Failed to create activity code in all business units.</p>
+          resultsDiv.innerHTML = `<div class="error">Failed to create activity code in all business units.</div>
                                  <ul>${errorMessages.map(msg => `<li>${msg}</li>`).join('')}</ul>`;
         } else {
-          resultsDiv.innerHTML = `<p class="success">Activity code created successfully in ${successCount} business units.</p>
-                                 <p class="error">Failed to create in ${errorCount} business units:</p>
+          resultsDiv.innerHTML = `<div class="success">Activity code "${name}" created successfully in ${successCount} business units.</div>
+                                 <div class="error">Failed to create in ${errorCount} business units:</div>
                                  <ul>${errorMessages.map(msg => `<li>${msg}</li>`).join('')}</ul>`;
         }
       } catch (error) {
-        resultsDiv.innerHTML = `<p class="error">Error creating activity code: ${error.message}</p>`;
+        resultsDiv.innerHTML = `<div class="error">Error creating activity code: ${error.message}</div>`;
       }
     }
   </script>
