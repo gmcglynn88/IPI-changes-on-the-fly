@@ -11,10 +11,10 @@
       font-family: 'Aptos', Arial, sans-serif;
       margin: 0;
       padding: 0;
-      background-color: #f0f0f0;
+      background-color: #eaeaea;
       display: flex;
       flex-direction: column;
-      height: 100vh;
+      min-height: 100vh;
     }
     header {
       background-color: #63AB8F;
@@ -28,42 +28,57 @@
     .container {
       flex: 1;
       display: flex;
+      background-color: #eaeaea;
+      padding: 20px;
     }
     .sidebar {
       width: 250px;
-      background-color: #ccc;
+      background-color: #ddd;
       padding: 20px;
       display: flex;
       flex-direction: column;
       gap: 10px;
+      border-radius: 8px;
+      margin-right: 20px;
     }
     .sidebar button {
       type: button;
-      background-color: #ccc;
+      background-color: #ddd;
       border: none;
       padding: 10px;
       text-align: left;
       cursor: pointer;
       font-size: 16px;
-      color: black;
+      color: #333;
       width: 100%;
+      border-radius: 4px;
     }
-    .sidebar button:hover { background-color: #bbb; }
+    .sidebar button:hover { background-color: #ccc; }
     .sidebar button.active {
       background-color: #63AB8F;
       color: white;
     }
     .content {
       flex: 1;
-      padding: 20px;
-      background-color: white;
-      overflow-y: auto;
+      padding: 40px;
+      background-color: #ffffff;
+      max-width: 1200px;
+      margin: auto;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border-radius: 8px;
     }
     .tabcontent { display: none; }
+    /* Center app containers within tabs */
+    .app-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    }
     /* External Work Creation Styles */
     #external-work-container {
-      margin: 20px;
-      padding: 20px;
       font-family: 'Aptos', Arial, sans-serif;
     }
     #external-work-container #logo-container { text-align: center; margin-bottom: 20px; }
@@ -80,8 +95,6 @@
     #external-work-container #statusMessage { margin-top: 20px; color: green; }
     /* Management Unit Search Styles */
     #mu-search-container {
-      margin: 20px;
-      padding: 20px;
       font-family: 'Aptos', Arial, sans-serif;
     }
     #mu-search-container #logo-container { text-align: center; margin-bottom: 20px; }
@@ -108,8 +121,6 @@
     #mu-search-container #results p { font-weight: normal; }
     /* Activity Code Management Styles */
     #activity-code-container {
-      margin: 20px;
-      padding: 20px;
       font-family: 'Aptos', Arial, sans-serif;
     }
     #activity-code-container #logo-container { text-align: center; margin-bottom: 20px; }
@@ -162,7 +173,7 @@
       cursor: pointer;
       transition: background-color 0.3s;
     }
-    button:hover { background-color: #63AB8F; }
+    button:hover { background-color: #549e7a; }
     .error { color: #dc3545; }
     .success { color: #28a745; }
     #auth-message {
@@ -191,12 +202,13 @@
     </div>
     <div class="content">
       <div id="wfmActivity" class="tabcontent">
-        <h2>WFM Activity Management</h2>
-        <p>Content goes here...</p>
+        <div class="app-container">
+          <h2>WFM Activity Management</h2>
+          <p>Content goes here...</p>
+        </div>
       </div>
       <div id="wfmManagement" class="tabcontent">
-        <!-- Management Unit Search Code -->
-        <div id="mu-search-container">
+        <div id="mu-search-container" class="app-container">
           <div id="logo-container">
             <img id="logo" src="https://raw.githubusercontent.com/gmcglynn88/Management-Unit-Search/main/Consultinglogo%20(2).png" alt="Company Logo">
           </div>
@@ -210,8 +222,7 @@
         </div>
       </div>
       <div id="externalWork" class="tabcontent">
-        <!-- External Work Creation Code -->
-        <div id="external-work-container">
+        <div id="external-work-container" class="app-container">
           <div id="logo-container">
             <img id="logo" src="https://raw.githubusercontent.com/gmcglynn88/ExternalWorkCreation/main/Consultinglogo.png" alt="Company Logo">
           </div>
@@ -227,8 +238,7 @@
         </div>
       </div>
       <div id="activityCode" class="tabcontent">
-        <!-- Activity Code Management Code -->
-        <div id="activity-code-container">
+        <div id="activity-code-container" class="app-container">
           <div id="logo-container">
             <img id="logo" src="https://raw.githubusercontent.com/gmcglynn88/Management-Unit-Search/main/Consultinglogo%20(2).png" alt="Company Logo">
           </div>
@@ -287,8 +297,10 @@
         </div>
       </div>
       <div id="bulkChanges" class="tabcontent">
-        <h2>Bulk Skill & Queues Changes</h2>
-        <p>Content goes here...</p>
+        <div class="app-container">
+          <h2>Bulk Skill & Queues Changes</h2>
+          <p>Content goes here...</p>
+        </div>
       </div>
     </div>
   </div>
@@ -305,7 +317,7 @@
     let activityCodeInitialized = false;
     
     function openTab(evt, tabName) {
-      evt.preventDefault(); // Prevent default action if any
+      evt.preventDefault(); // Prevent default action
       let tabcontent = document.getElementsByClassName("tabcontent");
       for (let i = 0; i < tabcontent.length; i++) {
         tabcontent[i].style.display = "none";
@@ -669,7 +681,7 @@
     }
     
     // =======================
-    // Activity Code Management Code (wrapped in its own initializer)
+    // Activity Code Management Code
     function initActivityCodeManagement() {
       let actAccessToken = null;
       const actClientId = 'f93a488c-73e9-40cf-b4fd-5c05ff043c81';
