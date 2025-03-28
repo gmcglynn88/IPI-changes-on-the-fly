@@ -36,20 +36,15 @@
     .logo img {
       height: 40px;
     }
-    .main-container {
+    .app-container {
       display: flex;
       flex: 1;
-      padding: 20px;
-      gap: 20px;
-      max-width: 1400px;
-      margin: 0 auto;
-      width: 100%;
+      min-height: calc(100vh - 70px);
     }
     .sidebar {
       width: 250px;
       background-color: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      box-shadow: 2px 0 5px rgba(0,0,0,0.05);
       padding: 15px 0;
       display: flex;
       flex-direction: column;
@@ -78,33 +73,30 @@
       border-left: 3px solid #63AB8F;
       font-weight: 600;
     }
-    .sidebar button.active::after {
-      content: "";
-      position: absolute;
-      right: -1px;
-      top: 0;
-      height: 100%;
-      width: 2px;
-      background-color: white;
-    }
     .content-area {
       flex: 1;
-      background-color: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
       padding: 25px;
-      min-height: calc(100vh - 110px);
+      overflow-y: auto;
+      display: flex;
+      justify-content: center;
+    }
+    .tab-content-container {
+      width: 100%;
+      max-width: 1000px;
     }
     .tabcontent { 
       display: none;
-      height: 100%;
+      width: 100%;
     }
     .tabcontent.active {
       display: block;
     }
-    .app-container {
-      max-width: 100%;
-      margin: 0 auto;
+    .app-window {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      padding: 25px;
+      width: 100%;
     }
     /* External Work Creation Styles */
     #external-work-container {
@@ -358,7 +350,7 @@
       <img src="https://raw.githubusercontent.com/gmcglynn88/TimeoffApp/main/IPI_Primary%20Identity_Corporate_REVERSED_ECC.png" alt="IPI Logo">
     </div>
   </header>
-  <div class="main-container">
+  <div class="app-container">
     <div class="sidebar">
       <button type="button" class="tablink active" onclick="openTab(event, 'wfmActivity')">WFM Activity Management</button>
       <button type="button" class="tablink" onclick="openTab(event, 'wfmManagement')">WFM Management Unit Search</button>
@@ -367,126 +359,128 @@
       <button type="button" class="tablink" onclick="openTab(event, 'bulkChanges')">Bulk Skill & Queues Changes</button>
     </div>
     <div class="content-area">
-      <div id="wfmActivity" class="tabcontent active">
-        <div class="app-container">
-          <h2>WFM Activity Management</h2>
-          <p>Content goes here...</p>
+      <div class="tab-content-container">
+        <div id="wfmActivity" class="tabcontent active">
+          <div class="app-window">
+            <h2>WFM Activity Management</h2>
+            <p>Content goes here...</p>
+          </div>
         </div>
-      </div>
-      <div id="wfmManagement" class="tabcontent">
-        <div id="mu-search-container" class="app-container">
-          <div id="logo-container">
-            <img id="logo" src="https://raw.githubusercontent.com/gmcglynn88/Management-Unit-Search/main/Consultinglogo%20(2).png" alt="Company Logo">
+        <div id="wfmManagement" class="tabcontent">
+          <div id="mu-search-container" class="app-window">
+            <div id="logo-container">
+              <img id="logo" src="https://raw.githubusercontent.com/gmcglynn88/Management-Unit-Search/main/Consultinglogo%20(2).png" alt="Company Logo">
+            </div>
+            <h1>Which MU did I put you in?</h1>
+            <div class="form-group">
+              <label for="searchUser">Search users:</label>
+              <input type="text" id="searchUser" placeholder="Type to filter users...">
+            </div>
+            <div class="form-group">
+              <label for="agentSelect">Select an Agent:</label>
+              <select id="agentSelect"></select>
+            </div>
+            <button id="lookupBtn">Get Management Unit</button>
+            <div id="results"></div>
           </div>
-          <h1>Which MU did I put you in?</h1>
-          <div class="form-group">
-            <label for="searchUser">Search users:</label>
-            <input type="text" id="searchUser" placeholder="Type to filter users...">
-          </div>
-          <div class="form-group">
-            <label for="agentSelect">Select an Agent:</label>
-            <select id="agentSelect"></select>
-          </div>
-          <button id="lookupBtn">Get Management Unit</button>
-          <div id="results"></div>
         </div>
-      </div>
-      <div id="externalWork" class="tabcontent">
-        <div id="external-work-container" class="app-container">
-          <div id="logo-container">
-            <img id="logo" src="https://raw.githubusercontent.com/gmcglynn88/ExternalWorkCreation/main/Consultinglogo.png" alt="Company Logo">
+        <div id="externalWork" class="tabcontent">
+          <div id="external-work-container" class="app-window">
+            <div id="logo-container">
+              <img id="logo" src="https://raw.githubusercontent.com/gmcglynn88/ExternalWorkCreation/main/Consultinglogo.png" alt="Company Logo">
+            </div>
+            <h1>External Work Creation</h1>
+            <div class="form-group">
+              <label for="queueSelect">Select Queue:</label>
+              <select id="queueSelect"></select>
+            </div>
+            <div class="form-group">
+              <label for="userSelect">Select User:</label>
+              <select id="userSelect"></select>
+            </div>
+            <div class="form-group">
+              <label for="externalReference">External Reference:</label>
+              <input type="text" id="externalReference" placeholder="Enter external reference (optional)">
+            </div>
+            <button id="createInteractionBtn">Create Proxy Interaction</button>
+            <div id="statusMessage"></div>
           </div>
-          <h1>External Work Creation</h1>
-          <div class="form-group">
-            <label for="queueSelect">Select Queue:</label>
-            <select id="queueSelect"></select>
-          </div>
-          <div class="form-group">
-            <label for="userSelect">Select User:</label>
-            <select id="userSelect"></select>
-          </div>
-          <div class="form-group">
-            <label for="externalReference">External Reference:</label>
-            <input type="text" id="externalReference" placeholder="Enter external reference (optional)">
-          </div>
-          <button id="createInteractionBtn">Create Proxy Interaction</button>
-          <div id="statusMessage"></div>
         </div>
-      </div>
-      <div id="activityCode" class="tabcontent">
-        <div id="activity-code-container" class="app-container">
-          <div id="logo-container">
-            <img id="logo" src="https://raw.githubusercontent.com/gmcglynn88/Management-Unit-Search/main/Consultinglogo%20(2).png" alt="Company Logo">
-          </div>
-          <h1>Manage Business Units and Activity Codes</h1>
-          <div id="auth-message" class="auth-loading">Authenticating with PureCloud...</div>
-          
-          <div class="form-group">
-            <label for="business-units">Select Business Units:</label>
-            <select id="business-units" multiple disabled></select>
-          </div>
-          
-          <hr>
-          
-          <h2>Create Activity Code</h2>
-          <div class="form-group">
-            <label for="activity-name">Activity Name:</label>
-            <input type="text" id="activity-name" placeholder="Enter activity name" required disabled>
-          </div>
-          <div class="form-group">
-            <label for="category">Category:</label>
-            <select id="category" required disabled>
-              <option value="">Select category</option>
-              <option value="OnQueueWork">OnQueueWork</option>
-              <option value="Break">Break</option>
-              <option value="Meal">Meal</option>
-              <option value="Meeting">Meeting</option>
-              <option value="OffQueueWork">OffQueueWork</option>
-              <option value="TimeOff">TimeOff</option>
-              <option value="Training">Training</option>
-              <option value="Unavailable">Unavailable</option>
-              <option value="Unscheduled">Unscheduled</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="length">Default Length (minutes):</label>
-            <input type="number" id="length" placeholder="Enter default length" disabled>
-          </div>
-          <div class="form-group">
-            <label>Options:</label>
-            <div class="checkbox-container">
-              <input type="checkbox" id="paid-time" value="countsAsPaidTime" disabled>
-              <label for="paid-time">Counts as Paid Time</label>
+        <div id="activityCode" class="tabcontent">
+          <div id="activity-code-container" class="app-window">
+            <div id="logo-container">
+              <img id="logo" src="https://raw.githubusercontent.com/gmcglynn88/Management-Unit-Search/main/Consultinglogo%20(2).png" alt="Company Logo">
             </div>
-            <div class="checkbox-container">
-              <input type="checkbox" id="work-time" value="countsAsWorkTime" disabled>
-              <label for="work-time">Counts as Work Time</label>
+            <h1>Manage Business Units and Activity Codes</h1>
+            <div id="auth-message" class="auth-loading">Authenticating with PureCloud...</div>
+            
+            <div class="form-group">
+              <label for="business-units">Select Business Units:</label>
+              <select id="business-units" multiple disabled></select>
             </div>
-            <div class="checkbox-container">
-              <input type="checkbox" id="time-off-selectable" value="agentTimeOffSelectable" disabled>
-              <label for="time-off-selectable">Agent Time Off Selectable</label>
+            
+            <hr>
+            
+            <h2>Create Activity Code</h2>
+            <div class="form-group">
+              <label for="activity-name">Activity Name:</label>
+              <input type="text" id="activity-name" placeholder="Enter activity name" required disabled>
             </div>
-            <div class="checkbox-container">
-              <input type="checkbox" id="shrinkage" value="countsTowardShrinkage" disabled>
-              <label for="shrinkage">Counts Toward Shrinkage</label>
+            <div class="form-group">
+              <label for="category">Category:</label>
+              <select id="category" required disabled>
+                <option value="">Select category</option>
+                <option value="OnQueueWork">OnQueueWork</option>
+                <option value="Break">Break</option>
+                <option value="Meal">Meal</option>
+                <option value="Meeting">Meeting</option>
+                <option value="OffQueueWork">OffQueueWork</option>
+                <option value="TimeOff">TimeOff</option>
+                <option value="Training">Training</option>
+                <option value="Unavailable">Unavailable</option>
+                <option value="Unscheduled">Unscheduled</option>
+              </select>
             </div>
-            <div class="checkbox-container">
-              <input type="checkbox" id="planned-shrinkage" value="plannedShrinkage" disabled>
-              <label for="planned-shrinkage">Planned Shrinkage</label>
+            <div class="form-group">
+              <label for="length">Default Length (minutes):</label>
+              <input type="number" id="length" placeholder="Enter default length" disabled>
             </div>
-            <div class="checkbox-container">
-              <input type="checkbox" id="interruptible" value="interruptible" disabled>
-              <label for="interruptible">Interruptible</label>
+            <div class="form-group">
+              <label>Options:</label>
+              <div class="checkbox-container">
+                <input type="checkbox" id="paid-time" value="countsAsPaidTime" disabled>
+                <label for="paid-time">Counts as Paid Time</label>
+              </div>
+              <div class="checkbox-container">
+                <input type="checkbox" id="work-time" value="countsAsWorkTime" disabled>
+                <label for="work-time">Counts as Work Time</label>
+              </div>
+              <div class="checkbox-container">
+                <input type="checkbox" id="time-off-selectable" value="agentTimeOffSelectable" disabled>
+                <label for="time-off-selectable">Agent Time Off Selectable</label>
+              </div>
+              <div class="checkbox-container">
+                <input type="checkbox" id="shrinkage" value="countsTowardShrinkage" disabled>
+                <label for="shrinkage">Counts Toward Shrinkage</label>
+              </div>
+              <div class="checkbox-container">
+                <input type="checkbox" id="planned-shrinkage" value="plannedShrinkage" disabled>
+                <label for="planned-shrinkage">Planned Shrinkage</label>
+              </div>
+              <div class="checkbox-container">
+                <input type="checkbox" id="interruptible" value="interruptible" disabled>
+                <label for="interruptible">Interruptible</label>
+              </div>
             </div>
+            <button id="create-button" onclick="createActivityCode()" disabled>Create Activity Code for Selected Business Units</button>
+            <div id="results"></div>
           </div>
-          <button id="create-button" onclick="createActivityCode()" disabled>Create Activity Code for Selected Business Units</button>
-          <div id="results"></div>
         </div>
-      </div>
-      <div id="bulkChanges" class="tabcontent">
-        <div class="app-container">
-          <h2>Bulk Skill & Queues Changes</h2>
-          <p>Content goes here...</p>
+        <div id="bulkChanges" class="tabcontent">
+          <div class="app-window">
+            <h2>Bulk Skill & Queues Changes</h2>
+            <p>Content goes here...</p>
+          </div>
         </div>
       </div>
     </div>
