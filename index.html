@@ -493,16 +493,54 @@
   </div>
   <script>
     // =======================
-    // Global Client Credentials (for External Work Creation, MU Search, etc.)
-    const clientId = '80d7c7c9-600e-478e-8d41-1bfb7b8c6bc1';
-    const clientSecret = 'BQQBxTIiCO-mY1RFm9TL0NcmhtRewKlqozD0GUdiMdE';
+    // Global Configuration
+    const CLIENT_ID = '80d7c7c9-600e-478e-8d41-1bfb7b8c6bc1';
+    const CLIENT_SECRET = 'BQQBxTIiCO-mY1RFm9TL0NcmhtRewKlqozD0GUdiMdE';
+    const REGION = 'mypurecloud.ie';
+    const REDIRECT_URI = window.location.href.split('?')[0];
+    const AUTH_URL = `https://login.${REGION}/oauth/authorize?client_id=${CLIENT_ID}&response_type=token&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
     
     // =======================
-    // Tab Functionality & Initialization Flags
-    let externalWorkInitialized = false;
-    let muSearchInitialized = false;
-    let activityCodeInitialized = false;
+    // Global State
+    let accessToken = null;
+    let muAllUsers = [];
+    let initializedTabs = {
+      wfmActivity: false,
+      wfmManagement: false,
+      externalWork: false,
+      activityCode: false,
+      bulkChanges: false
+    };
     
+    // =======================
+    // Initialization
+    document.addEventListener("DOMContentLoaded", function() {
+      // Check for token in URL hash first
+      const hash = window.location.hash.substring(1);
+      const params = new URLSearchParams(hash);
+      accessToken = params.get('access_token');
+      
+      if (accessToken) {
+        // Store token in session storage
+        sessionStorage.setItem('purecloud_token', accessToken);
+        // Remove token from URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } else {
+        // Check session storage for existing token
+        accessToken = sessionStorage.getItem('purecloud_token');
+      }
+      
+      if (!accessToken) {
+        // No token found, redirect to auth
+        window.location.href = AUTH_URL;
+      } else {
+        // We have a token, initialize the first tab
+        document.getElementsByClassName("tablink")[0].click();
+      }
+    });
+    
+    // =======================
+    // Tab Management
     function openTab(evt, tabName) {
       evt.preventDefault();
       
@@ -521,59 +559,41 @@
       document.getElementById(tabName).classList.add("active");
       
       // Initialize tab if needed
-      if(tabName === 'externalWork' && !externalWorkInitialized) {
-        initExternalWorkCreation();
-        externalWorkInitialized = true;
-      }
-      if(tabName === 'wfmManagement' && !muSearchInitialized) {
-        initManagementUnitSearch();
-        muSearchInitialized = true;
-      }
-      if(tabName === 'activityCode' && !activityCodeInitialized) {
-        initActivityCodeManagement();
-        activityCodeInitialized = true;
+      if(!initializedTabs[tabName]) {
+        switch(tabName) {
+          case 'externalWork':
+            initExternalWorkCreation();
+            break;
+          case 'wfmManagement':
+            initManagementUnitSearch();
+            break;
+          case 'activityCode':
+            initActivityCodeManagement();
+            break;
+          default:
+            // Other tabs don't need special initialization
+            break;
+        }
+        initializedTabs[tabName] = true;
       }
     }
-    
-    // Open the first tab by default on page load
-    document.addEventListener("DOMContentLoaded", function() {
-      document.getElementsByClassName("tablink")[0].click();
-    });
     
     // =======================
-    // External Work Creation Code
+    // External Work Creation
     function initExternalWorkCreation() {
-      const redirectUri = window.location.href.split('?')[0];
-      const responseType = 'token';
-      const oauthUrl = `https://login.mypurecloud.ie/oauth/authorize?client_id=${clientId}&response_type=${responseType}&redirect_uri=${encodeURIComponent(redirectUri)}`;
-    
-      const hash = window.location.hash.substring(1);
-      const params = new URLSearchParams(hash);
-      const token = params.get('access_token');
-    
-      if (!token) {
-        if (sessionStorage.getItem('purecloud_token_extwork')) {
-          initializeApp(sessionStorage.getItem('purecloud_token_extwork'));
-        } else {
-          window.location.href = oauthUrl;
-        }
-      } else {
-        sessionStorage.setItem('purecloud_token_extwork', token);
-        initializeApp(token);
+      if (!accessToken) {
+        window.location.href = AUTH_URL;
+        return;
       }
+      
+      populateDropdowns();
+      document.getElementById('createInteractionBtn').addEventListener('click', createInteraction);
     }
     
-    function initializeApp(token) {
-      populateDropdowns(token);
-      document.getElementById('createInteractionBtn').addEventListener('click', () => {
-        createInteraction(token);
-      });
-    }
-    
-    async function populateDropdowns(token) {
+    async function populateDropdowns() {
       try {
-        const queues = await fetchAllPages('https://api.mypurecloud.ie/api/v2/routing/queues', token);
-        const users = await fetchAllPages('https://api.mypurecloud.ie/api/v2/users?pageSize=100', token);
+        const queues = await fetchAllPages('https://api.mypurecloud.ie/api/v2/routing/queues');
+        const users = await fetchAllPages('https://api.mypurecloud.ie/api/v2/users?pageSize=100');
     
         const queueSelect = document.getElementById('queueSelect');
         queueSelect.innerHTML = '<option value="">Select a queue</option>';
@@ -599,37 +619,7 @@
       }
     }
     
-    async function fetchAllPages(url, token) {
-      let allItems = [];
-      let pageNumber = 1;
-      let hasMorePages = true;
-    
-      while (hasMorePages) {
-        const response = await fetch(`${url}${url.includes('?') ? '&' : '?'}pageNumber=${pageNumber}&pageSize=100`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-    
-        if (!response.ok) {
-          throw new Error(`Error fetching data: ${response.status} ${response.statusText}`);
-        }
-    
-        const data = await response.json();
-        if (data.entities) {
-          allItems = allItems.concat(data.entities);
-        } else if (Array.isArray(data)) {
-          allItems = allItems.concat(data);
-        }
-    
-        if (data.pageCount && data.pageCount > pageNumber) {
-          pageNumber++;
-        } else {
-          hasMorePages = false;
-        }
-      }
-      return allItems;
-    }
-    
-    async function createInteraction(token) {
+    async function createInteraction() {
       const queueId = document.getElementById('queueSelect').value;
       const userId = document.getElementById('userSelect').value;
       const externalReference = document.getElementById('externalReference').value;
@@ -652,7 +642,7 @@
         const interactionResponse = await fetch('https://api.mypurecloud.ie/api/v2/conversations/emails', {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${token}`,
+            'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
@@ -673,7 +663,7 @@
     
         // Get conversation details to find participant ID
         const conversationDetailsResponse = await fetch(`https://api.mypurecloud.ie/api/v2/conversations/${conversationId}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: { 'Authorization': `Bearer ${accessToken}` }
         });
         
         if (!conversationDetailsResponse.ok) {
@@ -687,7 +677,7 @@
         const assignResponse = await fetch(`https://api.mypurecloud.ie/api/v2/conversations/emails/${conversationId}/participants/${participantId}/replace`, {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${token}`,
+            'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({ userId: userId })
@@ -701,7 +691,7 @@
         const disconnectResponse = await fetch(`https://api.mypurecloud.ie/api/v2/conversations/emails/${conversationId}`, {
           method: 'PATCH',
           headers: {
-            'Authorization': `Bearer ${token}`,
+            'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({ state: 'disconnected' })
@@ -720,50 +710,21 @@
     }
     
     // =======================
-    // Management Unit Search Code (mu-prefixed)
-    let muAccessToken = null;
-    let muAllUsers = [];
-    const muRegion = "mypurecloud.ie";
-    
-    function muExtractTokenFromUrl() {
-      const hash = window.location.hash.substring(1);
-      const params = new URLSearchParams(hash);
-      return params.get("access_token");
-    }
-    
+    // Management Unit Search
     async function initManagementUnitSearch() {
-      const muClientId = "5f8da5c2-f8ef-4168-a321-f06e16f558f3";
-      const muRedirectUri = window.location.href.split('?')[0];
-      const muResponseType = "token";
-      const muOauthUrl = `https://login.${muRegion}/oauth/authorize?client_id=${muClientId}&response_type=${muResponseType}&redirect_uri=${encodeURIComponent(muRedirectUri)}`;
-    
-      const token = muExtractTokenFromUrl();
-      if (!token) {
-        if (sessionStorage.getItem('purecloud_token_mu')) {
-          muAccessToken = sessionStorage.getItem('purecloud_token_mu');
-          await muLoadAllUsers();
-          muInitSearchAndDropdown();
-          document.getElementById("lookupBtn").addEventListener("click", onMuGetManagementUnitClick);
-          document.getElementById("searchUser").addEventListener("keypress", function(event) {
-            if (event.key === "Enter") {
-              onMuGetManagementUnitClick();
-            }
-          });
-        } else {
-          window.location.href = muOauthUrl;
-        }
-      } else {
-        sessionStorage.setItem('purecloud_token_mu', token);
-        muAccessToken = token;
-        await muLoadAllUsers();
-        muInitSearchAndDropdown();
-        document.getElementById("lookupBtn").addEventListener("click", onMuGetManagementUnitClick);
-        document.getElementById("searchUser").addEventListener("keypress", function(event) {
-          if (event.key === "Enter") {
-            onMuGetManagementUnitClick();
-          }
-        });
+      if (!accessToken) {
+        window.location.href = AUTH_URL;
+        return;
       }
+      
+      await muLoadAllUsers();
+      muInitSearchAndDropdown();
+      document.getElementById("lookupBtn").addEventListener("click", onMuGetManagementUnitClick);
+      document.getElementById("searchUser").addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+          onMuGetManagementUnitClick();
+        }
+      });
     }
     
     async function muLoadAllUsers() {
@@ -775,10 +736,10 @@
         document.getElementById("results").innerHTML = '<div class="info">Loading user data...</div>';
         
         while (morePages) {
-          const url = `https://api.${muRegion}/api/v2/users?pageNumber=${pageNumber}&pageSize=100`;
+          const url = `https://api.${REGION}/api/v2/users?pageNumber=${pageNumber}&pageSize=100`;
           const resp = await fetch(url, {
             headers: {
-              "Authorization": `Bearer ${muAccessToken}`,
+              "Authorization": `Bearer ${accessToken}`,
               "Content-Type": "application/json"
             }
           });
@@ -895,10 +856,10 @@
     
     async function muGetManagerName(managerId) {
       try {
-        const url = `https://api.${muRegion}/api/v2/users/${managerId}`;
+        const url = `https://api.${REGION}/api/v2/users/${managerId}`;
         const resp = await fetch(url, {
           headers: {
-            "Authorization": `Bearer ${muAccessToken}`,
+            "Authorization": `Bearer ${accessToken}`,
             "Content-Type": "application/json"
           }
         });
@@ -917,10 +878,10 @@
     
     async function muGetAgentManagementUnitId(userId) {
       try {
-        const url = `https://api.${muRegion}/api/v2/workforcemanagement/agents/${userId}/managementunit`;
+        const url = `https://api.${REGION}/api/v2/workforcemanagement/agents/${userId}/managementunit`;
         const resp = await fetch(url, {
           headers: {
-            "Authorization": `Bearer ${muAccessToken}`,
+            "Authorization": `Bearer ${accessToken}`,
             "Content-Type": "application/json"
           }
         });
@@ -939,10 +900,10 @@
     
     async function muGetManagementUnitName(muId) {
       try {
-        const url = `https://api.${muRegion}/api/v2/workforcemanagement/managementunits/${muId}`;
+        const url = `https://api.${REGION}/api/v2/workforcemanagement/managementunits/${muId}`;
         const resp = await fetch(url, {
           headers: {
-            "Authorization": `Bearer ${muAccessToken}`,
+            "Authorization": `Bearer ${accessToken}`,
             "Content-Type": "application/json"
           }
         });
@@ -960,32 +921,17 @@
     }
     
     // =======================
-    // Activity Code Management Code
+    // Activity Code Management
     function initActivityCodeManagement() {
-      let actAccessToken = null;
-      const actClientId = 'f93a488c-73e9-40cf-b4fd-5c05ff043c81';
-      const actRedirectUri = window.location.href.split('?')[0];
-      const actResponseType = 'token';
-      const actOauthUrl = `https://login.mypurecloud.ie/oauth/authorize?client_id=${actClientId}&response_type=${actResponseType}&redirect_uri=${encodeURIComponent(actRedirectUri)}`;
-    
-      const hash = window.location.hash.substring(1);
-      const params = new URLSearchParams(hash);
-      actAccessToken = params.get('access_token');
-    
-      if (!actAccessToken) {
-        if (sessionStorage.getItem('purecloud_token_act')) {
-          actAccessToken = sessionStorage.getItem('purecloud_token_act');
-          initializeActivityApp(actAccessToken);
-        } else {
-          window.location.href = actOauthUrl;
-        }
-      } else {
-        sessionStorage.setItem('purecloud_token_act', actAccessToken);
-        initializeActivityApp(actAccessToken);
+      if (!accessToken) {
+        window.location.href = AUTH_URL;
+        return;
       }
+      
+      initializeActivityApp();
     }
     
-    function initializeActivityApp(token) {
+    function initializeActivityApp() {
       const authMsg = document.getElementById('auth-message');
       authMsg.textContent = 'Authenticated successfully!';
       authMsg.className = 'auth-success';
@@ -1007,10 +953,10 @@
       document.getElementById('interruptible').disabled = false;
       document.getElementById('create-button').disabled = false;
     
-      fetchBusinessUnitsAct(token);
+      fetchBusinessUnitsAct();
     }
     
-    async function fetchBusinessUnitsAct(token) {
+    async function fetchBusinessUnitsAct() {
       try {
         const apiUrl = 'https://api.mypurecloud.ie/api/v2/workforcemanagement/businessunits?pageSize=100';
         let businessUnits = [];
@@ -1022,7 +968,7 @@
           const response = await fetch(nextPageUrl, {
             method: 'GET',
             headers: {
-              'Authorization': `Bearer ${token}`,
+              'Authorization': `Bearer ${accessToken}`,
               'Content-Type': 'application/json'
             },
           });
@@ -1097,7 +1043,7 @@
             const response = await fetch(createUrl, {
               method: 'POST',
               headers: {
-                'Authorization': `Bearer ${sessionStorage.getItem('purecloud_token_act')}`,
+                'Authorization': `Bearer ${accessToken}`,
                 'Content-Type': 'application/json',
               },
               body: JSON.stringify({
@@ -1139,6 +1085,38 @@
       } catch (error) {
         resultsDiv.innerHTML = `<div class="error">Error creating activity code: ${error.message}</div>`;
       }
+    }
+    
+    // =======================
+    // Utility Functions
+    async function fetchAllPages(url) {
+      let allItems = [];
+      let pageNumber = 1;
+      let hasMorePages = true;
+    
+      while (hasMorePages) {
+        const response = await fetch(`${url}${url.includes('?') ? '&' : '?'}pageNumber=${pageNumber}&pageSize=100`, {
+          headers: { 'Authorization': `Bearer ${accessToken}` }
+        });
+    
+        if (!response.ok) {
+          throw new Error(`Error fetching data: ${response.status} ${response.statusText}`);
+        }
+    
+        const data = await response.json();
+        if (data.entities) {
+          allItems = allItems.concat(data.entities);
+        } else if (Array.isArray(data)) {
+          allItems = allItems.concat(data);
+        }
+    
+        if (data.pageCount && data.pageCount > pageNumber) {
+          pageNumber++;
+        } else {
+          hasMorePages = false;
+        }
+      }
+      return allItems;
     }
   </script>
 </body>
