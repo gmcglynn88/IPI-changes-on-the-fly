@@ -146,6 +146,10 @@
     </div>
   </div>
   <script>
+    // New client credentials (for testing only)
+    const clientId = '80d7c7c9-600e-478e-8d41-1bfb7b8c6bc1';
+    const clientSecret = 'BQQBxTIiCO-mY1RFm9TL0NcmhtRewKlqozD0GUdiMdE'; // Do not expose in production!
+
     // Tab functionality
     let externalWorkInitialized = false;
     function openTab(evt, tabName) {
@@ -174,7 +178,8 @@
 
     // External Work Creation code refactored into a function
     function initExternalWorkCreation() {
-      const clientId = '35987d94-e13b-4da4-afd2-25b85bc1c3d6';
+      // For OAuth, using the new client ID.
+      // Note: The client secret is defined above but not used in client-side OAuth flows.
       const redirectUri = 'https://gmcglynn88.github.io/ExternalWorkCreation/';
       const responseType = 'token';
       const oauthUrl = `https://login.mypurecloud.ie/oauth/authorize?client_id=${clientId}&response_type=${responseType}&redirect_uri=${encodeURIComponent(redirectUri)}`;
