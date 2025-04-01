@@ -82,7 +82,7 @@
     }
     .tab-content-container {
       width: 100%;
-      max-width: 1000px;
+      max-width: 1200px;
     }
     .tabcontent { 
       display: none;
@@ -354,6 +354,126 @@
     .form-group {
       margin-bottom: 15px;
     }
+    
+    /* Bulk Changes Styles */
+    #bulk-changes-container {
+      font-family: 'Aptos', Arial, sans-serif;
+    }
+    #bulk-changes-container #logo-container { 
+      text-align: center; 
+      margin-bottom: 25px; 
+    }
+    #bulk-changes-container #logo { 
+      max-width: 250px;
+      height: auto;
+    }
+    #bulk-changes-container h1 { 
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      color: #2c3e50;
+      text-align: center;
+    }
+    #bulk-changes-container h2 {
+      font-size: 1.2rem;
+      margin: 25px 0 15px;
+      color: #2c3e50;
+    }
+    #bulk-changes-container label {
+      font-weight: 600;
+      color: #555;
+    }
+    #bulk-changes-container select,
+    #bulk-changes-container input {
+      margin-top: 8px;
+      padding: 10px 12px;
+      width: 100%;
+      max-width: 400px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 15px;
+    }
+    #bulk-changes-container button {
+      margin-top: 25px;
+      padding: 12px 20px;
+      font-size: 15px;
+      font-weight: 600;
+    }
+    #bulk-changes-container #results { 
+      margin-top: 25px;
+      padding: 15px;
+      border-radius: 4px;
+    }
+    .bulk-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 10px;
+    }
+    .bulk-tab-button {
+      padding: 10px 20px;
+      background-color: #f0f4f8;
+      color: #555;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .bulk-tab-button.active {
+      background-color: #63AB8F;
+      color: white;
+    }
+    .bulk-tab-content {
+      display: none;
+    }
+    .bulk-tab-content.active {
+      display: block;
+    }
+    .bulk-table-container {
+      margin-top: 20px;
+      overflow-x: auto;
+    }
+    .bulk-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    .bulk-table th, 
+    .bulk-table td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+    .bulk-table th {
+      background-color: #63AB8F;
+      color: white;
+    }
+    .bulk-table td input[type="number"] {
+      width: 80px;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .bulk-table td select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .bulk-table input[type="checkbox"] {
+      transform: scale(1.2);
+    }
+    .bulk-flex-row {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+    .bulk-flex-row > div {
+      flex: 1;
+      min-width: 200px;
+    }
   </style>
 </head>
 <body>
@@ -485,9 +605,93 @@
           </div>
         </div>
         <div id="bulkChanges" class="tabcontent">
-          <div class="app-window">
-            <h2>Bulk Skill & Queues Changes</h2>
-            <p>Content goes here...</p>
+          <div id="bulk-changes-container" class="app-window">
+            <div id="logo-container">
+              <img id="logo" src="https://raw.githubusercontent.com/gmcglynn88/Management-Unit-Search/main/Consultinglogo%20(2).png" alt="Company Logo">
+            </div>
+            <h1>Bulk Skill & Queues Changes</h1>
+            <div id="auth-message-bulk" class="auth-loading">Authenticating with PureCloud...</div>
+            
+            <div class="bulk-tabs">
+              <button class="bulk-tab-button active" data-tab="skill-tab">Skill Assignment</button>
+              <button class="bulk-tab-button" data-tab="queue-tab">Queue Assignment</button>
+            </div>
+            
+            <!-- Skill Assignment Tab -->
+            <div id="skill-tab" class="bulk-tab-content active">
+              <div class="bulk-flex-row">
+                <div>
+                  <label for="skillDropdown">Select Skill:</label>
+                  <select id="skillDropdown"></select>
+                </div>
+                <div>
+                  <label for="agentDropdownForSkill">Select Agent:</label>
+                  <select id="agentDropdownForSkill"></select>
+                </div>
+                <div>
+                  <label for="managementUnitDropdownForSkill">Select Management Unit:</label>
+                  <select id="managementUnitDropdownForSkill"></select>
+                </div>
+              </div>
+              
+              <button id="fetchAgentsForSkill">Get Agents</button>
+              
+              <div class="bulk-table-container">
+                <table class="bulk-table" id="agentsTableForSkill">
+                  <thead>
+                    <tr>
+                      <th><input type="checkbox" id="selectAllAgentsForSkill" class="select-all-checkbox"></th>
+                      <th>Agent</th>
+                      <th>Current Skills</th>
+                      <th>Skill Change</th>
+                      <th>Proficiency</th>
+                      <th>Delete Skill</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+              
+              <button id="updateSkills">Update Selected Skills</button>
+              <div id="skill-results"></div>
+            </div>
+            
+            <!-- Queue Assignment Tab -->
+            <div id="queue-tab" class="bulk-tab-content">
+              <div class="bulk-flex-row">
+                <div>
+                  <label for="queueDropdown">Select Queue:</label>
+                  <select id="queueDropdown"></select>
+                </div>
+                <div>
+                  <label for="agentDropdownForQueue">Select Agent:</label>
+                  <select id="agentDropdownForQueue"></select>
+                </div>
+                <div>
+                  <label for="managementUnitDropdownForQueue">Select Management Unit:</label>
+                  <select id="managementUnitDropdownForQueue"></select>
+                </div>
+              </div>
+              
+              <button id="fetchAgentsForQueue">Get Agents</button>
+              
+              <div class="bulk-table-container">
+                <table class="bulk-table" id="agentsTableForQueue">
+                  <thead>
+                    <tr>
+                      <th><input type="checkbox" id="selectAllAgentsForQueue" class="select-all-checkbox"></th>
+                      <th>Agent</th>
+                      <th>Current Queues</th>
+                      <th>Queue Change</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+              
+              <button id="updateQueues">Update Selected Queues</button>
+              <div id="queue-results"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -513,6 +717,12 @@
       activityCode: false,
       bulkChanges: false
     };
+    
+    // Bulk Changes State
+    let availableSkills = [];
+    let availableQueues = [];
+    let availableAgents = [];
+    let availableManagementUnits = [];
     
     // =======================
     // Initialization
@@ -547,9 +757,16 @@
 
     async function validateTokenBeforeUse() {
       const authMessage = document.getElementById('auth-message');
+      const authMessageBulk = document.getElementById('auth-message-bulk');
+      
       if (authMessage) {
         authMessage.textContent = 'Validating authentication token...';
         authMessage.className = 'auth-loading';
+      }
+      
+      if (authMessageBulk) {
+        authMessageBulk.textContent = 'Validating authentication token...';
+        authMessageBulk.className = 'auth-loading';
       }
       
       try {
@@ -570,12 +787,23 @@
               authMessage.style.display = 'none';
             }, 2000);
           }
+          if (authMessageBulk) {
+            authMessageBulk.textContent = 'Authenticated successfully!';
+            authMessageBulk.className = 'auth-success';
+            setTimeout(() => {
+              authMessageBulk.style.display = 'none';
+            }, 2000);
+          }
           document.getElementsByClassName("tablink")[0].click();
         } else {
           console.log("Token validation failed, redirecting to auth");
           if (authMessage) {
             authMessage.textContent = 'Authentication expired, redirecting...';
             authMessage.className = 'auth-error';
+          }
+          if (authMessageBulk) {
+            authMessageBulk.textContent = 'Authentication expired, redirecting...';
+            authMessageBulk.className = 'auth-error';
           }
           sessionStorage.removeItem('purecloud_token');
           setTimeout(() => {
@@ -587,6 +815,10 @@
         if (authMessage) {
           authMessage.textContent = 'Error validating token, redirecting...';
           authMessage.className = 'auth-error';
+        }
+        if (authMessageBulk) {
+          authMessageBulk.textContent = 'Error validating token, redirecting...';
+          authMessageBulk.className = 'auth-error';
         }
         sessionStorage.removeItem('purecloud_token');
         setTimeout(() => {
@@ -625,6 +857,9 @@
             break;
           case 'activityCode':
             initActivityCodeManagement();
+            break;
+          case 'bulkChanges':
+            initBulkChanges();
             break;
           default:
             // Other tabs don't need special initialization
@@ -1140,6 +1375,471 @@
         }
       } catch (error) {
         resultsDiv.innerHTML = `<div class="error">Error creating activity code: ${error.message}</div>`;
+      }
+    }
+    
+    // =======================
+    // Bulk Skill & Queues Changes
+    function initBulkChanges() {
+      if (!accessToken) {
+        window.location.href = AUTH_URL;
+        return;
+      }
+      
+      initializeBulkChangesApp();
+    }
+    
+    function initializeBulkChangesApp() {
+      const authMsg = document.getElementById('auth-message-bulk');
+      authMsg.textContent = 'Authenticated successfully!';
+      authMsg.className = 'auth-success';
+      
+      setTimeout(() => {
+        authMsg.style.display = 'none';
+      }, 2000);
+    
+      // Setup bulk tabs
+      setupBulkTabs();
+      
+      // Fetch initial data
+      fetchBulkData();
+      
+      // Setup event listeners
+      setupBulkEventListeners();
+    }
+    
+    function setupBulkTabs() {
+      const tabButtons = document.querySelectorAll('.bulk-tab-button');
+      const tabContents = document.querySelectorAll('.bulk-tab-content');
+      
+      tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          // Remove active class from all buttons and contents
+          tabButtons.forEach(btn => btn.classList.remove('active'));
+          tabContents.forEach(content => content.classList.remove('active'));
+          
+          // Add active class to the clicked button and corresponding content
+          const tabId = button.getAttribute('data-tab');
+          button.classList.add('active');
+          document.getElementById(tabId).classList.add('active');
+        });
+      });
+    }
+    
+    async function fetchBulkData() {
+      try {
+        // Fetch all needed data in parallel
+        const [skills, queues, agents, managementUnits] = await Promise.all([
+          fetchAllPages('https://api.mypurecloud.ie/api/v2/routing/skills'),
+          fetchAllPages('https://api.mypurecloud.ie/api/v2/routing/queues'),
+          fetchAllPages('https://api.mypurecloud.ie/api/v2/users?pageSize=100'),
+          fetchAllPages('https://api.mypurecloud.ie/api/v2/workforcemanagement/managementunits')
+        ]);
+        
+        availableSkills = skills;
+        availableQueues = queues;
+        availableAgents = agents;
+        availableManagementUnits = managementUnits;
+        
+        // Populate dropdowns
+        populateBulkDropdowns();
+        
+      } catch (error) {
+        console.error('Error fetching bulk data:', error);
+        document.getElementById('skill-results').innerHTML = `<div class="error">Error loading data: ${error.message}</div>`;
+        document.getElementById('queue-results').innerHTML = `<div class="error">Error loading data: ${error.message}</div>`;
+      }
+    }
+    
+    function populateBulkDropdowns() {
+      // Skill dropdown
+      const skillDropdown = document.getElementById('skillDropdown');
+      skillDropdown.innerHTML = '<option value="">Select Skill</option>';
+      availableSkills.forEach(skill => {
+        const option = document.createElement('option');
+        option.value = skill.id;
+        option.textContent = skill.name;
+        skillDropdown.appendChild(option);
+      });
+      
+      // Queue dropdown
+      const queueDropdown = document.getElementById('queueDropdown');
+      queueDropdown.innerHTML = '<option value="">Select Queue</option>';
+      availableQueues.forEach(queue => {
+        const option = document.createElement('option');
+        option.value = queue.id;
+        option.textContent = queue.name;
+        queueDropdown.appendChild(option);
+      });
+      
+      // Agent dropdowns
+      const agentDropdownForSkill = document.getElementById('agentDropdownForSkill');
+      const agentDropdownForQueue = document.getElementById('agentDropdownForQueue');
+      
+      agentDropdownForSkill.innerHTML = '<option value="">Select Agent</option>';
+      agentDropdownForQueue.innerHTML = '<option value="">Select Agent</option>';
+      
+      availableAgents.forEach(agent => {
+        const option = document.createElement('option');
+        option.value = agent.id;
+        option.textContent = agent.name;
+        agentDropdownForSkill.appendChild(option);
+        agentDropdownForQueue.appendChild(option.cloneNode(true));
+      });
+      
+      // Management Unit dropdowns
+      const managementUnitDropdownForSkill = document.getElementById('managementUnitDropdownForSkill');
+      const managementUnitDropdownForQueue = document.getElementById('managementUnitDropdownForQueue');
+      
+      managementUnitDropdownForSkill.innerHTML = '<option value="">Select Management Unit</option>';
+      managementUnitDropdownForQueue.innerHTML = '<option value="">Select Management Unit</option>';
+      
+      availableManagementUnits.forEach(unit => {
+        const option = document.createElement('option');
+        option.value = unit.id;
+        option.textContent = unit.name;
+        managementUnitDropdownForSkill.appendChild(option);
+        managementUnitDropdownForQueue.appendChild(option.cloneNode(true));
+      });
+    }
+    
+    function setupBulkEventListeners() {
+      document.getElementById('fetchAgentsForSkill').addEventListener('click', () => fetchAgentsForSkill());
+      document.getElementById('fetchAgentsForQueue').addEventListener('click', () => fetchAgentsForQueue());
+      document.getElementById('updateSkills').addEventListener('click', () => updateSkills());
+      document.getElementById('updateQueues').addEventListener('click', () => updateQueues());
+      
+      // Select all checkboxes
+      document.getElementById('selectAllAgentsForSkill').addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('#agentsTableForSkill tbody input[type="checkbox"]');
+        checkboxes.forEach(checkbox => {
+          checkbox.checked = this.checked;
+        });
+      });
+      
+      document.getElementById('selectAllAgentsForQueue').addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('#agentsTableForQueue tbody input[type="checkbox"]');
+        checkboxes.forEach(checkbox => {
+          checkbox.checked = this.checked;
+        });
+      });
+    }
+    
+    async function fetchAgentsForSkill() {
+      const skillId = document.getElementById('skillDropdown').value;
+      const agentId = document.getElementById('agentDropdownForSkill').value;
+      const managementUnitId = document.getElementById('managementUnitDropdownForSkill').value;
+      const resultsDiv = document.getElementById('skill-results');
+      
+      resultsDiv.innerHTML = '<div class="info">Fetching agents...</div>';
+      
+      if (!skillId && !agentId && !managementUnitId) {
+        resultsDiv.innerHTML = '<div class="error">Please select a skill, agent, or management unit first.</div>';
+        return;
+      }
+      
+      try {
+        let agents = [];
+        if (skillId) {
+          agents = await fetchAgentsBySkill(skillId);
+        } else if (agentId) {
+          // If an agent is selected, return only that agent
+          const selectedAgent = availableAgents.find(agent => agent.id === agentId);
+          agents = selectedAgent ? [selectedAgent] : [];
+        } else if (managementUnitId) {
+          agents = await fetchAgentsByManagementUnit(managementUnitId);
+        }
+        
+        // Fetch skills for each agent
+        const agentsWithSkills = await Promise.all(agents.map(async agent => {
+          const skills = await fetchAgentSkills(agent.id);
+          return { ...agent, skills };
+        }));
+        
+        populateBulkTable(agentsWithSkills, 'skill');
+        resultsDiv.innerHTML = `<div class="success">Found ${agentsWithSkills.length} agents.</div>`;
+      } catch (error) {
+        console.error('Error fetching agents for skill:', error);
+        resultsDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+      }
+    }
+    
+    async function fetchAgentsForQueue() {
+      const queueId = document.getElementById('queueDropdown').value;
+      const agentId = document.getElementById('agentDropdownForQueue').value;
+      const managementUnitId = document.getElementById('managementUnitDropdownForQueue').value;
+      const resultsDiv = document.getElementById('queue-results');
+      
+      resultsDiv.innerHTML = '<div class="info">Fetching agents...</div>';
+      
+      if (!queueId && !agentId && !managementUnitId) {
+        resultsDiv.innerHTML = '<div class="error">Please select a queue, agent, or management unit first.</div>';
+        return;
+      }
+      
+      try {
+        let agents = [];
+        if (queueId) {
+          agents = await fetchAgentsByQueue(queueId);
+        } else if (agentId) {
+          // If an agent is selected, return only that agent
+          const selectedAgent = availableAgents.find(agent => agent.id === agentId);
+          agents = selectedAgent ? [selectedAgent] : [];
+        } else if (managementUnitId) {
+          agents = await fetchAgentsByManagementUnit(managementUnitId);
+        }
+        
+        // Fetch queues for each agent
+        const agentsWithQueues = await Promise.all(agents.map(async agent => {
+          const queues = await fetchAgentQueues(agent.id);
+          return { ...agent, queues };
+        }));
+        
+        populateBulkTable(agentsWithQueues, 'queue');
+        resultsDiv.innerHTML = `<div class="success">Found ${agentsWithQueues.length} agents.</div>`;
+      } catch (error) {
+        console.error('Error fetching agents for queue:', error);
+        resultsDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+      }
+    }
+    
+    async function fetchAgentsBySkill(skillId) {
+      const url = `https://api.${REGION}/api/v2/users?routingSkills=${skillId}`;
+      const response = await fetch(url, {
+        headers: { "Authorization": `Bearer ${accessToken}` }
+      });
+      const data = await response.json();
+      return data.entities || [];
+    }
+    
+    async function fetchAgentsByQueue(queueId) {
+      const url = `https://api.${REGION}/api/v2/routing/queues/${queueId}/members`;
+      const response = await fetch(url, {
+        headers: { "Authorization": `Bearer ${accessToken}` }
+      });
+      const data = await response.json();
+      return data.entities.map(member => ({
+        id: member.user.id,
+        name: member.user.name,
+        queueId: queueId,
+        queueName: member.queue.name
+      }));
+    }
+    
+    async function fetchAgentsByManagementUnit(unitId) {
+      const url = `https://api.${REGION}/api/v2/workforcemanagement/managementunits/${unitId}/users`;
+      const response = await fetch(url, {
+        headers: { "Authorization": `Bearer ${accessToken}` }
+      });
+      const data = await response.json();
+      return data.entities.map(agent => ({
+        id: agent.id,
+        name: agent.name || 'N/A'
+      }));
+    }
+    
+    async function fetchAgentSkills(agentId) {
+      const url = `https://api.${REGION}/api/v2/users/${agentId}/routingskills`;
+      const response = await fetch(url, {
+        headers: { "Authorization": `Bearer ${accessToken}` }
+      });
+      const data = await response.json();
+      return data.entities || [];
+    }
+    
+    async function fetchAgentQueues(agentId) {
+      const url = `https://api.${REGION}/api/v2/users/${agentId}/routingqueues`;
+      const response = await fetch(url, {
+        headers: { "Authorization": `Bearer ${accessToken}` }
+      });
+      const data = await response.json();
+      return data.entities || [];
+    }
+    
+    function populateBulkTable(agents, type) {
+      const tableBody = document.querySelector(`#agentsTableFor${type === 'skill' ? 'Skill' : 'Queue'} tbody`);
+      tableBody.innerHTML = "";
+      
+      agents.forEach(agent => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td><input type="checkbox" data-user-id="${agent.id}"></td>
+          <td>${agent.name || 'N/A'}</td>
+          <td>${type === 'skill' ? 
+              (agent.skills ? agent.skills.map(skill => skill.name).join(', ') : 'No Skills') : 
+              (agent.queues ? agent.queues.map(queue => queue.name).join(', ') : 'No Queues')}</td>
+          <td>
+            <select data-user-id="${agent.id}">
+              <option value="">Select</option>
+              ${type === 'skill' ? 
+                availableSkills.map(skill => `<option value="${skill.id}">${skill.name}</option>`).join('') : 
+                availableQueues.map(queue => `<option value="${queue.id}">${queue.name}</option>`).join('')}
+            </select>
+          </td>
+          ${type === 'skill' ? 
+            `<td><input type="number" min="0" max="5" step="0.1" data-user-id="${agent.id}" placeholder="Proficiency"></td>
+             <td><input type="checkbox" class="delete-skill-checkbox" data-user-id="${agent.id}"></td>` : 
+            ''}
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+    
+    async function updateSkills() {
+      const resultsDiv = document.getElementById('skill-results');
+      resultsDiv.innerHTML = '<div class="info">Updating skills...</div>';
+      
+      const checkboxes = document.querySelectorAll('#agentsTableForSkill tbody input[type="checkbox"]:checked');
+      if (checkboxes.length === 0) {
+        resultsDiv.innerHTML = '<div class="error">Please select at least one agent to update.</div>';
+        return;
+      }
+      
+      let successCount = 0;
+      let errorCount = 0;
+      let errorMessages = [];
+      
+      for (const checkbox of checkboxes) {
+        const userId = checkbox.getAttribute('data-user-id');
+        const row = checkbox.closest('tr');
+        const skillSelect = row.querySelector('select');
+        const proficiencyInput = row.querySelector('input[type="number"]');
+        const deleteCheckbox = row.querySelector('.delete-skill-checkbox');
+        
+        const skillId = skillSelect.value;
+        if (!skillId) {
+          errorCount++;
+          errorMessages.push(`Agent ${userId}: No skill selected`);
+          continue;
+        }
+        
+        try {
+          if (deleteCheckbox.checked) {
+            // Delete skill
+            await deleteAgentSkill(userId, skillId);
+          } else {
+            // Update or add skill
+            const proficiency = proficiencyInput.value ? parseFloat(proficiencyInput.value) : 0;
+            await updateAgentSkill(userId, skillId, proficiency);
+          }
+          successCount++;
+        } catch (error) {
+          errorCount++;
+          errorMessages.push(`Agent ${userId}: ${error.message}`);
+        }
+      }
+      
+      if (errorCount === 0) {
+        resultsDiv.innerHTML = `<div class="success">Successfully updated skills for ${successCount} agents.</div>`;
+      } else if (successCount === 0) {
+        resultsDiv.innerHTML = `<div class="error">Failed to update skills for all ${errorCount} agents.</div>
+                               <ul>${errorMessages.map(msg => `<li>${msg}</li>`).join('')}</ul>`;
+      } else {
+        resultsDiv.innerHTML = `<div class="success">Successfully updated skills for ${successCount} agents.</div>
+                               <div class="error">Failed to update ${errorCount} agents:</div>
+                               <ul>${errorMessages.map(msg => `<li>${msg}</li>`).join('')}</ul>`;
+      }
+    }
+    
+    async function updateQueues() {
+      const resultsDiv = document.getElementById('queue-results');
+      resultsDiv.innerHTML = '<div class="info">Updating queues...</div>';
+      
+      const checkboxes = document.querySelectorAll('#agentsTableForQueue tbody input[type="checkbox"]:checked');
+      if (checkboxes.length === 0) {
+        resultsDiv.innerHTML = '<div class="error">Please select at least one agent to update.</div>';
+        return;
+      }
+      
+      let successCount = 0;
+      let errorCount = 0;
+      let errorMessages = [];
+      
+      for (const checkbox of checkboxes) {
+        const userId = checkbox.getAttribute('data-user-id');
+        const row = checkbox.closest('tr');
+        const queueSelect = row.querySelector('select');
+        const queueId = queueSelect.value;
+        
+        if (!queueId) {
+          errorCount++;
+          errorMessages.push(`Agent ${userId}: No queue selected`);
+          continue;
+        }
+        
+        try {
+          await updateAgentQueue(userId, queueId);
+          successCount++;
+        } catch (error) {
+          errorCount++;
+          errorMessages.push(`Agent ${userId}: ${error.message}`);
+        }
+      }
+      
+      if (errorCount === 0) {
+        resultsDiv.innerHTML = `<div class="success">Successfully updated queues for ${successCount} agents.</div>`;
+      } else if (successCount === 0) {
+        resultsDiv.innerHTML = `<div class="error">Failed to update queues for all ${errorCount} agents.</div>
+                               <ul>${errorMessages.map(msg => `<li>${msg}</li>`).join('')}</ul>`;
+      } else {
+        resultsDiv.innerHTML = `<div class="success">Successfully updated queues for ${successCount} agents.</div>
+                               <div class="error">Failed to update ${errorCount} agents:</div>
+                               <ul>${errorMessages.map(msg => `<li>${msg}</li>`).join('')}</ul>`;
+      }
+    }
+    
+    async function updateAgentSkill(userId, skillId, proficiency) {
+      const url = `https://api.${REGION}/api/v2/users/${userId}/routingskills/${skillId}`;
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          id: skillId,
+          proficiency: proficiency || 0
+        })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update skill');
+      }
+    }
+    
+    async function deleteAgentSkill(userId, skillId) {
+      const url = `https://api.${REGION}/api/v2/users/${userId}/routingskills/${skillId}`;
+      const response = await fetch(url, {
+        method: 'DELETE',
+        headers: {
+          "Authorization": `Bearer ${accessToken}`
+        }
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to delete skill');
+      }
+    }
+    
+    async function updateAgentQueue(userId, queueId) {
+      const url = `https://api.${REGION}/api/v2/users/${userId}/routingqueues/${queueId}`;
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          id: queueId,
+          joined: true
+        })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update queue');
       }
     }
     
