@@ -251,17 +251,30 @@
       margin: 8px 0;
       width: 100%;
       max-width: 400px;
+      white-space: nowrap;
     }
     .checkbox-container label {
       flex-grow: 1;
       font-weight: normal;
       margin: 0;
       color: #555;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .checkbox-container input[type="checkbox"] {
       margin-right: 10px;
       width: auto;
+      min-width: 18px;
       transform: scale(1.2);
+      flex-shrink: 0;
+    }
+    .checkbox-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      width: 100%;
+      max-width: 400px;
     }
     select[multiple] { 
       height: auto; 
@@ -440,29 +453,31 @@
             </div>
             <div class="form-group">
               <label>Options:</label>
-              <div class="checkbox-container">
-                <input type="checkbox" id="paid-time" value="countsAsPaidTime" disabled>
-                <label for="paid-time">Counts as Paid Time</label>
-              </div>
-              <div class="checkbox-container">
-                <input type="checkbox" id="work-time" value="countsAsWorkTime" disabled>
-                <label for="work-time">Counts as Work Time</label>
-              </div>
-              <div class="checkbox-container">
-                <input type="checkbox" id="time-off-selectable" value="agentTimeOffSelectable" disabled>
-                <label for="time-off-selectable">Agent Time Off Selectable</label>
-              </div>
-              <div class="checkbox-container">
-                <input type="checkbox" id="shrinkage" value="countsTowardShrinkage" disabled>
-                <label for="shrinkage">Counts Toward Shrinkage</label>
-              </div>
-              <div class="checkbox-container">
-                <input type="checkbox" id="planned-shrinkage" value="plannedShrinkage" disabled>
-                <label for="planned-shrinkage">Planned Shrinkage</label>
-              </div>
-              <div class="checkbox-container">
-                <input type="checkbox" id="interruptible" value="interruptible" disabled>
-                <label for="interruptible">Interruptible</label>
+              <div class="checkbox-grid">
+                <div class="checkbox-container">
+                  <input type="checkbox" id="paid-time" value="countsAsPaidTime" disabled>
+                  <label for="paid-time">Counts as Paid Time</label>
+                </div>
+                <div class="checkbox-container">
+                  <input type="checkbox" id="work-time" value="countsAsWorkTime" disabled>
+                  <label for="work-time">Counts as Work Time</label>
+                </div>
+                <div class="checkbox-container">
+                  <input type="checkbox" id="time-off-selectable" value="agentTimeOffSelectable" disabled>
+                  <label for="time-off-selectable">Agent Time Off Selectable</label>
+                </div>
+                <div class="checkbox-container">
+                  <input type="checkbox" id="shrinkage" value="countsTowardShrinkage" disabled>
+                  <label for="shrinkage">Counts Toward Shrinkage</label>
+                </div>
+                <div class="checkbox-container">
+                  <input type="checkbox" id="planned-shrinkage" value="plannedShrinkage" disabled>
+                  <label for="planned-shrinkage">Planned Shrinkage</label>
+                </div>
+                <div class="checkbox-container">
+                  <input type="checkbox" id="interruptible" value="interruptible" disabled>
+                  <label for="interruptible">Interruptible</label>
+                </div>
               </div>
             </div>
             <button id="create-button" onclick="createActivityCode()" disabled>Create Activity Code for Selected Business Units</button>
