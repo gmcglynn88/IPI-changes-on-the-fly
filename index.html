@@ -96,7 +96,7 @@
       border-left: 3px solid transparent;
       display: flex;
       align-items: center;
-      white-space: nowrap; /* Prevent text wrapping */
+      white-space: nowrap;
     }
 
     .sidebar button:hover {
@@ -115,7 +115,7 @@
       margin-right: 10px;
       width: 20px;
       text-align: center;
-      font-style: normal; /* Remove italics from icons */
+      font-style: normal;
     }
 
     .content-area {
@@ -307,6 +307,32 @@
       background-color: rgba(255, 193, 7, 0.1);
       border-left-color: var(--warning-color);
     }
+    
+    /* Added table styles */
+    .results-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    
+    .results-table th, .results-table td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .results-table th {
+      background-color: var(--light-bg);
+      font-weight: 500;
+    }
+    
+    .results-table tr:hover {
+      background-color: rgba(99, 171, 143, 0.05);
+    }
+    
+    #selectAllAgentsForQueue {
+      width: auto;
+    }
   </style>
 </head>
 <body>
@@ -381,12 +407,22 @@
           </div>
         </div>
 
-        <!-- Other tabs remain unchanged -->
+        <!-- Other tabs (hidden by default) -->
+        <div id="wfmManagement" class="tabcontent"></div>
+        <div id="externalWork" class="tabcontent"></div>
+        <div id="activityCode" class="tabcontent"></div>
+        <div id="bulkChanges" class="tabcontent"></div>
       </div>
     </div>
   </div>
 
   <script>
+    // Global variables needed for the functions
+    let accessToken = '';
+    let REGION = 'mypurecloud.com'; // Default region, can be changed
+    let availableAgents = [];
+    let availableQueues = [];
+    
     function openTab(event, tabName) {
       // Hide all tabs
       const tabs = document.querySelectorAll('.tabcontent');
@@ -401,6 +437,75 @@
       event.currentTarget.classList.add('active');
     }
 
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', function() {
+      // Set up event listeners
+      document.getElementById('fetchAgentsForQueue').addEventListener('click', fetchAgentsForQueue);
+      
+      // Select all checkbox functionality
+      document.getElementById('selectAllAgentsForQueue').addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('#agentsTableForQueue tbody input[type="checkbox"]');
+        checkboxes.forEach(checkbox => {
+          checkbox.checked = this.checked;
+        });
+      });
+      
+      // Initialize authentication (you'll need to implement this)
+      authenticateWithPureCloud();
+    });
+
+    // Authentication function (placeholder - implement according to your auth flow)
+    async function authenticateWithPureCloud() {
+      try {
+        // This should be replaced with your actual authentication logic
+        // For example, using OAuth or your preferred authentication method
+        accessToken = 'your_access_token_here'; // This should come from your auth flow
+        
+        // After authentication, fetch initial data
+        await fetchInitialData();
+        
+        document.getElementById('auth-message-queue').textContent = 'Authenticated successfully';
+        document.getElementById('auth-message-queue').className = 'status-message success';
+      } catch (error) {
+        console.error('Authentication failed:', error);
+        document.getElementById('auth-message-queue').textContent = 'Authentication failed: ' + error.message;
+        document.getElementById('auth-message-queue').className = 'status-message error';
+      }
+    }
+    
+    // Fetch initial data (queues and agents)
+    async function fetchInitialData() {
+      try {
+        // Fetch queues
+        const queuesResponse = await fetch(`https://api.${REGION}/api/v2/routing/queues`, {
+          headers: { "Authorization": `Bearer ${accessToken}` }
+        });
+        const queuesData = await queuesResponse.json();
+        availableQueues = queuesData.entities.map(queue => ({ id: queue.id, name: queue.name }));
+        
+        // Populate queue dropdown
+        const queueDropdown = document.getElementById('queueDropdown');
+        queueDropdown.innerHTML = '<option value="">Select a queue</option>' + 
+          availableQueues.map(queue => `<option value="${queue.id}">${queue.name}</option>`).join('');
+        
+        // Fetch agents
+        const agentsResponse = await fetch(`https://api.${REGION}/api/v2/users?pageSize=100`, {
+          headers: { "Authorization": `Bearer ${accessToken}` }
+        });
+        const agentsData = await agentsResponse.json();
+        availableAgents = agentsData.entities.map(user => ({ id: user.id, name: user.name }));
+        
+        // Populate agent dropdown
+        const agentDropdown = document.getElementById('agentDropdownForQueue');
+        agentDropdown.innerHTML = '<option value="">Select an agent</option>' + 
+          availableAgents.map(agent => `<option value="${agent.id}">${agent.name}</option>`).join('');
+          
+      } catch (error) {
+        console.error('Error fetching initial data:', error);
+        throw error;
+      }
+    }
+
     // JavaScript logic for the Bulk Queue Changes Tab
     async function fetchAgentsForQueue() {
       const queueId = document.getElementById('queueDropdown').value;
@@ -412,17 +517,27 @@
       }
 
       try {
-        const agents = agentId ? [availableAgents.find(agent => agent.id === agentId)] : await fetchAgentsByQueue(queueId);
+        const agents = agentId ? 
+          [availableAgents.find(agent => agent.id === agentId)] : 
+          await fetchAgentsByQueue(queueId);
 
         populateQueueTable(agents);
       } catch (error) {
         console.error("Error fetching agents:", error);
+        alert("Failed to fetch agents: " + error.message);
       }
     }
 
     function populateQueueTable(agents) {
       const tableBody = document.querySelector('#agentsTableForQueue tbody');
       tableBody.innerHTML = "";
+
+      if (!agents || agents.length === 0) {
+        const row = document.createElement("tr");
+        row.innerHTML = `<td colspan="4" style="text-align: center;">No agents found</td>`;
+        tableBody.appendChild(row);
+        return;
+      }
 
       agents.forEach(agent => {
         const row = document.createElement("tr");
@@ -448,35 +563,75 @@
         headers: { "Authorization": `Bearer ${accessToken}` }
       });
 
+      if (!response.ok) {
+        throw new Error(`Failed to fetch queue members: ${response.status}`);
+      }
+
       const data = await response.json();
       return data.entities.map(member => ({
         id: member.user.id,
         name: member.user.name,
-        queues: member.queues.map(queue => ({ id: queue.id, name: queue.name }))
+        queues: member.user.routingStatus?.queues || []
       }));
     }
 
     // Handle update queues logic
     document.getElementById('updateQueues').addEventListener('click', async () => {
       const checkboxes = document.querySelectorAll('#agentsTableForQueue tbody input[type="checkbox"]:checked');
-      const updates = [];
+      const resultsDiv = document.getElementById('queue-results');
+      
+      if (checkboxes.length === 0) {
+        resultsDiv.textContent = 'Please select at least one agent to update';
+        resultsDiv.className = 'status-message warning';
+        resultsDiv.style.display = 'block';
+        return;
+      }
 
-      checkboxes.forEach(checkbox => {
+      const updates = [];
+      const errors = [];
+
+      for (const checkbox of checkboxes) {
         const userId = checkbox.getAttribute('data-user-id');
         const row = checkbox.closest('tr');
         const queueSelect = row.querySelector('select');
         const selectedQueue = queueSelect.value;
 
         if (selectedQueue) {
-          updates.push(updateAgentQueue(userId, selectedQueue));
+          try {
+            updates.push(updateAgentQueue(userId, selectedQueue));
+          } catch (error) {
+            errors.push(`Failed to update agent ${userId}: ${error.message}`);
+          }
         }
-      });
+      }
 
       try {
         await Promise.all(updates);
-        alert('Queues updated successfully.');
+        
+        if (errors.length > 0) {
+          resultsDiv.innerHTML = `
+            <p>${updates.length} agents updated successfully.</p>
+            <p>${errors.length} errors occurred:</p>
+            <ul>${errors.map(error => `<li>${error}</li>`).join('')}</ul>
+          `;
+          resultsDiv.className = 'status-message warning';
+        } else {
+          resultsDiv.textContent = `${updates.length} agents updated successfully.`;
+          resultsDiv.className = 'status-message success';
+        }
+        
+        resultsDiv.style.display = 'block';
+        
+        // Refresh the table
+        const queueId = document.getElementById('queueDropdown').value;
+        if (queueId) {
+          const agents = await fetchAgentsByQueue(queueId);
+          populateQueueTable(agents);
+        }
       } catch (error) {
-        console.error('Error updating queues:', error);
+        resultsDiv.textContent = 'Error updating queues: ' + error.message;
+        resultsDiv.className = 'status-message error';
+        resultsDiv.style.display = 'block';
       }
     });
 
@@ -493,8 +648,11 @@
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update queue');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update queue');
       }
+      
+      return response.json();
     }
   </script>
 </body>
