@@ -21,13 +21,13 @@
       --info-color: #17a2b8;
       --warning-color: #ffc107;
     }
-    
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
-    
+
     body {
       font-family: 'Roboto', Arial, sans-serif;
       background-color: var(--light-bg);
@@ -37,7 +37,7 @@
       flex-direction: column;
       min-height: 100vh;
     }
-    
+
     header {
       background-color: var(--header-bg);
       color: white;
@@ -47,7 +47,7 @@
       justify-content: space-between;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
-    
+
     .header-content {
       display: flex;
       align-items: center;
@@ -56,22 +56,22 @@
       margin: 0 auto;
       justify-content: space-between;
     }
-    
+
     .logo img {
       height: 40px;
     }
-    
+
     .app-container {
       display: flex;
       flex: 1;
-      min-height: calc(100vh - 70px); /* Ensure content area adjusts below header */
-      margin-top: 70px; /* Added space to avoid overlap with header */
+      min-height: calc(100vh - 70px);
+      margin-top: 70px;
       width: 100%;
     }
-    
+
     .sidebar {
-      position: fixed; /* Position fixed on the left */
-      top: 70px; /* Place it below the header */
+      position: fixed;
+      top: 70px;
       left: 0;
       width: 250px;
       background-color: white;
@@ -79,9 +79,9 @@
       padding: 20px 0;
       display: flex;
       flex-direction: column;
-      height: calc(100vh - 70px); /* Full height minus header */
+      height: calc(100vh - 70px);
     }
-    
+
     .sidebar button {
       background-color: transparent;
       border: none;
@@ -97,49 +97,49 @@
       display: flex;
       align-items: center;
     }
-    
+
     .sidebar button:hover {
       background-color: rgba(99, 171, 143, 0.1);
       color: var(--text-dark);
     }
-    
+
     .sidebar button.active {
       background-color: rgba(99, 171, 143, 0.1);
       color: var(--primary-color);
       border-left: 3px solid var(--primary-color);
       font-weight: 500;
     }
-    
+
     .sidebar button i {
       margin-right: 10px;
       width: 20px;
       text-align: center;
       font-style: normal; /* Remove italics from icons */
     }
-    
+
     .content-area {
       flex: 1;
       padding: 30px;
       overflow-y: auto;
-      margin-left: 250px; /* Make space for the sidebar */
-      width: calc(100% - 250px); /* Ensure content area uses remaining width */
+      margin-left: 250px;
+      width: calc(100% - 250px);
     }
-    
+
     .tab-content-container {
       width: 100%;
       max-width: 1000px;
       margin: 0 auto;
     }
-    
+
     .tabcontent {
       display: none;
       width: 100%;
     }
-    
+
     .tabcontent.active {
       display: block;
     }
-    
+
     .app-window {
       background-color: white;
       border-radius: 8px;
@@ -147,12 +147,12 @@
       padding: 30px;
       width: 100%;
     }
-    
+
     /* Common Form Styles */
     .form-section {
       margin-bottom: 30px;
     }
-    
+
     .form-section h2 {
       color: var(--text-dark);
       font-size: 20px;
@@ -162,26 +162,26 @@
       border-bottom: 2px solid var(--primary-color);
       display: inline-block;
     }
-    
+
     .form-row {
       display: flex;
       flex-wrap: wrap;
       gap: 25px;
       margin-bottom: 20px;
     }
-    
+
     .form-group {
       flex: 1;
       min-width: 300px;
     }
-    
+
     label {
       display: block;
       font-weight: 500;
       color: var(--text-medium);
       margin-bottom: 8px;
     }
-    
+
     input, select {
       width: 100%;
       padding: 12px 15px;
@@ -190,29 +190,29 @@
       font-size: 15px;
       transition: all 0.3s;
     }
-    
+
     input:focus, select:focus {
       outline: none;
       border-color: var(--primary-color);
       box-shadow: 0 0 0 3px rgba(99, 171, 143, 0.2);
     }
-    
+
     select[multiple] {
       height: auto;
       min-height: 150px;
       padding: 8px;
     }
-    
+
     select[multiple] option {
       padding: 8px 12px;
       border-bottom: 1px solid #eee;
       transition: background-color 0.2s;
     }
-    
+
     select[multiple] option:hover {
       background-color: rgba(99, 171, 143, 0.1);
     }
-    
+
     .checkbox-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -220,7 +220,7 @@
       width: 100%;
       max-width: 650px;
     }
-    
+
     .checkbox-container {
       display: flex;
       align-items: center;
@@ -229,11 +229,11 @@
       border-radius: 6px;
       transition: all 0.2s;
     }
-    
+
     .checkbox-container:hover {
       background-color: rgba(99, 171, 143, 0.1);
     }
-    
+
     .checkbox-container input[type="checkbox"] {
       width: 18px;
       height: 18px;
@@ -241,13 +241,13 @@
       accent-color: var(--primary-color);
       cursor: pointer;
     }
-    
+
     .checkbox-container label {
       font-weight: 400;
       margin: 0;
       cursor: pointer;
     }
-    
+
     button {
       background-color: var(--primary-color);
       color: white;
@@ -262,45 +262,45 @@
       align-items: center;
       justify-content: center;
     }
-    
+
     button:hover {
       background-color: var(--primary-dark);
       transform: translateY(-1px);
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
-    
+
     button:disabled {
       background-color: #cccccc;
       cursor: not-allowed;
       transform: none;
       box-shadow: none;
     }
-    
+
     .status-message {
       margin-top: 20px;
       padding: 12px 15px;
       border-radius: 6px;
       border-left: 4px solid transparent;
     }
-    
+
     .error {
       color: var(--error-color);
       background-color: rgba(220, 53, 69, 0.1);
       border-left-color: var(--error-color);
     }
-    
+
     .success {
       color: var(--success-color);
       background-color: rgba(40, 167, 69, 0.1);
       border-left-color: var(--success-color);
     }
-    
+
     .info {
       color: var(--info-color);
       background-color: rgba(23, 162, 184, 0.1);
       border-left-color: var(--info-color);
     }
-    
+
     .warning {
       color: var(--warning-color);
       background-color: rgba(255, 193, 7, 0.1);
@@ -332,42 +332,154 @@
       <button type="button" class="tablink" onclick="openTab(event, 'bulkChanges')">
         <i>🔄</i> Bulk Skill & Queues
       </button>
+      <button type="button" class="tablink" onclick="openTab(event, 'bulkQueueChanges')">
+        <i>🔄</i> Bulk Queue Changes
+      </button>
     </div>
     
     <div class="content-area">
       <div class="tab-content-container">
-        <!-- WFM Management Unit Search Tab -->
-        <div id="wfmManagement" class="tabcontent active">
+        <!-- Bulk Queue Changes Tab -->
+        <div id="bulkQueueChanges" class="tabcontent">
           <div class="app-window">
             <div class="form-section">
-              <h2>WFM Management Unit Search</h2>
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="searchUser">Search users</label>
-                  <input type="text" id="searchUser" placeholder="Type to filter users...">
-                </div>
-              </div>
+              <h2>Bulk Queue Changes</h2>
+              <div id="auth-message-queue" class="status-message info">Authenticating with PureCloud...</div>
               
               <div class="form-row">
                 <div class="form-group">
-                  <label for="agentSelect">Select an Agent</label>
-                  <select id="agentSelect"></select>
+                  <label for="queueDropdown">Select Queue</label>
+                  <select id="queueDropdown"></select>
+                </div>
+                <div class="form-group">
+                  <label for="agentDropdownForQueue">Select Agent</label>
+                  <select id="agentDropdownForQueue"></select>
                 </div>
               </div>
-              
-              <button id="lookupBtn">Get Management Unit</button>
-              <div id="muResults" class="status-message" style="display: none;"></div>
+
+              <button id="fetchAgentsForQueue">Get Agents</button>
+
+              <div style="overflow-x: auto; margin-top: 20px;">
+                <table class="results-table" id="agentsTableForQueue">
+                  <thead>
+                    <tr>
+                      <th><input type="checkbox" id="selectAllAgentsForQueue"></th>
+                      <th>Agent</th>
+                      <th>Current Queues</th>
+                      <th>Queue Change</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+
+              <button id="updateQueues">Update Selected Queues</button>
+              <div id="queue-results" class="status-message" style="display: none;"></div>
             </div>
           </div>
         </div>
-        
-        <!-- Other tabs follow similar structure -->
+
+        <!-- Other tabs remain unchanged -->
       </div>
     </div>
   </div>
 
   <script>
-    // JavaScript logic for tabs and functionality remains unchanged
+    // JavaScript logic for the Bulk Queue Changes Tab
+    async function fetchAgentsForQueue() {
+      const queueId = document.getElementById('queueDropdown').value;
+      const agentId = document.getElementById('agentDropdownForQueue').value;
+      
+      if (!queueId && !agentId) {
+        alert("Please select a queue or agent.");
+        return;
+      }
+
+      try {
+        const agents = agentId ? [availableAgents.find(agent => agent.id === agentId)] : await fetchAgentsByQueue(queueId);
+
+        populateQueueTable(agents);
+      } catch (error) {
+        console.error("Error fetching agents:", error);
+      }
+    }
+
+    function populateQueueTable(agents) {
+      const tableBody = document.querySelector('#agentsTableForQueue tbody');
+      tableBody.innerHTML = "";
+
+      agents.forEach(agent => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td><input type="checkbox" data-user-id="${agent.id}"></td>
+          <td>${agent.name || 'N/A'}</td>
+          <td>${agent.queues ? agent.queues.map(queue => queue.name).join(', ') : 'No Queues'}</td>
+          <td>
+            <select data-user-id="${agent.id}">
+              <option value="">Select</option>
+              ${availableQueues.map(queue => `<option value="${queue.id}">${queue.name}</option>`).join('')}
+            </select>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+
+    // Fetch agents by queue logic
+    async function fetchAgentsByQueue(queueId) {
+      const url = `https://api.${REGION}/api/v2/routing/queues/${queueId}/members`;
+      const response = await fetch(url, {
+        headers: { "Authorization": `Bearer ${accessToken}` }
+      });
+
+      const data = await response.json();
+      return data.entities.map(member => ({
+        id: member.user.id,
+        name: member.user.name,
+        queues: member.queues.map(queue => ({ id: queue.id, name: queue.name }))
+      }));
+    }
+
+    // Handle update queues logic
+    document.getElementById('updateQueues').addEventListener('click', async () => {
+      const checkboxes = document.querySelectorAll('#agentsTableForQueue tbody input[type="checkbox"]:checked');
+      const updates = [];
+
+      checkboxes.forEach(checkbox => {
+        const userId = checkbox.getAttribute('data-user-id');
+        const row = checkbox.closest('tr');
+        const queueSelect = row.querySelector('select');
+        const selectedQueue = queueSelect.value;
+
+        if (selectedQueue) {
+          updates.push(updateAgentQueue(userId, selectedQueue));
+        }
+      });
+
+      try {
+        await Promise.all(updates);
+        alert('Queues updated successfully.');
+      } catch (error) {
+        console.error('Error updating queues:', error);
+      }
+    });
+
+    // Update agent queue API call
+    async function updateAgentQueue(userId, queueId) {
+      const url = `https://api.${REGION}/api/v2/users/${userId}/routingqueues/${queueId}`;
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id: queueId, joined: true })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update queue');
+      }
+    }
   </script>
 </body>
 </html>
