@@ -44,7 +44,6 @@
       padding: 15px 30px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       position: fixed;
       width: 100%;
@@ -58,11 +57,12 @@
       width: 100%;
       max-width: 1400px;
       margin: 0 auto;
-      justify-content: space-between;
+      justify-content: flex-start;
     }
     
     .logo img {
       height: 40px;
+      margin-left: 20px;
     }
     
     .app-container {
@@ -109,7 +109,6 @@
       display: flex;
       align-items: center;
       white-space: nowrap;
-      overflow: hidden;
     }
     
     .sidebar button:hover {
@@ -1419,11 +1418,13 @@
     
     async function fetchBulkSkillsData() {
       try {
+        showStatusMessage('skill-results', 'Loading skill data...', 'info');
+        
         // Fetch all needed data in parallel
         const [skills, agents, managementUnits] = await Promise.all([
-          fetchAllPages('https://api.mypurecloud.ie/api/v2/routing/skills'),
-          fetchAllPages('https://api.mypurecloud.ie/api/v2/users?pageSize=100'),
-          fetchAllPages('https://api.mypurecloud.ie/api/v2/workforcemanagement/managementunits')
+          fetchAllPages('https://api.' + REGION + '/api/v2/routing/skills'),
+          fetchAllPages('https://api.' + REGION + '/api/v2/users?pageSize=100'),
+          fetchAllPages('https://api.' + REGION + '/api/v2/workforcemanagement/managementunits')
         ]);
         
         availableSkills = skills;
@@ -1433,6 +1434,10 @@
         // Populate dropdowns
         populateBulkSkillsDropdowns();
         
+        showStatusMessage('skill-results', 'Data loaded successfully', 'success');
+        setTimeout(() => {
+          document.getElementById('skill-results').style.display = 'none';
+        }, 2000);
       } catch (error) {
         console.error('Error fetching bulk skills data:', error);
         showStatusMessage('skill-results', 'Error loading data: ' + error.message, 'error');
@@ -1510,8 +1515,13 @@
         
         // Fetch skills for each agent
         const agentsWithSkills = await Promise.all(agents.map(async agent => {
-          const skills = await fetchAgentSkills(agent.id);
-          return { ...agent, skills };
+          try {
+            const skills = await fetchAgentSkills(agent.id);
+            return { ...agent, skills };
+          } catch (error) {
+            console.error(`Error fetching skills for agent ${agent.id}:`, error);
+            return { ...agent, skills: [], error: error.message };
+          }
         }));
         
         populateBulkSkillsTable(agentsWithSkills);
@@ -1528,10 +1538,18 @@
       
       agents.forEach(agent => {
         const row = document.createElement("tr");
+        let skillList = 'No skills found';
+        
+        if (agent.error) {
+          skillList = `Error: ${agent.error}`;
+        } else if (agent.skills && agent.skills.length > 0) {
+          skillList = agent.skills.map(skill => skill.name).join(', ');
+        }
+        
         row.innerHTML = `
           <td><input type="checkbox" data-user-id="${agent.id}"></td>
           <td>${agent.name || 'N/A'}</td>
-          <td>${agent.skills ? agent.skills.map(skill => skill.name).join(', ') : 'No Skills'}</td>
+          <td>${skillList}</td>
           <td>
             <select data-user-id="${agent.id}">
               <option value="">Select</option>
@@ -1631,11 +1649,13 @@
     
     async function fetchBulkQueuesData() {
       try {
+        showStatusMessage('queue-results', 'Loading queue data...', 'info');
+        
         // Fetch all needed data in parallel
         const [queues, agents, managementUnits] = await Promise.all([
-          fetchAllPages('https://api.mypurecloud.ie/api/v2/routing/queues'),
-          fetchAllPages('https://api.mypurecloud.ie/api/v2/users?pageSize=100'),
-          fetchAllPages('https://api.mypurecloud.ie/api/v2/workforcemanagement/managementunits')
+          fetchAllPages('https://api.' + REGION + '/api/v2/routing/queues'),
+          fetchAllPages('https://api.' + REGION + '/api/v2/users?pageSize=100'),
+          fetchAllPages('https://api.' + REGION + '/api/v2/workforcemanagement/managementunits')
         ]);
         
         availableQueues = queues;
@@ -1645,6 +1665,10 @@
         // Populate dropdowns
         populateBulkQueuesDropdowns();
         
+        showStatusMessage('queue-results', 'Data loaded successfully', 'success');
+        setTimeout(() => {
+          document.getElementById('queue-results').style.display = 'none';
+        }, 2000);
       } catch (error) {
         console.error('Error fetching bulk queues data:', error);
         showStatusMessage('queue-results', 'Error loading data: ' + error.message, 'error');
@@ -1711,7 +1735,21 @@
       try {
         let agents = [];
         if (queueId) {
-          agents = await fetchAgentsByQueue(queueId);
+          // Fetch queue members with user details expanded
+          const url = `https://api.${REGION}/api/v2/routing/queues/${queueId}/members?expand=user`;
+          const response = await fetch(url, {
+            headers: { "Authorization": `Bearer ${accessToken}` }
+          });
+          
+          if (!response.ok) {
+            throw new Error(`Failed to fetch queue members: ${response.status}`);
+          }
+          
+          const data = await response.json();
+          agents = data.entities.map(member => ({
+            id: member.user.id,
+            name: member.user.name
+          }));
         } else if (agentId) {
           // If an agent is selected, return only that agent
           const selectedAgent = availableAgents.find(agent => agent.id === agentId);
@@ -1722,8 +1760,13 @@
         
         // Fetch queues for each agent
         const agentsWithQueues = await Promise.all(agents.map(async agent => {
-          const queues = await fetchAgentQueues(agent.id);
-          return { ...agent, queues };
+          try {
+            const queues = await fetchAgentQueues(agent.id);
+            return { ...agent, queues };
+          } catch (error) {
+            console.error(`Error fetching queues for agent ${agent.id}:`, error);
+            return { ...agent, queues: [], error: error.message };
+          }
         }));
         
         populateBulkQueuesTable(agentsWithQueues);
@@ -1740,10 +1783,18 @@
       
       agents.forEach(agent => {
         const row = document.createElement("tr");
+        let queueList = 'No queues found';
+        
+        if (agent.error) {
+          queueList = `Error: ${agent.error}`;
+        } else if (agent.queues && agent.queues.length > 0) {
+          queueList = agent.queues.map(queue => queue.name).join(', ');
+        }
+        
         row.innerHTML = `
           <td><input type="checkbox" data-user-id="${agent.id}"></td>
           <td>${agent.name || 'N/A'}</td>
-          <td>${agent.queues ? agent.queues.map(queue => queue.name).join(', ') : 'No Queues'}</td>
+          <td>${queueList}</td>
           <td>
             <select data-user-id="${agent.id}">
               <option value="">Select</option>
@@ -1812,20 +1863,6 @@
       });
       const data = await response.json();
       return data.entities || [];
-    }
-    
-    async function fetchAgentsByQueue(queueId) {
-      const url = `https://api.${REGION}/api/v2/routing/queues/${queueId}/members`;
-      const response = await fetch(url, {
-        headers: { "Authorization": `Bearer ${accessToken}` }
-      });
-      const data = await response.json();
-      return data.entities.map(member => ({
-        id: member.user.id,
-        name: member.user.name,
-        queueId: queueId,
-        queueName: member.queue.name
-      }));
     }
     
     async function fetchAgentsByManagementUnit(unitId) {
