@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Genesys Management Console</title>
-  <link href="https://fonts.googleapis.com/css2?family=Aptos:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Aptos:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
       --primary-color: #63AB8F;
@@ -44,7 +44,7 @@
       padding: 15px 30px;
       display: flex;
       align-items: center;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
       position: fixed;
       width: 100%;
       top: 0;
@@ -78,7 +78,7 @@
     .sidebar {
       width: 250px;
       background-color: white;
-      box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
       padding: 20px 0;
       display: flex;
       flex-direction: column;
@@ -156,7 +156,7 @@
     .app-window {
       background-color: white;
       border-radius: 8px;
-      box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
       padding: 30px;
       width: 100%;
     }
@@ -279,7 +279,7 @@
     button:hover {
       background-color: var(--primary-dark);
       transform: translateY(-1px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
     
     button:disabled {
@@ -327,7 +327,7 @@
       margin-top: 20px;
     }
     
-    .results-table th, 
+    .results-table th,
     .results-table td {
       padding: 12px 15px;
       text-align: left;
@@ -402,7 +402,7 @@
     <div class="header-content">
       <h1>Genesys Management Console</h1>
       <div class="logo">
-        <img src="https://raw.githubusercontent.com/gmcglynn88/TimeoffApp/main/IPI_Primary%20Identity_Corporate_REVERSED_ECC.png" alt="IPI Logo">
+        <img src="https://raw.githubusercontent.com/gmcglynn88/TimeoffApp/main/IPI_Primary%20Identity_Corporate_REVERSED_ECC.png" alt="IPI Logo" />
       </div>
     </div>
   </header>
@@ -425,7 +425,7 @@
         <button type="button" class="tablink" onclick="openTab(event, 'bulkQueues')">
           <i>🔄</i> Bulk Queue Changes
         </button>
-        <!-- New Work Team Management Tab Button -->
+        <!-- New Work Team Management Tab -->
         <button type="button" class="tablink" onclick="openTab(event, 'workTeamManagement')">
           <i>👥</i> Work Team Management
         </button>
@@ -434,7 +434,217 @@
     
     <div class="content-area">
       <div class="tab-content-container">
-        <!-- Existing Tabs (WFM Management, External Work, Activity Code, Bulk Skills, Bulk Queues) go here... -->
+        <!-- WFM Management Unit Search Tab -->
+        <div id="wfmManagement" class="tabcontent active">
+          <div class="app-window">
+            <div class="form-section">
+              <h2>WFM Management Unit Search</h2>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="searchUser">Search users</label>
+                  <input type="text" id="searchUser" placeholder="Type to filter users..." />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="agentSelect">Select an Agent</label>
+                  <select id="agentSelect"></select>
+                </div>
+              </div>
+              <button id="lookupBtn">Get Management Unit</button>
+              <div id="muResults" class="status-message" style="display: none;"></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- External Work Creation Tab -->
+        <div id="externalWork" class="tabcontent">
+          <div class="app-window">
+            <div class="form-section">
+              <h2>External Work Creation</h2>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="queueSelect">Select Queue</label>
+                  <select id="queueSelect"></select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="userSelect">Select User</label>
+                  <select id="userSelect"></select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="externalReference">External Reference (optional)</label>
+                  <input type="text" id="externalReference" placeholder="Enter external reference" />
+                </div>
+              </div>
+              <button id="createInteractionBtn">Create Proxy Interaction</button>
+              <div id="statusMessage" class="status-message" style="display: none;"></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Activity Code Management Tab -->
+        <div id="activityCode" class="tabcontent">
+          <div class="app-window">
+            <div class="form-section">
+              <h2>Manage Business Units and Activity Codes</h2>
+              <div id="auth-message" class="status-message info">Authenticating with PureCloud...</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="business-units">Select Business Units</label>
+                  <select id="business-units" multiple disabled></select>
+                </div>
+              </div>
+              <hr class="divider" />
+              <h3>Create Activity Code</h3>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="activity-name">Activity Name</label>
+                  <input type="text" id="activity-name" placeholder="Enter activity name" required disabled />
+                </div>
+                <div class="form-group">
+                  <label for="category">Category</label>
+                  <select id="category" required disabled>
+                    <option value="">Select category</option>
+                    <option value="OnQueueWork">OnQueueWork</option>
+                    <option value="Break">Break</option>
+                    <option value="Meal">Meal</option>
+                    <option value="Meeting">Meeting</option>
+                    <option value="OffQueueWork">OffQueueWork</option>
+                    <option value="TimeOff">TimeOff</option>
+                    <option value="Training">Training</option>
+                    <option value="Unavailable">Unavailable</option>
+                    <option value="Unscheduled">Unscheduled</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="length">Default Length (minutes)</label>
+                  <input type="number" id="length" placeholder="Enter default length" disabled />
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Options</label>
+                <div class="checkbox-grid">
+                  <div class="checkbox-container">
+                    <input type="checkbox" id="paid-time" value="countsAsPaidTime" disabled />
+                    <label for="paid-time">Counts as Paid Time</label>
+                  </div>
+                  <div class="checkbox-container">
+                    <input type="checkbox" id="work-time" value="countsAsWorkTime" disabled />
+                    <label for="work-time">Counts as Work Time</label>
+                  </div>
+                  <div class="checkbox-container">
+                    <input type="checkbox" id="time-off-selectable" value="agentTimeOffSelectable" disabled />
+                    <label for="time-off-selectable">Agent Time Off Selectable</label>
+                  </div>
+                  <div class="checkbox-container">
+                    <input type="checkbox" id="shrinkage" value="countsTowardShrinkage" disabled />
+                    <label for="shrinkage">Counts Toward Shrinkage</label>
+                  </div>
+                  <div class="checkbox-container">
+                    <input type="checkbox" id="planned-shrinkage" value="plannedShrinkage" disabled />
+                    <label for="planned-shrinkage">Planned Shrinkage</label>
+                  </div>
+                  <div class="checkbox-container">
+                    <input type="checkbox" id="interruptible" value="interruptible" disabled />
+                    <label for="interruptible">Interruptible</label>
+                  </div>
+                </div>
+              </div>
+              <button id="create-button" onclick="createActivityCode()" disabled>
+                Create Activity Code for Selected Business Units
+              </button>
+              <div id="activityResults" class="status-message" style="display: none;"></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Bulk Skill Changes Tab -->
+        <div id="bulkSkills" class="tabcontent">
+          <div class="app-window">
+            <div class="form-section">
+              <h2>Bulk Skill Changes</h2>
+              <div id="auth-message-bulk" class="status-message info">Authenticating with PureCloud...</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="skillDropdown">Select Skill</label>
+                  <select id="skillDropdown"></select>
+                </div>
+                <div class="form-group">
+                  <label for="agentDropdownForSkill">Select Agent</label>
+                  <select id="agentDropdownForSkill"></select>
+                </div>
+                <div class="form-group">
+                  <label for="managementUnitDropdownForSkill">Select Management Unit</label>
+                  <select id="managementUnitDropdownForSkill"></select>
+                </div>
+              </div>
+              <button id="fetchAgentsForSkill">Get Agents</button>
+              <div style="overflow-x: auto; margin-top: 20px;">
+                <table class="results-table" id="agentsTableForSkill">
+                  <thead>
+                    <tr>
+                      <th><input type="checkbox" id="selectAllAgentsForSkill" /></th>
+                      <th>Agent</th>
+                      <th>Current Skills</th>
+                      <th>Skill Change</th>
+                      <th>Proficiency</th>
+                      <th>Delete Skill</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+              <button id="updateSkills">Update Selected Skills</button>
+              <div id="skill-results" class="status-message" style="display: none;"></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Bulk Queue Changes Tab -->
+        <div id="bulkQueues" class="tabcontent">
+          <div class="app-window">
+            <div class="form-section">
+              <h2>Bulk Queue Changes</h2>
+              <div id="auth-message-bulk-queue" class="status-message info">Authenticating with PureCloud...</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="queueDropdown">Select Queue</label>
+                  <select id="queueDropdown"></select>
+                </div>
+                <div class="form-group">
+                  <label for="agentDropdownForQueue">Select Agent</label>
+                  <select id="agentDropdownForQueue"></select>
+                </div>
+                <div class="form-group">
+                  <label for="managementUnitDropdownForQueue">Select Management Unit</label>
+                  <select id="managementUnitDropdownForQueue"></select>
+                </div>
+              </div>
+              <button id="fetchAgentsForQueue">Get Agents</button>
+              <div style="overflow-x: auto; margin-top: 20px;">
+                <table class="results-table" id="agentsTableForQueue">
+                  <thead>
+                    <tr>
+                      <th><input type="checkbox" id="selectAllAgentsForQueue" /></th>
+                      <th>Agent</th>
+                      <th>Current Queues</th>
+                      <th>Queue Change</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+              <button id="updateQueues">Update Selected Queues</button>
+              <div id="queue-results" class="status-message" style="display: none;"></div>
+            </div>
+          </div>
+        </div>
         
         <!-- Work Team Management Tab -->
         <div id="workTeamManagement" class="tabcontent">
@@ -453,7 +663,7 @@
                 <table class="results-table" id="teamMembersTable">
                   <thead>
                     <tr>
-                      <th><input type="checkbox" id="selectAllTeamMembers"></th>
+                      <th><input type="checkbox" id="selectAllTeamMembers" /></th>
                       <th>Agent</th>
                       <th>Current Team</th>
                       <th>New Team</th>
@@ -473,10 +683,10 @@
       </div>
     </div>
   </div>
-
+  
   <script>
     // =======================
-    // Global Configuration and Initialization (existing code)
+    // Global Configuration and State
     const CLIENT_ID = '4652c8b5-9117-43c6-8e54-77eeb38aebb8';
     const CLIENT_SECRET = 'txtfN6cb699Lu7tID5n2NSjGwKOU_6NzyghgSk-bVkY';
     const REGION = 'mypurecloud.ie';
@@ -500,9 +710,14 @@
     let availableAgents = [];
     let availableManagementUnits = [];
     
+    // Work Team Management State
+    let availableTeams = [];
+    let userMapping = {};  // Mapping from user id to agent name
+
+    // =======================
+    // Initialization & Token Handling
     document.addEventListener("DOMContentLoaded", function() {
       console.log("Initializing application...");
-      
       const hash = window.location.hash.substring(1);
       const params = new URLSearchParams(hash);
       accessToken = params.get('access_token');
@@ -533,12 +748,10 @@
         authMessage.textContent = 'Validating authentication token...';
         authMessage.className = 'status-message info';
       }
-      
       if (authMessageBulk) {
         authMessageBulk.textContent = 'Validating authentication token...';
         authMessageBulk.className = 'status-message info';
       }
-      
       if (authMessageBulkQueue) {
         authMessageBulkQueue.textContent = 'Validating authentication token...';
         authMessageBulkQueue.className = 'status-message info';
@@ -591,6 +804,8 @@
       }
     }
     
+    // =======================
+    // Tab Management
     function openTab(evt, tabName) {
       evt.preventDefault();
       
@@ -606,7 +821,7 @@
       }
       document.getElementById(tabName).classList.add("active");
       
-      if(!initializedTabs[tabName]) {
+      if (!initializedTabs[tabName]) {
         switch(tabName) {
           case 'externalWork':
             initExternalWorkCreation();
@@ -633,19 +848,1165 @@
       }
     }
     
-    // ... (Existing functions for External Work, WFM Management, Activity Code, Bulk Skills, Bulk Queues) ...
+    // =======================
+    // External Work Creation Functions
+    function initExternalWorkCreation() {
+      if (!accessToken) {
+        window.location.href = AUTH_URL;
+        return;
+      }
+      populateDropdowns();
+      document.getElementById('createInteractionBtn').addEventListener('click', createInteraction);
+    }
+    
+    async function populateDropdowns() {
+      try {
+        const [queues, users] = await Promise.all([
+          fetchAllPages('https://api.mypurecloud.ie/api/v2/routing/queues'),
+          fetchAllPages('https://api.mypurecloud.ie/api/v2/users?pageSize=100')
+        ]);
+    
+        const queueSelect = document.getElementById('queueSelect');
+        queueSelect.innerHTML = '<option value="">Select a queue</option>';
+        queues.forEach(queue => {
+          const option = document.createElement('option');
+          option.value = queue.id;
+          option.text = queue.name;
+          queueSelect.add(option);
+        });
+    
+        const userSelect = document.getElementById('userSelect');
+        userSelect.innerHTML = '<option value="">Select a user</option>';
+        users.forEach(user => {
+          const option = document.createElement('option');
+          option.value = user.id;
+          option.text = user.name;
+          userSelect.add(option);
+        });
+    
+      } catch (error) {
+        console.error('Error populating dropdowns:', error);
+        showStatusMessage('statusMessage', 'Error loading data: ' + error.message, 'error');
+      }
+    }
+    
+    async function createInteraction() {
+      const queueId = document.getElementById('queueSelect').value;
+      const userId = document.getElementById('userSelect').value;
+      const externalReference = document.getElementById('externalReference').value;
+      
+      if (!queueId) {
+        showStatusMessage('statusMessage', 'Please select a queue', 'error');
+        return;
+      }
+      
+      if (!userId) {
+        showStatusMessage('statusMessage', 'Please select a user', 'error');
+        return;
+      }
+      
+      showStatusMessage('statusMessage', 'Creating interaction...', 'info');
+    
+      try {
+        const [queueValid, userValid] = await Promise.all([
+          validateQueueExists(queueId),
+          validateAgentExists(userId)
+        ]);
+        
+        if (!queueValid) {
+          throw new Error('Selected queue does not exist');
+        }
+        if (!userValid) {
+          throw new Error('Selected user does not exist');
+        }
+    
+        const interactionResponse = await fetchWithRetry('https://api.mypurecloud.ie/api/v2/conversations/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            queueId: queueId,
+            provider: 'QualityForm',
+            direction: 'INBOUND',
+            fromName: 'External Work',
+            attributes: { 'External Link': externalReference || 'No reference provided' }
+          })
+        });
+    
+        if (!interactionResponse.ok) {
+          throw new Error(`Error creating interaction: ${interactionResponse.status} ${interactionResponse.statusText}`);
+        }
+    
+        const interaction = await interactionResponse.json();
+        const conversationId = interaction.id;
+    
+        const conversationDetailsResponse = await fetchWithRetry(`https://api.mypurecloud.ie/api/v2/conversations/${conversationId}`, {
+          headers: { 'Authorization': `Bearer ${accessToken}` }
+        });
+        
+        if (!conversationDetailsResponse.ok) {
+          throw new Error(`Error fetching conversation details: ${conversationDetailsResponse.status} ${conversationDetailsResponse.statusText}`);
+        }
+        
+        const conversationDetails = await conversationDetailsResponse.json();
+        const participantId = conversationDetails.participants[1].id;
+    
+        const assignResponse = await fetchWithRetry(`https://api.mypurecloud.ie/api/v2/conversations/emails/${conversationId}/participants/${participantId}/replace`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ userId: userId })
+        });
+    
+        if (!assignResponse.ok) {
+          throw new Error(`Error assigning user: ${assignResponse.status} ${assignResponse.statusText}`);
+        }
+    
+        const disconnectResponse = await fetchWithRetry(`https://api.mypurecloud.ie/api/v2/conversations/emails/${conversationId}`, {
+          method: 'PATCH',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ state: 'disconnected' })
+        });
+    
+        if (!disconnectResponse.ok) {
+          throw new Error(`Error disconnecting conversation: ${disconnectResponse.status} ${disconnectResponse.statusText}`);
+        }
+    
+        showStatusMessage('statusMessage', 'Interaction created and assigned successfully!', 'success');
+    
+      } catch (error) {
+        console.error('Error during interaction creation:', error);
+        showDetailedError('statusMessage', error);
+      }
+    }
+    
+    // =======================
+    // Management Unit Search Functions
+    async function initManagementUnitSearch() {
+      if (!accessToken) {
+        window.location.href = AUTH_URL;
+        return;
+      }
+      
+      await muLoadAllUsers();
+      muInitSearchAndDropdown();
+      document.getElementById("lookupBtn").addEventListener("click", onMuGetManagementUnitClick);
+      document.getElementById("searchUser").addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+          onMuGetManagementUnitClick();
+        }
+      });
+    }
+    
+    async function muLoadAllUsers() {
+      try {
+        let pageNumber = 1;
+        let morePages = true;
+        muAllUsers = [];
+        
+        showStatusMessage('muResults', 'Loading user data...', 'info');
+        
+        while (morePages) {
+          const url = `https://api.${REGION}/api/v2/users?pageNumber=${pageNumber}&pageSize=100`;
+          const resp = await fetchWithRetry(url, {
+            headers: {
+              "Authorization": `Bearer ${accessToken}`,
+              "Content-Type": "application/json"
+            }
+          });
+          
+          if (!resp.ok) {
+            throw new Error(`Failed to fetch users (page ${pageNumber}): ${resp.status}`);
+          }
+          
+          const data = await resp.json();
+          if (data.entities) {
+            muAllUsers = muAllUsers.concat(data.entities);
+          }
+          
+          if (pageNumber < data.pageCount) {
+            pageNumber++;
+          } else {
+            morePages = false;
+          }
+        }
+        
+        showStatusMessage('muResults', `Loaded ${muAllUsers.length} users. Search for an agent above.`, 'success');
+        
+      } catch (err) {
+        console.error("Error loading all users:", err);
+        showDetailedError('muResults', err);
+      }
+    }
+    
+    function muInitSearchAndDropdown() {
+      const searchBox = document.getElementById("searchUser");
+      searchBox.addEventListener("input", () => { muFilterAndPopulateUsers(searchBox.value); });
+      muFilterAndPopulateUsers("");
+    }
+    
+    function muFilterAndPopulateUsers(searchTerm) {
+      const agentSelect = document.getElementById("agentSelect");
+      agentSelect.innerHTML = "";
+      const lowerSearch = searchTerm.toLowerCase();
+      
+      const filtered = muAllUsers.filter(u => {
+        const nameMatch = (u.name || "").toLowerCase().includes(lowerSearch);
+        const userNameMatch = (u.username || "").toLowerCase().includes(lowerSearch);
+        const emailMatch = (u.email || "").toLowerCase().includes(lowerSearch);
+        return nameMatch || userNameMatch || emailMatch;
+      });
+    
+      if (filtered.length === 0) {
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.text = "No users found";
+        agentSelect.add(opt);
+        return;
+      }
+    
+      filtered.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+      
+      const defaultOpt = document.createElement("option");
+      defaultOpt.value = "";
+      defaultOpt.text = "Select an agent";
+      agentSelect.add(defaultOpt);
+      
+      filtered.forEach(u => {
+        const opt = document.createElement("option");
+        opt.value = u.id;
+        opt.text = u.name || u.username || u.id;
+        agentSelect.add(opt);
+      });
+    }
+    
+    async function onMuGetManagementUnitClick() {
+      const agentSelect = document.getElementById("agentSelect");
+      const selectedAgentId = agentSelect.value;
+    
+      if (!selectedAgentId) {
+        showStatusMessage('muResults', 'Please select an agent.', 'error');
+        return;
+      }
+    
+      showStatusMessage('muResults', 'Looking up Management Unit and Manager...', 'info');
+    
+      try {
+        const user = muAllUsers.find(u => u.id === selectedAgentId);
+        if (!user) {
+          throw new Error("Selected user not found");
+        }
+    
+        const muId = await muGetAgentManagementUnitId(selectedAgentId);
+        const muName = muId ? await muGetManagementUnitName(muId) : "No Management Unit found";
+    
+        let managerName = "No manager assigned";
+        if (user.manager && user.manager.id) {
+          managerName = await muGetManagerName(user.manager.id);
+        }
+    
+        const resultHTML = `
+          <p><strong>Agent:</strong> ${user.name || selectedAgentId}</p>
+          <p><strong>Management Unit:</strong> ${muName}</p>
+          <p><strong>Manager:</strong> ${managerName}</p>
+        `;
+        
+        showStatusMessage('muResults', resultHTML, 'success');
+      } catch (err) {
+        console.error("MU or Manager lookup error:", err);
+        showDetailedError('muResults', err);
+      }
+    }
+    
+    async function muGetManagerName(managerId) {
+      try {
+        const url = `https://api.${REGION}/api/v2/users/${managerId}`;
+        const resp = await fetchWithRetry(url, {
+          headers: {
+            "Authorization": `Bearer ${accessToken}`,
+            "Content-Type": "application/json"
+          }
+        });
+        
+        if (!resp.ok) {
+          return "Manager details not available";
+        }
+        
+        const data = await resp.json();
+        return data.name || "Manager not found";
+      } catch (err) {
+        console.error("Error fetching manager:", err);
+        return "Manager not found";
+      }
+    }
+    
+    async function muGetAgentManagementUnitId(userId) {
+      try {
+        const url = `https://api.${REGION}/api/v2/workforcemanagement/agents/${userId}/managementunit`;
+        const resp = await fetchWithRetry(url, {
+          headers: {
+            "Authorization": `Bearer ${accessToken}`,
+            "Content-Type": "application/json"
+          }
+        });
+        
+        if (!resp.ok) {
+          return null;
+        }
+        
+        const data = await resp.json();
+        return data.managementUnit?.id || null;
+      } catch (err) {
+        console.error("Error fetching management unit:", err);
+        return null;
+      }
+    }
+    
+    async function muGetManagementUnitName(muId) {
+      try {
+        const url = `https://api.${REGION}/api/v2/workforcemanagement/managementunits/${muId}`;
+        const resp = await fetchWithRetry(url, {
+          headers: {
+            "Authorization": `Bearer ${accessToken}`,
+            "Content-Type": "application/json"
+          }
+        });
+        
+        if (!resp.ok) {
+          return "Management Unit details not available";
+        }
+        
+        const data = await resp.json();
+        return data.name || "Unnamed Management Unit";
+      } catch (err) {
+        console.error("Error fetching management unit:", err);
+        return "Management Unit not found";
+      }
+    }
+    
+    // =======================
+    // Activity Code Management Functions
+    function initActivityCodeManagement() {
+      if (!accessToken) {
+        window.location.href = AUTH_URL;
+        return;
+      }
+      initializeActivityApp();
+    }
+    
+    function initializeActivityApp() {
+      const authMsg = document.getElementById('auth-message');
+      authMsg.textContent = 'Authenticated successfully!';
+      authMsg.className = 'status-message success';
+      setTimeout(() => { authMsg.style.display = 'none'; }, 2000);
+    
+      document.getElementById('business-units').disabled = false;
+      document.getElementById('activity-name').disabled = false;
+      document.getElementById('category').disabled = false;
+      document.getElementById('length').disabled = false;
+      document.getElementById('paid-time').disabled = false;
+      document.getElementById('work-time').disabled = false;
+      document.getElementById('time-off-selectable').disabled = false;
+      document.getElementById('shrinkage').disabled = false;
+      document.getElementById('planned-shrinkage').disabled = false;
+      document.getElementById('interruptible').disabled = false;
+      document.getElementById('create-button').disabled = false;
+    
+      fetchBusinessUnitsAct();
+    }
+    
+    async function fetchBusinessUnitsAct() {
+      try {
+        const apiUrl = 'https://api.mypurecloud.ie/api/v2/workforcemanagement/businessunits?pageSize=100';
+        let businessUnits = [];
+        let nextPageUrl = apiUrl;
+        
+        showStatusMessage('activityResults', 'Loading business units...', 'info');
+    
+        while (nextPageUrl) {
+          const response = await fetchWithRetry(nextPageUrl, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+              'Content-Type': 'application/json'
+            },
+          });
+    
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Error fetching business units');
+          }
+    
+          const data = await response.json();
+          businessUnits = businessUnits.concat(data.entities);
+          nextPageUrl = data.pageCount > data.pageNumber ? `${apiUrl}&pageNumber=${data.pageNumber + 1}` : null;
+        }
+    
+        const businessUnitsSelect = document.getElementById('business-units');
+        businessUnitsSelect.innerHTML = '';
+        businessUnits.sort((a, b) => a.name.localeCompare(b.name));
+        businessUnits.forEach(unit => {
+          const option = document.createElement('option');
+          option.value = unit.id;
+          option.textContent = unit.name;
+          businessUnitsSelect.appendChild(option);
+        });
+        
+        showStatusMessage('activityResults', `Loaded ${businessUnits.length} business units. Select one or more to create an activity code.`, 'success');
+      } catch (error) {
+        showDetailedError('activityResults', error);
+      }
+    }
+    
+    async function createActivityCode() {
+      const resultsDiv = document.getElementById('activityResults');
+      showStatusMessage('activityResults', 'Creating activity code...', 'info');
+    
+      const name = document.getElementById('activity-name').value.trim();
+      const category = document.getElementById('category').value;
+      const businessUnits = Array.from(document.getElementById('business-units').selectedOptions).map(option => option.value);
+    
+      if (!name) {
+        showStatusMessage('activityResults', 'Please enter an activity name', 'error');
+        return;
+      }
+      if (!category) {
+        showStatusMessage('activityResults', 'Please select a category', 'error');
+        return;
+      }
+      if (businessUnits.length === 0) {
+        showStatusMessage('activityResults', 'Please select at least one business unit', 'error');
+        return;
+      }
+    
+      const lengthInMinutes = parseInt(document.getElementById('length').value, 10) || null;
+      const countsAsPaidTime = document.getElementById('paid-time').checked;
+      const countsAsWorkTime = document.getElementById('work-time').checked;
+      const agentTimeOffSelectable = document.getElementById('time-off-selectable').checked;
+      const countsTowardShrinkage = document.getElementById('shrinkage').checked;
+      const plannedShrinkage = document.getElementById('planned-shrinkage').checked;
+      const interruptible = document.getElementById('interruptible').checked;
+    
+      try {
+        let successCount = 0;
+        let errorCount = 0;
+        let errorMessages = [];
+    
+        for (const businessUnitId of businessUnits) {
+          const createUrl = `https://api.mypurecloud.ie/api/v2/workforcemanagement/businessunits/${businessUnitId}/activitycodes`;
+    
+          try {
+            const response = await fetchWithRetry(createUrl, {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                name,
+                category,
+                lengthInMinutes,
+                countsAsPaidTime,
+                countsAsWorkTime,
+                agentTimeOffSelectable,
+                countsTowardShrinkage,
+                plannedShrinkage,
+                interruptible,
+                secondaryPresences: []
+              }),
+            });
+    
+            if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(errorData.message || 'Unknown error');
+            }
+            
+            successCount++;
+          } catch (error) {
+            errorCount++;
+            errorMessages.push(`Business Unit ${businessUnitId}: ${error.message}`);
+          }
+        }
+    
+        if (errorCount === 0) {
+          showStatusMessage('activityResults', `Activity code "${name}" created successfully in all ${successCount} business units.`, 'success');
+        } else if (successCount === 0) {
+          const errorHTML = `Failed to create activity code in all business units.<br>
+                           <ul>${errorMessages.map(msg => `<li>${msg}</li>`).join('')}</ul>`;
+          showStatusMessage('activityResults', errorHTML, 'error');
+        } else {
+          const resultHTML = `Activity code "${name}" created successfully in ${successCount} business units.<br>
+                            <div class="error">Failed to create in ${errorCount} business units:</div>
+                            <ul>${errorMessages.map(msg => `<li>${msg}</li>`).join('')}</ul>`;
+          showStatusMessage('activityResults', resultHTML, 'warning');
+        }
+      } catch (error) {
+        showDetailedError('activityResults', error);
+      }
+    }
+    
+    // =======================
+    // Bulk Skill Changes Functions
+    function initBulkSkills() {
+      if (!accessToken) {
+        window.location.href = AUTH_URL;
+        return;
+      }
+      initializeBulkSkillsApp();
+    }
+    
+    function initializeBulkSkillsApp() {
+      const authMsg = document.getElementById('auth-message-bulk');
+      authMsg.textContent = 'Authenticated successfully!';
+      authMsg.className = 'status-message success';
+      setTimeout(() => { authMsg.style.display = 'none'; }, 2000);
+      fetchBulkSkillsData();
+      setupBulkSkillsEventListeners();
+    }
+    
+    async function fetchBulkSkillsData() {
+      try {
+        showStatusMessage('skill-results', 'Loading skill data...', 'info');
+    
+        const [skills, agents, managementUnits] = await Promise.all([
+          fetchAllPages(`https://api.${REGION}/api/v2/routing/skills`),
+          fetchAllPages(`https://api.${REGION}/api/v2/users?pageSize=100`),
+          fetchAllPages(`https://api.${REGION}/api/v2/workforcemanagement/managementunits`)
+        ]);
+        
+        availableSkills = skills;
+        availableAgents = agents;
+        availableManagementUnits = managementUnits;
+        
+        populateBulkSkillsDropdowns();
+        
+        showStatusMessage('skill-results', 'Data loaded successfully', 'success');
+        setTimeout(() => { document.getElementById('skill-results').style.display = 'none'; }, 2000);
+      } catch (error) {
+        console.error('Error fetching bulk skills data:', error);
+        showDetailedError('skill-results', error);
+      }
+    }
+    
+    function populateBulkSkillsDropdowns() {
+      const skillDropdown = document.getElementById('skillDropdown');
+      skillDropdown.innerHTML = '<option value="">Select Skill</option>';
+      availableSkills.forEach(skill => {
+        const option = document.createElement('option');
+        option.value = skill.id;
+        option.textContent = skill.name;
+        skillDropdown.appendChild(option);
+      });
+      
+      const agentDropdownForSkill = document.getElementById('agentDropdownForSkill');
+      agentDropdownForSkill.innerHTML = '<option value="">Select Agent</option>';
+      availableAgents.forEach(agent => {
+        const option = document.createElement('option');
+        option.value = agent.id;
+        option.textContent = agent.name;
+        agentDropdownForSkill.appendChild(option);
+      });
+      
+      const managementUnitDropdownForSkill = document.getElementById('managementUnitDropdownForSkill');
+      managementUnitDropdownForSkill.innerHTML = '<option value="">Select Management Unit</option>';
+      availableManagementUnits.forEach(unit => {
+        const option = document.createElement('option');
+        option.value = unit.id;
+        option.textContent = unit.name;
+        managementUnitDropdownForSkill.appendChild(option);
+      });
+    }
+    
+    function setupBulkSkillsEventListeners() {
+      document.getElementById('fetchAgentsForSkill').addEventListener('click', fetchAgentsForSkill);
+      document.getElementById('updateSkills').addEventListener('click', updateSkills);
+      
+      document.getElementById('selectAllAgentsForSkill').addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('#agentsTableForSkill tbody input[type="checkbox"]');
+        checkboxes.forEach(checkbox => { checkbox.checked = this.checked; });
+      });
+    }
+    
+    async function fetchAgentsForSkill() {
+      const skillId = document.getElementById('skillDropdown').value;
+      const agentId = document.getElementById('agentDropdownForSkill').value;
+      const managementUnitId = document.getElementById('managementUnitDropdownForSkill').value;
+      
+      showStatusMessage('skill-results', 'Fetching agents...', 'info');
+      
+      if (!skillId && !agentId && !managementUnitId) {
+        showStatusMessage('skill-results', 'Please select a skill, agent, or management unit first.', 'error');
+        return;
+      }
+      
+      try {
+        let agents = [];
+        if (skillId) {
+          const skillValid = await validateSkillExists(skillId);
+          if (!skillValid) {
+            throw new Error('Selected skill does not exist');
+          }
+          agents = await fetchAgentsBySkill(skillId);
+        } else if (agentId) {
+          const selectedAgent = availableAgents.find(agent => agent.id === agentId);
+          agents = selectedAgent ? [selectedAgent] : [];
+        } else if (managementUnitId) {
+          agents = await fetchAgentsByManagementUnit(managementUnitId);
+        }
+        
+        const agentsWithSkills = await Promise.all(agents.map(async agent => {
+          try {
+            const skills = await fetchAgentSkills(agent.id);
+            return { ...agent, skills };
+          } catch (error) {
+            console.error(`Error fetching skills for agent ${agent.id}:`, error);
+            return { ...agent, skills: [], error: error.message };
+          }
+        }));
+        
+        populateBulkSkillsTable(agentsWithSkills);
+        showStatusMessage('skill-results', `Found ${agentsWithSkills.length} agents.`, 'success');
+      } catch (error) {
+        console.error('Error fetching agents for skill:', error);
+        showDetailedError('skill-results', error);
+      }
+    }
+    
+    function populateBulkSkillsTable(agents) {
+      const tableBody = document.querySelector('#agentsTableForSkill tbody');
+      tableBody.innerHTML = "";
+      
+      agents.forEach(agent => {
+        const row = document.createElement("tr");
+        let skillList = 'No skills found';
+        if (agent.error) {
+          skillList = `Error: ${agent.error}`;
+        } else if (agent.skills && agent.skills.length > 0) {
+          skillList = agent.skills.map(skill => skill.name).join(', ');
+        }
+        
+        row.innerHTML = `
+          <td><input type="checkbox" data-user-id="${agent.id}"></td>
+          <td>${agent.name || 'N/A'}</td>
+          <td>${skillList}</td>
+          <td>
+            <select data-user-id="${agent.id}">
+              <option value="">Select</option>
+              ${availableSkills.map(skill => `<option value="${skill.id}">${skill.name}</option>`).join('')}
+            </select>
+          </td>
+          <td><input type="number" min="0" max="5" step="0.1" data-user-id="${agent.id}" placeholder="Proficiency"></td>
+          <td><input type="checkbox" class="delete-skill-checkbox" data-user-id="${agent.id}"></td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+    
+    async function updateSkills() {
+      showStatusMessage('skill-results', 'Updating skills...', 'info');
+      
+      const checkboxes = document.querySelectorAll('#agentsTableForSkill tbody input[type="checkbox"]:checked');
+      if (checkboxes.length === 0) {
+        showStatusMessage('skill-results', 'Please select at least one agent to update.', 'error');
+        return;
+      }
+      
+      let successCount = 0;
+      let errorCount = 0;
+      let errorMessages = [];
+      
+      for (const checkbox of checkboxes) {
+        const userId = checkbox.getAttribute('data-user-id');
+        const row = checkbox.closest('tr');
+        const skillSelect = row.querySelector('select');
+        const proficiencyInput = row.querySelector('input[type="number"]');
+        const deleteCheckbox = row.querySelector('.delete-skill-checkbox');
+        
+        const skillId = skillSelect.value;
+        if (!skillId) {
+          errorCount++;
+          errorMessages.push(`Agent ${userId}: No skill selected`);
+          continue;
+        }
+        
+        try {
+          if (deleteCheckbox.checked) {
+            await deleteAgentSkill(userId, skillId);
+          } else {
+            const proficiency = proficiencyInput.value ? parseFloat(proficiencyInput.value) : 0;
+            await updateAgentSkill(userId, skillId, proficiency);
+          }
+          successCount++;
+        } catch (error) {
+          errorCount++;
+          errorMessages.push(`Agent ${userId}: ${error.message}`);
+        }
+      }
+      
+      if (errorCount === 0) {
+        showStatusMessage('skill-results', `Successfully updated skills for ${successCount} agents.`, 'success');
+      } else if (successCount === 0) {
+        const errorHTML = `Failed to update skills for all ${errorCount} agents.<br>
+                         <ul>${errorMessages.map(msg => `<li>${msg}</li>`).join('')}</ul>`;
+        showStatusMessage('skill-results', errorHTML, 'error');
+      } else {
+        const resultHTML = `Successfully updated skills for ${successCount} agents.<br>
+                          <div>Failed to update ${errorCount} agents:</div>
+                          <ul>${errorMessages.map(msg => `<li>${msg}</li>`).join('')}</ul>`;
+        showStatusMessage('skill-results', resultHTML, 'warning');
+      }
+    }
+    
+    // =======================
+    // Bulk Queue Changes Functions
+    function initBulkQueues() {
+      if (!accessToken) {
+        window.location.href = AUTH_URL;
+        return;
+      }
+      initializeBulkQueuesApp();
+    }
+    
+    function initializeBulkQueuesApp() {
+      const authMsg = document.getElementById('auth-message-bulk-queue');
+      authMsg.textContent = 'Authenticated successfully!';
+      authMsg.className = 'status-message success';
+      setTimeout(() => { authMsg.style.display = 'none'; }, 2000);
+    
+      fetchBulkQueuesData();
+      setupBulkQueuesEventListeners();
+    }
+    
+    async function fetchBulkQueuesData() {
+      try {
+        showStatusMessage('queue-results', 'Loading queue data...', 'info');
+    
+        const [queues, agents, managementUnits] = await Promise.all([
+          fetchAllPages(`https://api.${REGION}/api/v2/routing/queues`),
+          fetchAllPages(`https://api.${REGION}/api/v2/users?pageSize=100`),
+          fetchAllPages(`https://api.${REGION}/api/v2/workforcemanagement/managementunits`)
+        ]);
+        
+        availableQueues = queues;
+        availableAgents = agents;
+        availableManagementUnits = managementUnits;
+        
+        populateBulkQueuesDropdowns();
+        
+        showStatusMessage('queue-results', 'Data loaded successfully', 'success');
+        setTimeout(() => { document.getElementById('queue-results').style.display = 'none'; }, 2000);
+      } catch (error) {
+        console.error('Error fetching bulk queues data:', error);
+        showDetailedError('queue-results', error);
+      }
+    }
+    
+    function populateBulkQueuesDropdowns() {
+      const queueDropdown = document.getElementById('queueDropdown');
+      queueDropdown.innerHTML = '<option value="">Select Queue</option>';
+      availableQueues.forEach(queue => {
+        const option = document.createElement('option');
+        option.value = queue.id;
+        option.textContent = queue.name;
+        queueDropdown.appendChild(option);
+      });
+      
+      const agentDropdownForQueue = document.getElementById('agentDropdownForQueue');
+      agentDropdownForQueue.innerHTML = '<option value="">Select Agent</option>';
+      availableAgents.forEach(agent => {
+        const option = document.createElement('option');
+        option.value = agent.id;
+        option.textContent = agent.name;
+        agentDropdownForQueue.appendChild(option);
+      });
+      
+      const managementUnitDropdownForQueue = document.getElementById('managementUnitDropdownForQueue');
+      managementUnitDropdownForQueue.innerHTML = '<option value="">Select Management Unit</option>';
+      availableManagementUnits.forEach(unit => {
+        const option = document.createElement('option');
+        option.value = unit.id;
+        option.textContent = unit.name;
+        managementUnitDropdownForQueue.appendChild(option);
+      });
+    }
+    
+    function setupBulkQueuesEventListeners() {
+      document.getElementById('fetchAgentsForQueue').addEventListener('click', fetchAgentsForQueue);
+      document.getElementById('updateQueues').addEventListener('click', updateQueues);
+      
+      document.getElementById('selectAllAgentsForQueue').addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('#agentsTableForQueue tbody input[type="checkbox"]');
+        checkboxes.forEach(checkbox => { checkbox.checked = this.checked; });
+      });
+    }
+    
+    async function fetchAgentsForQueue() {
+      const queueId = document.getElementById('queueDropdown').value;
+      const agentId = document.getElementById('agentDropdownForQueue').value;
+      const managementUnitId = document.getElementById('managementUnitDropdownForQueue').value;
+      
+      showStatusMessage('queue-results', 'Fetching agents...', 'info');
+      
+      if (!queueId && !agentId && !managementUnitId) {
+        showStatusMessage('queue-results', 'Please select a queue, agent, or management unit first.', 'error');
+        return;
+      }
+      
+      try {
+        let agents = [];
+        if (queueId) {
+          const queueValid = await validateQueueExists(queueId);
+          if (!queueValid) {
+            throw new Error('Selected queue does not exist');
+          }
+          
+          const url = `https://api.${REGION}/api/v2/routing/queues/${queueId}/members?expand=user`;
+          const response = await fetchWithRetry(url, {
+            headers: { "Authorization": `Bearer ${accessToken}` }
+          });
+          
+          if (!response.ok) {
+            throw new Error(`Failed to fetch queue members: ${response.status}`);
+          }
+          
+          const data = await response.json();
+          agents = data.entities.map(member => ({
+            id: member.user.id,
+            name: member.user.name
+          }));
+        } else if (agentId) {
+          const selectedAgent = availableAgents.find(agent => agent.id === agentId);
+          agents = selectedAgent ? [selectedAgent] : [];
+        } else if (managementUnitId) {
+          agents = await fetchAgentsByManagementUnit(managementUnitId);
+        }
+        
+        const agentsWithQueues = await Promise.all(agents.map(async agent => {
+          try {
+            const queues = await fetchAgentQueues(agent.id);
+            return { ...agent, queues };
+          } catch (error) {
+            console.error(`Error fetching queues for agent ${agent.id}:`, error);
+            return { ...agent, queues: [], error: error.message };
+          }
+        }));
+        
+        populateBulkQueuesTable(agentsWithQueues);
+        showStatusMessage('queue-results', `Found ${agentsWithQueues.length} agents.`, 'success');
+      } catch (error) {
+        console.error('Error fetching agents for queue:', error);
+        showDetailedError('queue-results', error);
+      }
+    }
+    
+    function populateBulkQueuesTable(agents) {
+      const tableBody = document.querySelector('#agentsTableForQueue tbody');
+      tableBody.innerHTML = "";
+      
+      agents.forEach(agent => {
+        const row = document.createElement("tr");
+        let queueList = 'No queues found';
+        if (agent.error) {
+          queueList = `Error: ${agent.error}`;
+        } else if (agent.queues && agent.queues.length > 0) {
+          queueList = agent.queues.map(queue => queue.name).join(', ');
+        }
+        
+        row.innerHTML = `
+          <td><input type="checkbox" data-user-id="${agent.id}"></td>
+          <td>${agent.name || 'N/A'}</td>
+          <td>${queueList}</td>
+          <td>
+            <select data-user-id="${agent.id}">
+              <option value="">Select</option>
+              ${availableQueues.map(queue => `<option value="${queue.id}">${queue.name}</option>`).join('')}
+            </select>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+    
+    async function updateQueues() {
+      showStatusMessage('queue-results', 'Updating queues...', 'info');
+      
+      const checkboxes = document.querySelectorAll('#agentsTableForQueue tbody input[type="checkbox"]:checked');
+      if (checkboxes.length === 0) {
+        showStatusMessage('queue-results', 'Please select at least one agent to update.', 'error');
+        return;
+      }
+      
+      let successCount = 0;
+      let errorCount = 0;
+      let errorMessages = [];
+      
+      for (const checkbox of checkboxes) {
+        const userId = checkbox.getAttribute('data-user-id');
+        const row = checkbox.closest('tr');
+        const queueSelect = row.querySelector('select');
+        const queueId = queueSelect.value;
+        
+        if (!queueId) {
+          errorCount++;
+          errorMessages.push(`Agent ${userId}: No queue selected`);
+          continue;
+        }
+        
+        try {
+          await updateAgentQueue(userId, queueId);
+          successCount++;
+        } catch (error) {
+          errorCount++;
+          errorMessages.push(`Agent ${userId}: ${error.message}`);
+        }
+      }
+      
+      if (errorCount === 0) {
+        showStatusMessage('queue-results', `Successfully updated queues for ${successCount} agents.`, 'success');
+      } else if (successCount === 0) {
+        const errorHTML = `Failed to update queues for all ${errorCount} agents.<br>
+                         <ul>${errorMessages.map(msg => `<li>${msg}</li>`).join('')}</ul>`;
+        showStatusMessage('queue-results', errorHTML, 'error');
+      } else {
+        const resultHTML = `Successfully updated queues for ${successCount} agents.<br>
+                          <div>Failed to update ${errorCount} agents:</div>
+                          <ul>${errorMessages.map(msg => `<li>${msg}</li>`).join('')}</ul>`;
+        showStatusMessage('queue-results', resultHTML, 'warning');
+      }
+    }
+    
+    // =======================
+    // Shared Bulk Functions
+    async function fetchAgentsBySkill(skillId) {
+      const url = `https://api.${REGION}/api/v2/users?routingSkills=${skillId}`;
+      const response = await fetchWithRetry(url, {
+        headers: { "Authorization": `Bearer ${accessToken}` }
+      });
+      const data = await response.json();
+      return data.entities || [];
+    }
+    
+    async function fetchAgentsByManagementUnit(unitId) {
+      const url = `https://api.${REGION}/api/v2/workforcemanagement/managementunits/${unitId}/users`;
+      const response = await fetchWithRetry(url, {
+        headers: { "Authorization": `Bearer ${accessToken}` }
+      });
+      const data = await response.json();
+      return data.entities.map(agent => ({
+        id: agent.id,
+        name: agent.name || 'N/A'
+      }));
+    }
+    
+    async function fetchAgentSkills(agentId) {
+      const url = `https://api.${REGION}/api/v2/users/${agentId}/routingskills`;
+      const response = await fetchWithRetry(url, {
+        headers: { "Authorization": `Bearer ${accessToken}` }
+      });
+      const data = await response.json();
+      return data.entities || [];
+    }
+    
+    async function fetchAgentQueues(agentId) {
+      const url = `https://api.${REGION}/api/v2/users/${agentId}/routingqueues`;
+      const response = await fetchWithRetry(url, {
+        headers: { "Authorization": `Bearer ${accessToken}` }
+      });
+      const data = await response.json();
+      return data.entities || [];
+    }
+    
+    async function updateAgentSkill(userId, skillId, proficiency) {
+      const skillValid = await validateSkillExists(skillId);
+      if (!skillValid) throw new Error(`Skill ${skillId} not found`);
+      const agentValid = await validateAgentExists(userId);
+      if (!agentValid) throw new Error(`Agent ${userId} not found`);
+      const url = `https://api.${REGION}/api/v2/users/${userId}/routingskills/${skillId}`;
+      const response = await fetchWithRetry(url, {
+        method: 'PUT',
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ id: skillId, proficiency: proficiency || 0 })
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update skill');
+      }
+    }
+    
+    async function deleteAgentSkill(userId, skillId) {
+      const url = `https://api.${REGION}/api/v2/users/${userId}/routingskills/${skillId}`;
+      const response = await fetchWithRetry(url, {
+        method: 'DELETE',
+        headers: { "Authorization": `Bearer ${accessToken}` }
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to delete skill');
+      }
+    }
+    
+    async function updateAgentQueue(userId, queueId) {
+      const queueValid = await validateQueueExists(queueId);
+      if (!queueValid) throw new Error(`Queue ${queueId} not found`);
+      const agentValid = await validateAgentExists(userId);
+      if (!agentValid) throw new Error(`Agent ${userId} not found`);
+      const url = `https://api.${REGION}/api/v2/users/${userId}/routingqueues/${queueId}`;
+      const response = await fetchWithRetry(url, {
+        method: 'PUT',
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ id: queueId, joined: true })
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update queue');
+      }
+    }
+    
+    async function validateAgentExists(agentId) {
+      try {
+        const response = await fetchWithRetry(`https://api.${REGION}/api/v2/users/${agentId}`, {
+          headers: { "Authorization": `Bearer ${accessToken}` }
+        });
+        return response.ok;
+      } catch (error) {
+        console.error(`Error validating agent ${agentId}:`, error);
+        return false;
+      }
+    }
+    
+    async function validateQueueExists(queueId) {
+      try {
+        const response = await fetchWithRetry(`https://api.${REGION}/api/v2/routing/queues/${queueId}`, {
+          headers: { "Authorization": `Bearer ${accessToken}` }
+        });
+        return response.ok;
+      } catch (error) {
+        console.error(`Error validating queue ${queueId}:`, error);
+        return false;
+      }
+    }
+    
+    async function validateSkillExists(skillId) {
+      try {
+        const response = await fetchWithRetry(`https://api.${REGION}/api/v2/routing/skills/${skillId}`, {
+          headers: { "Authorization": `Bearer ${accessToken}` }
+        });
+        return response.ok;
+      } catch (error) {
+        console.error(`Error validating skill ${skillId}:`, error);
+        return false;
+      }
+    }
+    
+    async function fetchWithRetry(url, options, retries = 3) {
+      try {
+        const response = await fetch(url, options);
+        if (!response.ok) {
+          if (response.status === 401) {
+            sessionStorage.removeItem('purecloud_token');
+            window.location.href = AUTH_URL;
+            return;
+          }
+          throw new Error(`HTTP ${response.status}`);
+        }
+        return response;
+      } catch (error) {
+        if (retries <= 0) throw error;
+        console.log(`Retrying ${url} (${retries} attempts left)`);
+        await new Promise(resolve => setTimeout(resolve, 1000 * (4 - retries)));
+        return fetchWithRetry(url, options, retries - 1);
+      }
+    }
+    
+    async function fetchAllPages(url) {
+      let allItems = [];
+      let pageNumber = 1;
+      let hasMorePages = true;
+    
+      while (hasMorePages) {
+        const response = await fetchWithRetry(`${url}${url.includes('?') ? '&' : '?'}pageNumber=${pageNumber}&pageSize=100`, {
+          headers: { 'Authorization': `Bearer ${accessToken}` }
+        });
+    
+        if (!response.ok) {
+          throw new Error(`Error fetching data: ${response.status} ${response.statusText}`);
+        }
+    
+        const data = await response.json();
+        if (data.entities) {
+          allItems = allItems.concat(data.entities);
+        } else if (Array.isArray(data)) {
+          allItems = allItems.concat(data);
+        }
+    
+        if (data.pageCount && data.pageCount > pageNumber) {
+          pageNumber++;
+        } else {
+          hasMorePages = false;
+        }
+      }
+      return allItems;
+    }
+    
+    function showStatusMessage(elementId, message, type) {
+      const element = document.getElementById(elementId);
+      element.innerHTML = message;
+      element.className = `status-message ${type}`;
+      element.style.display = 'block';
+    }
+    
+    async function showDetailedError(elementId, error) {
+      let message = error.message;
+      
+      if (error.response) {
+        try {
+          const errorData = await error.response.json();
+          message += `<br><small>Details: ${JSON.stringify(errorData, null, 2)}</small>`;
+        } catch (e) {
+          message += `<br><small>Status: ${error.response.status}</small>`;
+        }
+      }
+      
+      showStatusMessage(elementId, message, 'error');
+    }
     
     // =======================
     // Work Team Management Functions
-    let availableTeams = [];
+    // Load a mapping of userId to user name using the PureCloud users API
+    async function loadUserMappingForTeamManagement() {
+      try {
+        const users = await fetchAllPages('https://api.mypurecloud.ie/api/v2/users?pageSize=100');
+        userMapping = {};
+        users.forEach(user => {
+          userMapping[user.id] = user.name;
+        });
+      } catch (error) {
+        console.error("Error loading user mapping:", error);
+        showStatusMessage('teamStatus', 'Error loading user names: ' + error.message, 'error');
+      }
+    }
     
     async function initWorkTeamManagement() {
       if (!accessToken) {
         window.location.href = AUTH_URL;
         return;
       }
-      // Load teams for work team management and setup event listeners
+      // Load teams and user mapping for the work team management tab.
       await fetchTeamsForWorkTeam();
+      await loadUserMappingForTeamManagement();
       document.getElementById('loadTeamMembersBtn').addEventListener('click', loadTeamMembers);
       document.getElementById('addToTeamBtn').addEventListener('click', addSelectedToNewTeam);
       document.getElementById('removeFromTeamBtn').addEventListener('click', removeSelectedFromTeam);
@@ -712,10 +2073,11 @@
       const currentTeam = availableTeams.find(team => team.id === currentTeamId);
       const currentTeamName = currentTeam ? currentTeam.name : '';
       members.forEach(member => {
+        const agentName = userMapping[member.id] || member.id;
         const row = document.createElement('tr');
         row.innerHTML = `
           <td><input type="checkbox" data-user-id="${member.id}"></td>
-          <td>${member.name || member.id}</td>
+          <td>${agentName}</td>
           <td>${currentTeamName}</td>
           <td>
             <select class="new-team-select" data-user-id="${member.id}">
@@ -819,36 +2181,6 @@
       }
     }
     
-    // =======================
-    // Utility Functions (including fetchWithRetry and showStatusMessage)
-    async function fetchWithRetry(url, options, retries = 3) {
-      try {
-        const response = await fetch(url, options);
-        if (!response.ok) {
-          if (response.status === 401) {
-            sessionStorage.removeItem('purecloud_token');
-            window.location.href = AUTH_URL;
-            return;
-          }
-          throw new Error(`HTTP ${response.status}`);
-        }
-        return response;
-      } catch (error) {
-        if (retries <= 0) throw error;
-        console.log(`Retrying ${url} (${retries} attempts left)`);
-        await new Promise(resolve => setTimeout(resolve, 1000 * (4 - retries)));
-        return fetchWithRetry(url, options, retries - 1);
-      }
-    }
-    
-    function showStatusMessage(elementId, message, type) {
-      const element = document.getElementById(elementId);
-      element.innerHTML = message;
-      element.className = `status-message ${type}`;
-      element.style.display = 'block';
-    }
-    
-    // ... (Other functions for External Work, WFM Management, etc.) ...
   </script>
 </body>
 </html>
