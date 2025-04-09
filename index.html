@@ -43,7 +43,6 @@
       color: white;
       padding: 15px 30px;
       display: flex;
-      align-items: center;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       position: fixed;
       width: 100%;
@@ -53,16 +52,20 @@
     
     .header-content {
       display: flex;
+      justify-content: space-between;
       align-items: center;
       width: 100%;
       max-width: 1400px;
       margin: 0 auto;
-      gap: 20px; /* Add some space between title and logo */
+    }
+    
+    .header-content h1 {
+      margin: 0;
+      padding: 0;
     }
     
     .logo img {
       height: 50px;
-      margin-left: auto; /* This will push the logo to the right */
     }
     
     .app-container {
