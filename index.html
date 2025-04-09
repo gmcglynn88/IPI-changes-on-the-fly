@@ -684,7 +684,9 @@
                 </table>
               </div>
               <div class="form-row" style="margin-top: 20px;">
-                <button id="addToTeamBtn">Add Selected To New Team</button>
+                <!-- This button will perform a two-step process to change team membership. -->
+                <button id="addToTeamBtn">Change Team for Selected Agents</button>
+                <!-- This button simply removes selected agents from the current team. -->
                 <button id="removeFromTeamBtn">Remove Selected From Team</button>
               </div>
               
@@ -2024,7 +2026,8 @@
     
     // =======================
     // Work Team Management Functions
-    // Load a mapping of userId to user name using the PureCloud users API
+    
+    // Load the complete mapping of users from the users API
     async function loadUserMappingForTeamManagement() {
       try {
         const users = await fetchAllPages('https://api.mypurecloud.ie/api/v2/users?pageSize=100');
@@ -2043,13 +2046,15 @@
         window.location.href = AUTH_URL;
         return;
       }
-      // Load teams and user mapping for work team management.
+      // Load available teams and user mapping
       await fetchTeamsForWorkTeam();
       await loadUserMappingForTeamManagement();
       document.getElementById('loadTeamMembersBtn').addEventListener('click', loadTeamMembers);
+      // Change team process: remove from current team then add to new team
       document.getElementById('addToTeamBtn').addEventListener('click', addSelectedToNewTeam);
+      // Remove only process: remove from current team without adding
       document.getElementById('removeFromTeamBtn').addEventListener('click', removeSelectedFromTeam);
-      // Attach search functionality for agents without a team
+      // Search agents without a team
       document.getElementById('searchAgentsBtn').addEventListener('click', searchAgentsWithoutTeam);
       document.getElementById('addAgentsWithoutTeamBtn').addEventListener('click', addAgentsWithoutTeam);
     }
@@ -2138,53 +2143,67 @@
       });
     }
     
+    // Modified function: For each selected agent in the team members table,
+    // first remove from the current team then add to the new team.
     async function addSelectedToNewTeam() {
       const teamMembersTable = document.getElementById('teamMembersTable');
+      const currentTeamId = document.getElementById('teamDropdown').value;
       const checkboxes = teamMembersTable.querySelectorAll('tbody input[type="checkbox"]:checked');
       if (checkboxes.length === 0) {
         showStatusMessage('teamStatus', 'Please select at least one agent.', 'error');
         return;
       }
-      const addMap = {};
-      checkboxes.forEach(cb => {
-        const userId = cb.getAttribute('data-user-id');
-        const selectEl = teamMembersTable.querySelector(`select.new-team-select[data-user-id="${userId}"]`);
-        if (selectEl && selectEl.value) {
-          if (!addMap[selectEl.value]) {
-            addMap[selectEl.value] = [];
-          }
-          addMap[selectEl.value].push(userId);
-        }
-      });
-      let totalAdded = 0;
+      let totalChanged = 0;
       let errorMessages = [];
-      for (const newTeamId in addMap) {
+      for (const checkbox of checkboxes) {
+        const userId = checkbox.getAttribute('data-user-id');
+        const selectEl = teamMembersTable.querySelector(`select.new-team-select[data-user-id="${userId}"]`);
+        if (!selectEl || !selectEl.value) {
+          // If no new team is specified, skip changing for this agent.
+          continue;
+        }
+        const newTeamId = selectEl.value;
         try {
-          const response = await fetchWithRetry(`https://api.mypurecloud.ie/api/v2/teams/${newTeamId}/members`, {
+          // Step 1: Remove the agent from the current team.
+          const removeResponse = await fetchWithRetry(`https://api.mypurecloud.ie/api/v2/teams/${currentTeamId}/members`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ memberIds: [userId] })
+          });
+          if (!removeResponse.ok) {
+            const errorData = await removeResponse.json();
+            throw new Error(errorData.message || 'Removal failed');
+          }
+          // Step 2: Add the agent to the new team.
+          const addResponse = await fetchWithRetry(`https://api.mypurecloud.ie/api/v2/teams/${newTeamId}/members`, {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${accessToken}`,
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ memberIds: addMap[newTeamId] })
+            body: JSON.stringify({ memberIds: [userId] })
           });
-          if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Unknown error');
+          if (!addResponse.ok) {
+            const errorData = await addResponse.json();
+            throw new Error(errorData.message || 'Addition failed');
           }
-          totalAdded += addMap[newTeamId].length;
+          totalChanged++;
         } catch (error) {
-          errorMessages.push(`Error adding to team ${newTeamId}: ${error.message}`);
+          errorMessages.push(`Agent ${userId}: ${error.message}`);
         }
       }
       if (errorMessages.length > 0) {
-        showStatusMessage('teamStatus', `Added ${totalAdded} agents. Errors: ${errorMessages.join('; ')}`, 'warning');
+        showStatusMessage('teamStatus', `Changed ${totalChanged} agents. Errors: ${errorMessages.join('; ')}`, 'warning');
       } else {
-        showStatusMessage('teamStatus', `Successfully added ${totalAdded} agents to new teams.`, 'success');
+        showStatusMessage('teamStatus', `Successfully changed team for ${totalChanged} agents.`, 'success');
       }
       loadTeamMembers();
     }
     
+    // Remove agents from the current team without adding them elsewhere.
     async function removeSelectedFromTeam() {
       const selectedTeamId = document.getElementById('teamDropdown').value;
       if (!selectedTeamId) {
@@ -2227,7 +2246,7 @@
     async function searchAgentsWithoutTeam() {
       showStatusMessage('searchStatus', 'Searching agents without team...', 'info');
       try {
-        // Create a set of all assigned user IDs across all teams.
+        // Get assigned user IDs from all teams.
         let assignedUserIds = new Set();
         const teamMemberPromises = availableTeams.map(team => {
           return fetchWithRetry(`https://api.mypurecloud.ie/api/v2/teams/${team.id}/members`, {
@@ -2241,7 +2260,7 @@
         });
         await Promise.all(teamMemberPromises);
         
-        // Get all users from the userMapping.
+        // Prepare all users from the userMapping.
         const allUsers = Object.keys(userMapping).map(id => ({ id, name: userMapping[id] }));
         const searchTerm = document.getElementById('agentSearch').value.toLowerCase();
         let usersWithoutTeam = allUsers.filter(user => {
@@ -2331,7 +2350,7 @@
       } else {
         showStatusMessage('searchStatus', `Successfully added ${totalAdded} agents to teams.`, 'success');
       }
-      // Optionally, refresh search results.
+      // Refresh search results.
       searchAgentsWithoutTeam();
     }
     
