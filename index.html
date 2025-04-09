@@ -166,14 +166,23 @@
       margin-bottom: 30px;
     }
     
-    .form-section h2 {
+    .form-section h2, .form-section h3 {
       color: var(--text-dark);
+      margin-bottom: 20px;
+    }
+    
+    .form-section h2 {
       font-size: 20px;
       font-weight: 500;
-      margin-bottom: 20px;
       padding-bottom: 8px;
       border-bottom: 2px solid var(--primary-color);
       display: inline-block;
+    }
+    
+    .form-section h3 {
+      font-size: 18px;
+      font-weight: 500;
+      margin-top: 20px;
     }
     
     .form-row {
@@ -651,6 +660,8 @@
           <div class="app-window">
             <div class="form-section">
               <h2>Work Team Management</h2>
+              <!-- Section 1: Manage Team Members by Team -->
+              <h3>Manage Team Members by Team</h3>
               <div class="form-row">
                 <div class="form-group">
                   <label for="teamDropdown">Select Team</label>
@@ -675,6 +686,36 @@
               <div class="form-row" style="margin-top: 20px;">
                 <button id="addToTeamBtn">Add Selected To New Team</button>
                 <button id="removeFromTeamBtn">Remove Selected From Team</button>
+              </div>
+              
+              <hr />
+              
+              <!-- Section 2: Search Agents Without a Work Team -->
+              <h3>Search Agents Without a Work Team</h3>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="agentSearch">Search Agents</label>
+                  <input type="text" id="agentSearch" placeholder="Enter name or email..." />
+                </div>
+                <div class="form-group">
+                  <button id="searchAgentsBtn">Search Agents</button>
+                </div>
+              </div>
+              <div id="searchStatus" class="status-message" style="display: none;"></div>
+              <div style="overflow-x: auto; margin-top: 20px;">
+                <table class="results-table" id="agentsWithoutTeamTable">
+                  <thead>
+                    <tr>
+                      <th><input type="checkbox" id="selectAllAgentsWithoutTeam" /></th>
+                      <th>Agent</th>
+                      <th>New Team</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+              <div class="form-row" style="margin-top: 20px;">
+                <button id="addAgentsWithoutTeamBtn">Add Selected Agents To Team</button>
               </div>
             </div>
           </div>
@@ -712,8 +753,8 @@
     
     // Work Team Management State
     let availableTeams = [];
-    let userMapping = {};  // Mapping from user id to agent name
-
+    let userMapping = {};  // Maps user id to agent name
+    
     // =======================
     // Initialization & Token Handling
     document.addEventListener("DOMContentLoaded", function() {
@@ -1039,7 +1080,6 @@
         }
         
         showStatusMessage('muResults', `Loaded ${muAllUsers.length} users. Search for an agent above.`, 'success');
-        
       } catch (err) {
         console.error("Error loading all users:", err);
         showDetailedError('muResults', err);
@@ -1063,7 +1103,7 @@
         const emailMatch = (u.email || "").toLowerCase().includes(lowerSearch);
         return nameMatch || userNameMatch || emailMatch;
       });
-    
+      
       if (filtered.length === 0) {
         const opt = document.createElement("option");
         opt.value = "";
@@ -1071,7 +1111,7 @@
         agentSelect.add(opt);
         return;
       }
-    
+      
       filtered.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
       
       const defaultOpt = document.createElement("option");
@@ -1090,28 +1130,28 @@
     async function onMuGetManagementUnitClick() {
       const agentSelect = document.getElementById("agentSelect");
       const selectedAgentId = agentSelect.value;
-    
+      
       if (!selectedAgentId) {
         showStatusMessage('muResults', 'Please select an agent.', 'error');
         return;
       }
-    
+      
       showStatusMessage('muResults', 'Looking up Management Unit and Manager...', 'info');
-    
+      
       try {
         const user = muAllUsers.find(u => u.id === selectedAgentId);
         if (!user) {
           throw new Error("Selected user not found");
         }
-    
+        
         const muId = await muGetAgentManagementUnitId(selectedAgentId);
         const muName = muId ? await muGetManagementUnitName(muId) : "No Management Unit found";
-    
+        
         let managerName = "No manager assigned";
         if (user.manager && user.manager.id) {
           managerName = await muGetManagerName(user.manager.id);
         }
-    
+        
         const resultHTML = `
           <p><strong>Agent:</strong> ${user.name || selectedAgentId}</p>
           <p><strong>Management Unit:</strong> ${muName}</p>
@@ -1206,7 +1246,7 @@
       authMsg.textContent = 'Authenticated successfully!';
       authMsg.className = 'status-message success';
       setTimeout(() => { authMsg.style.display = 'none'; }, 2000);
-    
+      
       document.getElementById('business-units').disabled = false;
       document.getElementById('activity-name').disabled = false;
       document.getElementById('category').disabled = false;
@@ -1218,7 +1258,7 @@
       document.getElementById('planned-shrinkage').disabled = false;
       document.getElementById('interruptible').disabled = false;
       document.getElementById('create-button').disabled = false;
-    
+      
       fetchBusinessUnitsAct();
     }
     
@@ -1229,7 +1269,7 @@
         let nextPageUrl = apiUrl;
         
         showStatusMessage('activityResults', 'Loading business units...', 'info');
-    
+        
         while (nextPageUrl) {
           const response = await fetchWithRetry(nextPageUrl, {
             method: 'GET',
@@ -1238,17 +1278,17 @@
               'Content-Type': 'application/json'
             },
           });
-    
+          
           if (!response.ok) {
             const errorData = await response.json();
             throw new Error(errorData.message || 'Error fetching business units');
           }
-    
+          
           const data = await response.json();
           businessUnits = businessUnits.concat(data.entities);
           nextPageUrl = data.pageCount > data.pageNumber ? `${apiUrl}&pageNumber=${data.pageNumber + 1}` : null;
         }
-    
+        
         const businessUnitsSelect = document.getElementById('business-units');
         businessUnitsSelect.innerHTML = '';
         businessUnits.sort((a, b) => a.name.localeCompare(b.name));
@@ -1268,11 +1308,11 @@
     async function createActivityCode() {
       const resultsDiv = document.getElementById('activityResults');
       showStatusMessage('activityResults', 'Creating activity code...', 'info');
-    
+      
       const name = document.getElementById('activity-name').value.trim();
       const category = document.getElementById('category').value;
       const businessUnits = Array.from(document.getElementById('business-units').selectedOptions).map(option => option.value);
-    
+      
       if (!name) {
         showStatusMessage('activityResults', 'Please enter an activity name', 'error');
         return;
@@ -1285,7 +1325,7 @@
         showStatusMessage('activityResults', 'Please select at least one business unit', 'error');
         return;
       }
-    
+      
       const lengthInMinutes = parseInt(document.getElementById('length').value, 10) || null;
       const countsAsPaidTime = document.getElementById('paid-time').checked;
       const countsAsWorkTime = document.getElementById('work-time').checked;
@@ -1293,15 +1333,15 @@
       const countsTowardShrinkage = document.getElementById('shrinkage').checked;
       const plannedShrinkage = document.getElementById('planned-shrinkage').checked;
       const interruptible = document.getElementById('interruptible').checked;
-    
+      
       try {
         let successCount = 0;
         let errorCount = 0;
         let errorMessages = [];
-    
+        
         for (const businessUnitId of businessUnits) {
           const createUrl = `https://api.mypurecloud.ie/api/v2/workforcemanagement/businessunits/${businessUnitId}/activitycodes`;
-    
+          
           try {
             const response = await fetchWithRetry(createUrl, {
               method: 'POST',
@@ -1322,7 +1362,7 @@
                 secondaryPresences: []
               }),
             });
-    
+            
             if (!response.ok) {
               const errorData = await response.json();
               throw new Error(errorData.message || 'Unknown error');
@@ -1334,7 +1374,7 @@
             errorMessages.push(`Business Unit ${businessUnitId}: ${error.message}`);
           }
         }
-    
+        
         if (errorCount === 0) {
           showStatusMessage('activityResults', `Activity code "${name}" created successfully in all ${successCount} business units.`, 'success');
         } else if (successCount === 0) {
@@ -1374,7 +1414,7 @@
     async function fetchBulkSkillsData() {
       try {
         showStatusMessage('skill-results', 'Loading skill data...', 'info');
-    
+        
         const [skills, agents, managementUnits] = await Promise.all([
           fetchAllPages(`https://api.${REGION}/api/v2/routing/skills`),
           fetchAllPages(`https://api.${REGION}/api/v2/users?pageSize=100`),
@@ -1579,7 +1619,6 @@
       authMsg.textContent = 'Authenticated successfully!';
       authMsg.className = 'status-message success';
       setTimeout(() => { authMsg.style.display = 'none'; }, 2000);
-    
       fetchBulkQueuesData();
       setupBulkQueuesEventListeners();
     }
@@ -1587,7 +1626,7 @@
     async function fetchBulkQueuesData() {
       try {
         showStatusMessage('queue-results', 'Loading queue data...', 'info');
-    
+        
         const [queues, agents, managementUnits] = await Promise.all([
           fetchAllPages(`https://api.${REGION}/api/v2/routing/queues`),
           fetchAllPages(`https://api.${REGION}/api/v2/users?pageSize=100`),
@@ -2004,12 +2043,15 @@
         window.location.href = AUTH_URL;
         return;
       }
-      // Load teams and user mapping for the work team management tab.
+      // Load teams and user mapping for work team management.
       await fetchTeamsForWorkTeam();
       await loadUserMappingForTeamManagement();
       document.getElementById('loadTeamMembersBtn').addEventListener('click', loadTeamMembers);
       document.getElementById('addToTeamBtn').addEventListener('click', addSelectedToNewTeam);
       document.getElementById('removeFromTeamBtn').addEventListener('click', removeSelectedFromTeam);
+      // Attach search functionality for agents without a team
+      document.getElementById('searchAgentsBtn').addEventListener('click', searchAgentsWithoutTeam);
+      document.getElementById('addAgentsWithoutTeamBtn').addEventListener('click', addAgentsWithoutTeam);
     }
     
     async function fetchTeamsForWorkTeam() {
@@ -2179,6 +2221,118 @@
         console.error('Error removing agents:', error);
         showStatusMessage('teamStatus', 'Error removing agents: ' + error.message, 'error');
       }
+    }
+    
+    // --- New functions for agents without a work team ---
+    async function searchAgentsWithoutTeam() {
+      showStatusMessage('searchStatus', 'Searching agents without team...', 'info');
+      try {
+        // Create a set of all assigned user IDs across all teams.
+        let assignedUserIds = new Set();
+        const teamMemberPromises = availableTeams.map(team => {
+          return fetchWithRetry(`https://api.mypurecloud.ie/api/v2/teams/${team.id}/members`, {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+              'Content-Type': 'application/json'
+            }
+          }).then(response => response.json()).then(data => {
+            (data.entities || []).forEach(member => assignedUserIds.add(member.id));
+          });
+        });
+        await Promise.all(teamMemberPromises);
+        
+        // Get all users from the userMapping.
+        const allUsers = Object.keys(userMapping).map(id => ({ id, name: userMapping[id] }));
+        const searchTerm = document.getElementById('agentSearch').value.toLowerCase();
+        let usersWithoutTeam = allUsers.filter(user => {
+          if (assignedUserIds.has(user.id)) {
+            return false;
+          }
+          if (searchTerm) {
+            return user.name.toLowerCase().includes(searchTerm) || user.id.toLowerCase().includes(searchTerm);
+          }
+          return true;
+        });
+        
+        populateAgentsWithoutTeamTable(usersWithoutTeam);
+        showStatusMessage('searchStatus', `Found ${usersWithoutTeam.length} agents without a work team.`, 'success');
+      } catch (error) {
+        console.error("Error searching agents without team:", error);
+        showStatusMessage('searchStatus', 'Error searching agents: ' + error.message, 'error');
+      }
+    }
+    
+    function populateAgentsWithoutTeamTable(users) {
+      const tbody = document.querySelector('#agentsWithoutTeamTable tbody');
+      tbody.innerHTML = "";
+      users.forEach(user => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td><input type="checkbox" data-user-id="${user.id}"></td>
+          <td>${user.name}</td>
+          <td>
+            <select class="new-team-select" data-user-id="${user.id}">
+              <option value="">Select team</option>
+              ${availableTeams.map(team => `<option value="${team.id}">${team.name}</option>`).join('')}
+            </select>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+      const selectAllCheckbox = document.getElementById('selectAllAgentsWithoutTeam');
+      selectAllCheckbox.checked = false;
+      selectAllCheckbox.addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('#agentsWithoutTeamTable tbody input[type="checkbox"]');
+        checkboxes.forEach(cb => { cb.checked = this.checked; });
+      });
+    }
+    
+    async function addAgentsWithoutTeam() {
+      const table = document.getElementById('agentsWithoutTeamTable');
+      const checkboxes = table.querySelectorAll('tbody input[type="checkbox"]:checked');
+      if (checkboxes.length === 0) {
+        showStatusMessage('searchStatus', 'Please select at least one agent to add.', 'error');
+        return;
+      }
+      let addMap = {};
+      checkboxes.forEach(cb => {
+        const userId = cb.getAttribute('data-user-id');
+        const selectEl = table.querySelector(`select.new-team-select[data-user-id="${userId}"]`);
+        if (selectEl && selectEl.value) {
+          if (!addMap[selectEl.value]) {
+            addMap[selectEl.value] = [];
+          }
+          addMap[selectEl.value].push(userId);
+        }
+      });
+      let totalAdded = 0;
+      let errorMessages = [];
+      for (const newTeamId in addMap) {
+        try {
+          const response = await fetchWithRetry(`https://api.mypurecloud.ie/api/v2/teams/${newTeamId}/members`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ memberIds: addMap[newTeamId] })
+          });
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Unknown error');
+          }
+          totalAdded += addMap[newTeamId].length;
+        } catch (error) {
+          errorMessages.push(`Error adding to team ${newTeamId}: ${error.message}`);
+        }
+      }
+      if (errorMessages.length > 0) {
+        showStatusMessage('searchStatus', `Added ${totalAdded} agents. Errors: ${errorMessages.join('; ')}`, 'warning');
+      } else {
+        showStatusMessage('searchStatus', `Successfully added ${totalAdded} agents to teams.`, 'success');
+      }
+      // Optionally, refresh search results.
+      searchAgentsWithoutTeam();
     }
     
   </script>
