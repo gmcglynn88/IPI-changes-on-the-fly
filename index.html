@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Genesys Management Console</title>
-  <link href="https://fonts.googleapis.com/css2?family=Aptos:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IPI Management Console</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --primary-color: #63AB8F;
@@ -29,7 +29,7 @@
     }
     
     body {
-      font-family: 'Aptos', Arial, sans-serif;
+      font-family: 'Roboto', Arial, sans-serif;
       background-color: var(--light-bg);
       color: var(--text-dark);
       line-height: 1.6;
@@ -44,35 +44,30 @@
       padding: 15px 30px;
       display: flex;
       align-items: center;
+      justify-content: space-between;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      position: fixed;
-      width: 100%;
-      top: 0;
-      z-index: 100;
     }
     
     .header-content {
       display: flex;
       align-items: center;
-      justify-content: space-between;
       width: 100%;
-      max-width: 1400px;
+      max-width: 1200px;
       margin: 0 auto;
+      justify-content: space-between;
     }
     
     .logo img {
-      height: 50px;
-      margin-left: 5px;
+      height: 40px;
     }
     
     .app-container {
       display: flex;
       flex: 1;
-      margin-top: 70px;
+      min-height: calc(100vh - 70px);
       max-width: 1400px;
+      margin: 0 auto;
       width: 100%;
-      margin-left: auto;
-      margin-right: auto;
     }
     
     .sidebar {
@@ -82,16 +77,6 @@
       padding: 20px 0;
       display: flex;
       flex-direction: column;
-      position: fixed;
-      height: calc(100vh - 70px);
-      overflow-y: auto;
-      left: 0;
-    }
-    
-    .sidebar-nav {
-      display: flex;
-      flex-direction: column;
-      width: 100%;
     }
     
     .sidebar button {
@@ -108,7 +93,6 @@
       border-left: 3px solid transparent;
       display: flex;
       align-items: center;
-      white-space: nowrap;
     }
     
     .sidebar button:hover {
@@ -127,15 +111,12 @@
       margin-right: 10px;
       width: 20px;
       text-align: center;
-      font-style: normal;
-      flex-shrink: 0;
     }
     
     .content-area {
       flex: 1;
       padding: 30px;
-      margin-left: 250px;
-      width: calc(100% - 250px);
+      overflow-y: auto;
     }
     
     .tab-content-container {
@@ -166,23 +147,14 @@
       margin-bottom: 30px;
     }
     
-    .form-section h2, .form-section h3 {
-      color: var(--text-dark);
-      margin-bottom: 20px;
-    }
-    
     .form-section h2 {
+      color: var(--text-dark);
       font-size: 20px;
       font-weight: 500;
+      margin-bottom: 20px;
       padding-bottom: 8px;
       border-bottom: 2px solid var(--primary-color);
       display: inline-block;
-    }
-    
-    .form-section h3 {
-      font-size: 18px;
-      font-weight: 500;
-      margin-top: 20px;
     }
     
     .form-row {
@@ -329,6 +301,27 @@
       border-left-color: var(--warning-color);
     }
     
+    /* Business Unit Cards */
+    .business-unit-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+    
+    .business-unit-item {
+      padding: 15px;
+      background-color: var(--card-bg);
+      border-radius: 6px;
+      border-left: 4px solid var(--primary-color);
+      transition: all 0.2s;
+    }
+    
+    .business-unit-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    }
+    
     /* Results Tables */
     .results-table {
       width: 100%;
@@ -336,7 +329,7 @@
       margin-top: 20px;
     }
     
-    .results-table th,
+    .results-table th, 
     .results-table td {
       padding: 12px 15px;
       text-align: left;
@@ -364,26 +357,17 @@
         flex-direction: row;
         overflow-x: auto;
         padding: 0;
-        position: relative;
-        height: auto;
-        left: auto;
       }
       
       .sidebar button {
         padding: 15px 20px;
         border-left: none;
         border-bottom: 3px solid transparent;
-        white-space: nowrap;
       }
       
       .sidebar button.active {
         border-left: none;
         border-bottom: 3px solid var(--primary-color);
-      }
-      
-      .content-area {
-        margin-left: 0;
-        width: 100%;
       }
     }
     
@@ -409,41 +393,243 @@
 <body>
   <header>
     <div class="header-content">
-      <h1>Genesys Management Console</h1>
+      <h1>IPI Management Console</h1>
       <div class="logo">
-        <img src="https://raw.githubusercontent.com/gmcglynn88/TimeoffApp/main/IPI_Primary%20Identity_Corporate_REVERSED_ECC.png" alt="IPI Logo" />
+        <img src="https://raw.githubusercontent.com/gmcglynn88/TimeoffApp/main/IPI_Primary%20Identity_Corporate_REVERSED_ECC.png" alt="IPI Logo">
       </div>
     </div>
   </header>
   
   <div class="app-container">
     <div class="sidebar">
-      <div class="sidebar-nav">
-        <button type="button" class="tablink active" onclick="openTab(event, 'wfmManagement')">
-          <i>📊</i> WFM Management Unit Search
-        </button>
-        <button type="button" class="tablink" onclick="openTab(event, 'externalWork')">
-          <i>✉️</i> External Work Creation
-        </button>
-        <button type="button" class="tablink" onclick="openTab(event, 'activityCode')">
-          <i>⚙️</i> Activity Code Management
-        </button>
-        <button type="button" class="tablink" onclick="openTab(event, 'bulkSkills')">
-          <i>🔄</i> Bulk Skill Changes
-        </button>
-        <button type="button" class="tablink" onclick="openTab(event, 'bulkQueues')">
-          <i>🔄</i> Bulk Queue Changes
-        </button>
-        <!-- Work Team Management Tab -->
-        <button type="button" class="tablink" onclick="openTab(event, 'workTeamManagement')">
-          <i>👥</i> Work Team Management
-        </button>
-      </div>
+      <button type="button" class="tablink active" onclick="openTab(event, 'wfmManagement')">
+        <i>📊</i> WFM Management Unit Search
+      </button>
+      <button type="button" class="tablink" onclick="openTab(event, 'externalWork')">
+        <i>✉️</i> External Work Creation
+      </button>
+      <button type="button" class="tablink" onclick="openTab(event, 'activityCode')">
+        <i>⚙️</i> Activity Code Management
+      </button>
+      <button type="button" class="tablink" onclick="openTab(event, 'bulkChanges')">
+        <i>🔄</i> Bulk Skill & Queues
+      </button>
+      <button type="button" class="tablink" onclick="openTab(event, 'workTeamManagement')">
+        <i>👥</i> Work Team Management
+      </button>
     </div>
     
     <div class="content-area">
       <div class="tab-content-container">
-        <!-- (Other tabs omitted for brevity; include your existing tabs here) -->
+        <!-- WFM Management Unit Search Tab -->
+        <div id="wfmManagement" class="tabcontent active">
+          <div class="app-window">
+            <div class="form-section">
+              <h2>WFM Management Unit Search</h2>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="searchUser">Search users</label>
+                  <input type="text" id="searchUser" placeholder="Type to filter users...">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="agentSelect">Select an Agent</label>
+                  <select id="agentSelect"></select>
+                </div>
+              </div>
+              <button id="lookupBtn">Get Management Unit</button>
+              <div id="muResults" class="status-message" style="display: none;"></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- External Work Creation Tab -->
+        <div id="externalWork" class="tabcontent">
+          <div class="app-window">
+            <div class="form-section">
+              <h2>External Work Creation</h2>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="queueSelect">Select Queue</label>
+                  <select id="queueSelect"></select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="userSelect">Select User</label>
+                  <select id="userSelect"></select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="externalReference">External Reference (optional)</label>
+                  <input type="text" id="externalReference" placeholder="Enter external reference">
+                </div>
+              </div>
+              <button id="createInteractionBtn">Create Proxy Interaction</button>
+              <div id="statusMessage" class="status-message" style="display: none;"></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Activity Code Management Tab -->
+        <div id="activityCode" class="tabcontent">
+          <div class="app-window">
+            <div class="form-section">
+              <h2>Manage Business Units and Activity Codes</h2>
+              <div id="auth-message" class="status-message info">Authenticating with PureCloud...</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="business-units">Select Business Units</label>
+                  <select id="business-units" multiple disabled></select>
+                </div>
+              </div>
+              <hr class="divider">
+              <h3>Create Activity Code</h3>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="activity-name">Activity Name</label>
+                  <input type="text" id="activity-name" placeholder="Enter activity name" required disabled>
+                </div>
+                <div class="form-group">
+                  <label for="category">Category</label>
+                  <select id="category" required disabled>
+                    <option value="">Select category</option>
+                    <option value="OnQueueWork">OnQueueWork</option>
+                    <option value="Break">Break</option>
+                    <option value="Meal">Meal</option>
+                    <option value="Meeting">Meeting</option>
+                    <option value="OffQueueWork">OffQueueWork</option>
+                    <option value="TimeOff">TimeOff</option>
+                    <option value="Training">Training</option>
+                    <option value="Unavailable">Unavailable</option>
+                    <option value="Unscheduled">Unscheduled</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="length">Default Length (minutes)</label>
+                  <input type="number" id="length" placeholder="Enter default length" disabled>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Options</label>
+                <div class="checkbox-grid">
+                  <div class="checkbox-container">
+                    <input type="checkbox" id="paid-time" value="countsAsPaidTime" disabled>
+                    <label for="paid-time">Counts as Paid Time</label>
+                  </div>
+                  <div class="checkbox-container">
+                    <input type="checkbox" id="work-time" value="countsAsWorkTime" disabled>
+                    <label for="work-time">Counts as Work Time</label>
+                  </div>
+                  <div class="checkbox-container">
+                    <input type="checkbox" id="time-off-selectable" value="agentTimeOffSelectable" disabled>
+                    <label for="time-off-selectable">Agent Time Off Selectable</label>
+                  </div>
+                  <div class="checkbox-container">
+                    <input type="checkbox" id="shrinkage" value="countsTowardShrinkage" disabled>
+                    <label for="shrinkage">Counts Toward Shrinkage</label>
+                  </div>
+                  <div class="checkbox-container">
+                    <input type="checkbox" id="planned-shrinkage" value="plannedShrinkage" disabled>
+                    <label for="planned-shrinkage">Planned Shrinkage</label>
+                  </div>
+                  <div class="checkbox-container">
+                    <input type="checkbox" id="interruptible" value="interruptible" disabled>
+                    <label for="interruptible">Interruptible</label>
+                  </div>
+                </div>
+              </div>
+              <button id="create-button" onclick="createActivityCode()" disabled>Create Activity Code for Selected Business Units</button>
+              <div id="activityResults" class="status-message" style="display: none;"></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Bulk Skill & Queues Changes Tab -->
+        <div id="bulkChanges" class="tabcontent">
+          <div class="app-window">
+            <div class="form-section">
+              <h2>Bulk Skill & Queues Changes</h2>
+              <div id="auth-message-bulk" class="status-message info">Authenticating with PureCloud...</div>
+              <div class="bulk-tabs" style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <button class="bulk-tab-button active" data-tab="skill-tab">Skill Assignment</button>
+                <button class="bulk-tab-button" data-tab="queue-tab">Queue Assignment</button>
+              </div>
+              <!-- Skill Assignment Tab -->
+              <div id="skill-tab" class="bulk-tab-content active">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="skillDropdown">Select Skill</label>
+                    <select id="skillDropdown"></select>
+                  </div>
+                  <div class="form-group">
+                    <label for="agentDropdownForSkill">Select Agent</label>
+                    <select id="agentDropdownForSkill"></select>
+                  </div>
+                  <div class="form-group">
+                    <label for="managementUnitDropdownForSkill">Select Management Unit</label>
+                    <select id="managementUnitDropdownForSkill"></select>
+                  </div>
+                </div>
+                <button id="fetchAgentsForSkill">Get Agents</button>
+                <div style="overflow-x: auto; margin-top: 20px;">
+                  <table class="results-table" id="agentsTableForSkill">
+                    <thead>
+                      <tr>
+                        <th><input type="checkbox" id="selectAllAgentsForSkill"></th>
+                        <th>Agent</th>
+                        <th>Current Skills</th>
+                        <th>Skill Change</th>
+                        <th>Proficiency</th>
+                        <th>Delete Skill</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+                <button id="updateSkills">Update Selected Skills</button>
+                <div id="skill-results" class="status-message" style="display: none;"></div>
+              </div>
+              <!-- Queue Assignment Tab -->
+              <div id="queue-tab" class="bulk-tab-content">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="queueDropdown">Select Queue</label>
+                    <select id="queueDropdown"></select>
+                  </div>
+                  <div class="form-group">
+                    <label for="agentDropdownForQueue">Select Agent</label>
+                    <select id="agentDropdownForQueue"></select>
+                  </div>
+                  <div class="form-group">
+                    <label for="managementUnitDropdownForQueue">Select Management Unit</label>
+                    <select id="managementUnitDropdownForQueue"></select>
+                  </div>
+                </div>
+                <button id="fetchAgentsForQueue">Get Agents</button>
+                <div style="overflow-x: auto; margin-top: 20px;">
+                  <table class="results-table" id="agentsTableForQueue">
+                    <thead>
+                      <tr>
+                        <th><input type="checkbox" id="selectAllAgentsForQueue"></th>
+                        <th>Agent</th>
+                        <th>Current Queues</th>
+                        <th>Queue Change</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+                <button id="updateQueues">Update Selected Queues</button>
+                <div id="queue-results" class="status-message" style="display: none;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
         
         <!-- Work Team Management Tab -->
         <div id="workTeamManagement" class="tabcontent">
@@ -464,7 +650,7 @@
                 <table class="results-table" id="teamMembersTable">
                   <thead>
                     <tr>
-                      <th><input type="checkbox" id="selectAllTeamMembers" /></th>
+                      <th><input type="checkbox" id="selectAllTeamMembers"></th>
                       <th>Agent</th>
                       <th>Current Team</th>
                       <th>New Team</th>
@@ -474,9 +660,9 @@
                 </table>
               </div>
               <div class="form-row" style="margin-top: 20px;">
-                <!-- Change Team button: performs two actions (removal then addition) -->
+                <!-- The Change Team button performs removal then addition -->
                 <button id="changeTeamBtn">Change Team for Selected Agents</button>
-                <!-- Remove-only button -->
+                <!-- A remove-only button -->
                 <button id="removeFromTeamBtn">Remove Selected From Team</button>
               </div>
               
@@ -487,7 +673,7 @@
               <div class="form-row">
                 <div class="form-group">
                   <label for="agentSearch">Search Agents</label>
-                  <input type="text" id="agentSearch" placeholder="Enter name or email..." />
+                  <input type="text" id="agentSearch" placeholder="Enter name or email...">
                 </div>
                 <div class="form-group">
                   <button id="searchAgentsBtn">Search Agents</button>
@@ -498,7 +684,7 @@
                 <table class="results-table" id="agentsWithoutTeamTable">
                   <thead>
                     <tr>
-                      <th><input type="checkbox" id="selectAllAgentsWithoutTeam" /></th>
+                      <th><input type="checkbox" id="selectAllAgentsWithoutTeam"></th>
                       <th>Agent</th>
                       <th>New Team</th>
                     </tr>
@@ -513,13 +699,14 @@
           </div>
         </div>
         
-      </div>
+      </div> <!-- end of tab-content-container -->
     </div>
   </div>
   
   <script>
-    // ---------------------------
-    // Global Configuration and State
+    /* =======================
+       Global Configuration & State
+    ======================= */
     const CLIENT_ID = '4652c8b5-9117-43c6-8e54-77eeb38aebb8';
     const CLIENT_SECRET = 'txtfN6cb699Lu7tID5n2NSjGwKOU_6NzyghgSk-bVkY';
     const REGION = 'mypurecloud.ie';
@@ -532,8 +719,7 @@
       wfmManagement: false,
       externalWork: false,
       activityCode: false,
-      bulkSkills: false,
-      bulkQueues: false,
+      bulkChanges: false,
       workTeamManagement: false
     };
     
@@ -543,12 +729,14 @@
     let availableAgents = [];
     let availableManagementUnits = [];
     
-    // Work Team Management State
+    // ---------------------------
+    // For Work Team Management
     let availableTeams = [];
     let userMapping = {};  // Maps user id to agent name
     
-    // ---------------------------
-    // Initialization & Token Handling
+    /* =======================
+       Initialization
+    ======================= */
     document.addEventListener("DOMContentLoaded", function() {
       console.log("Initializing application...");
       const hash = window.location.hash.substring(1);
@@ -575,7 +763,6 @@
     async function validateTokenBeforeUse() {
       const authMessage = document.getElementById('auth-message');
       const authMessageBulk = document.getElementById('auth-message-bulk');
-      const authMessageBulkQueue = document.getElementById('auth-message-bulk-queue');
       
       if (authMessage) {
         authMessage.textContent = 'Validating authentication token...';
@@ -585,14 +772,16 @@
         authMessageBulk.textContent = 'Validating authentication token...';
         authMessageBulk.className = 'status-message info';
       }
-      if (authMessageBulkQueue) {
-        authMessageBulkQueue.textContent = 'Validating authentication token...';
-        authMessageBulkQueue.className = 'status-message info';
-      }
       
       try {
-        const isValid = await checkTokenValidity();
-        if (isValid) {
+        const response = await fetch(`https://api.${REGION}/api/v2/users/me`, {
+          headers: {
+            "Authorization": `Bearer ${accessToken}`,
+            "Content-Type": "application/json"
+          }
+        });
+        
+        if (response.ok) {
           console.log("Token is valid");
           if (authMessage) {
             authMessage.textContent = 'Authenticated successfully!';
@@ -604,44 +793,40 @@
             authMessageBulk.className = 'status-message success';
             setTimeout(() => { authMessageBulk.style.display = 'none'; }, 2000);
           }
-          if (authMessageBulkQueue) {
-            authMessageBulkQueue.textContent = 'Authenticated successfully!';
-            authMessageBulkQueue.className = 'status-message success';
-            setTimeout(() => { authMessageBulkQueue.style.display = 'none'; }, 2000);
-          }
           document.getElementsByClassName("tablink")[0].click();
         } else {
           console.log("Token validation failed, redirecting to auth");
+          if (authMessage) {
+            authMessage.textContent = 'Authentication expired, redirecting...';
+            authMessage.className = 'status-message error';
+          }
+          if (authMessageBulk) {
+            authMessageBulk.textContent = 'Authentication expired, redirecting...';
+            authMessageBulk.className = 'status-message error';
+          }
           sessionStorage.removeItem('purecloud_token');
           setTimeout(() => { window.location.href = AUTH_URL; }, 2000);
         }
       } catch (error) {
         console.error("Token validation error:", error);
+        if (authMessage) {
+          authMessage.textContent = 'Error validating token, redirecting...';
+          authMessage.className = 'status-message error';
+        }
+        if (authMessageBulk) {
+          authMessageBulk.textContent = 'Error validating token, redirecting...';
+          authMessageBulk.className = 'status-message error';
+        }
         sessionStorage.removeItem('purecloud_token');
         setTimeout(() => { window.location.href = AUTH_URL; }, 2000);
       }
     }
     
-    async function checkTokenValidity() {
-      try {
-        const response = await fetchWithRetry(`https://api.${REGION}/api/v2/users/me`, {
-          headers: {
-            "Authorization": `Bearer ${accessToken}`,
-            "Content-Type": "application/json"
-          }
-        });
-        return response.ok;
-      } catch (error) {
-        console.error("Error checking token validity:", error);
-        return false;
-      }
-    }
-    
-    // ---------------------------
-    // Tab Management
+    /* =======================
+       Tab Management
+    ======================= */
     function openTab(evt, tabName) {
       evt.preventDefault();
-      
       const tablinks = document.getElementsByClassName("tablink");
       for (let i = 0; i < tablinks.length; i++) {
         tablinks[i].classList.remove("active");
@@ -665,11 +850,8 @@
           case 'activityCode':
             initActivityCodeManagement();
             break;
-          case 'bulkSkills':
-            initBulkSkills();
-            break;
-          case 'bulkQueues':
-            initBulkQueues();
+          case 'bulkChanges':
+            initBulkChanges();
             break;
           case 'workTeamManagement':
             initWorkTeamManagement();
@@ -681,13 +863,31 @@
       }
     }
     
-    /* ---------------------------
-       (Functions for External Work, Management Unit, Activity Code, Bulk Skills, Bulk Queues are omitted for brevity.)
-       They remain unchanged.
-    ---------------------------- */
+    /* =======================
+       External Work Creation Functions
+       (Omitted here for brevity; use your existing code.)
+       They include populateDropdowns() and createInteraction().
+    ======================= */
     
-    // ---------------------------
-    // Work Team Management Functions
+    /* =======================
+       Management Unit Search Functions
+       (Omitted for brevity; use your existing code.)
+    ======================= */
+    
+    /* =======================
+       Activity Code Management Functions
+       (Omitted for brevity; use your existing code.)
+    ======================= */
+    
+    /* =======================
+       Bulk Skill & Queues Changes Functions
+       (Omitted for brevity; use your existing code for bulkChanges.)
+    ======================= */
+    
+    /* =======================
+       Work Team Management Functions
+    ======================= */
+    
     async function loadUserMappingForTeamManagement() {
       try {
         const users = await fetchAllPages('https://api.mypurecloud.ie/api/v2/users?pageSize=100');
@@ -709,21 +909,18 @@
       await fetchTeamsForWorkTeam();
       await loadUserMappingForTeamManagement();
       document.getElementById('loadTeamMembersBtn').addEventListener('click', loadTeamMembers);
-      
-      // Change team button: remove from current team then add to new team.
+      // The Change Team button: remove then add.
       document.getElementById('changeTeamBtn').addEventListener('click', changeTeamForSelectedAgents);
-      
       // Remove-only button.
       document.getElementById('removeFromTeamBtn').addEventListener('click', removeSelectedFromTeam);
-      
-      // Search agents without a team.
+      // Search functions.
       document.getElementById('searchAgentsBtn').addEventListener('click', searchAgentsWithoutTeam);
       document.getElementById('addAgentsWithoutTeamBtn').addEventListener('click', addAgentsWithoutTeam);
     }
     
     async function fetchTeamsForWorkTeam() {
       try {
-        const response = await fetchWithRetry('https://api.mypurecloud.ie/api/v2/teams', {
+        const response = await fetch(`https://api.mypurecloud.ie/api/v2/teams`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json'
@@ -757,7 +954,7 @@
       }
       showStatusMessage('teamStatus', 'Loading team members...', 'info');
       try {
-        const response = await fetchWithRetry(`https://api.mypurecloud.ie/api/v2/teams/${teamId}/members`, {
+        const response = await fetch(`https://api.mypurecloud.ie/api/v2/teams/${teamId}/members`, {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json'
@@ -805,9 +1002,7 @@
       });
     }
     
-    // This function performs the two-step process:
-    // First, remove each selected agent from the current team,
-    // Then add them to the new team specified.
+    // Change Team: for each selected agent, remove from the current team then add to new team.
     async function changeTeamForSelectedAgents() {
       const currentTeamId = document.getElementById('teamDropdown').value;
       if (!currentTeamId) {
@@ -825,13 +1020,11 @@
       for (const checkbox of checkboxes) {
         const userId = checkbox.getAttribute('data-user-id');
         const selectEl = teamMembersTable.querySelector(`select.new-team-select[data-user-id="${userId}"]`);
-        if (!selectEl || !selectEl.value) {
-          continue; // Skip agents with no new team specified.
-        }
+        if (!selectEl || !selectEl.value) continue;
         const newTeamId = selectEl.value;
         try {
-          // Step 1: Remove the agent from the current team.
-          const removeResponse = await fetchWithRetry(`https://api.mypurecloud.ie/api/v2/teams/${currentTeamId}/members`, {
+          // Remove agent from current team
+          const removeResponse = await fetch(`https://api.mypurecloud.ie/api/v2/teams/${currentTeamId}/members`, {
             method: 'DELETE',
             headers: {
               'Authorization': `Bearer ${accessToken}`,
@@ -843,8 +1036,8 @@
             const errorData = await removeResponse.json();
             throw new Error(errorData.message || 'Removal failed');
           }
-          // Step 2: Add the agent to the new team.
-          const addResponse = await fetchWithRetry(`https://api.mypurecloud.ie/api/v2/teams/${newTeamId}/members`, {
+          // Add agent to new team
+          const addResponse = await fetch(`https://api.mypurecloud.ie/api/v2/teams/${newTeamId}/members`, {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${accessToken}`,
@@ -869,10 +1062,10 @@
       loadTeamMembers();
     }
     
-    // Remove selected agents from the current team (remove-only).
+    // Remove Selected Agents from the current team only.
     async function removeSelectedFromTeam() {
-      const selectedTeamId = document.getElementById('teamDropdown').value;
-      if (!selectedTeamId) {
+      const currentTeamId = document.getElementById('teamDropdown').value;
+      if (!currentTeamId) {
         showStatusMessage('teamStatus', 'Please select a team.', 'error');
         return;
       }
@@ -882,13 +1075,12 @@
         showStatusMessage('teamStatus', 'Please select at least one agent.', 'error');
         return;
       }
-      const memberIds = [];
+      let memberIds = [];
       checkboxes.forEach(cb => {
-        const userId = cb.getAttribute('data-user-id');
-        memberIds.push(userId);
+        memberIds.push(cb.getAttribute('data-user-id'));
       });
       try {
-        const response = await fetchWithRetry(`https://api.mypurecloud.ie/api/v2/teams/${selectedTeamId}/members`, {
+        const response = await fetch(`https://api.mypurecloud.ie/api/v2/teams/${currentTeamId}/members`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${accessToken}`,
@@ -898,7 +1090,7 @@
         });
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.message || 'Unknown error');
+          throw new Error(errorData.message || 'Removal failed');
         }
         showStatusMessage('teamStatus', `Successfully removed ${memberIds.length} agents from the team.`, 'success');
         loadTeamMembers();
@@ -913,33 +1105,30 @@
     async function searchAgentsWithoutTeam() {
       showStatusMessage('searchStatus', 'Searching agents without team...', 'info');
       try {
-        // Get assigned user IDs from all teams.
+        // Get all assigned user IDs from available teams.
         let assignedUserIds = new Set();
-        const teamMemberPromises = availableTeams.map(team => {
-          return fetchWithRetry(`https://api.mypurecloud.ie/api/v2/teams/${team.id}/members`, {
+        const teamPromises = availableTeams.map(team => {
+          return fetch(`https://api.mypurecloud.ie/api/v2/teams/${team.id}/members`, {
             headers: {
               'Authorization': `Bearer ${accessToken}`,
               'Content-Type': 'application/json'
             }
-          }).then(response => response.json()).then(data => {
+          }).then(res => res.json()).then(data => {
             (data.entities || []).forEach(member => assignedUserIds.add(member.id));
           });
         });
-        await Promise.all(teamMemberPromises);
+        await Promise.all(teamPromises);
         
-        // Build list of all users from userMapping.
+        // Get all users from userMapping.
         const allUsers = Object.keys(userMapping).map(id => ({ id, name: userMapping[id] }));
         const searchTerm = document.getElementById('agentSearch').value.toLowerCase();
         let usersWithoutTeam = allUsers.filter(user => {
-          if (assignedUserIds.has(user.id)) {
-            return false;
-          }
+          if (assignedUserIds.has(user.id)) return false;
           if (searchTerm) {
             return user.name.toLowerCase().includes(searchTerm) || user.id.toLowerCase().includes(searchTerm);
           }
           return true;
         });
-        
         populateAgentsWithoutTeamTable(usersWithoutTeam);
         showStatusMessage('searchStatus', `Found ${usersWithoutTeam.length} agents without a work team.`, 'success');
       } catch (error) {
@@ -995,7 +1184,7 @@
       let errorMessages = [];
       for (const newTeamId in addMap) {
         try {
-          const response = await fetchWithRetry(`https://api.mypurecloud.ie/api/v2/teams/${newTeamId}/members`, {
+          const response = await fetch(`https://api.mypurecloud.ie/api/v2/teams/${newTeamId}/members`, {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${accessToken}`,
@@ -1005,7 +1194,7 @@
           });
           if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.message || 'Unknown error');
+            throw new Error(errorData.message || 'Addition failed');
           }
           totalAdded += addMap[newTeamId].length;
         } catch (error) {
@@ -1017,53 +1206,29 @@
       } else {
         showStatusMessage('searchStatus', `Successfully added ${totalAdded} agents to teams.`, 'success');
       }
-      // Refresh search results.
       searchAgentsWithoutTeam();
     }
     
     // ---------------------------
-    // Shared Utility Functions
-    async function fetchWithRetry(url, options, retries = 3) {
-      try {
-        const response = await fetch(url, options);
-        if (!response.ok) {
-          if (response.status === 401) {
-            sessionStorage.removeItem('purecloud_token');
-            window.location.href = AUTH_URL;
-            return;
-          }
-          throw new Error(`HTTP ${response.status}`);
-        }
-        return response;
-      } catch (error) {
-        if (retries <= 0) throw error;
-        console.log(`Retrying ${url} (${retries} attempts left)`);
-        await new Promise(resolve => setTimeout(resolve, 1000 * (4 - retries)));
-        return fetchWithRetry(url, options, retries - 1);
-      }
-    }
-    
+    // Utility Functions
     async function fetchAllPages(url) {
       let allItems = [];
       let pageNumber = 1;
       let hasMorePages = true;
     
       while (hasMorePages) {
-        const response = await fetchWithRetry(`${url}${url.includes('?') ? '&' : '?'}pageNumber=${pageNumber}&pageSize=100`, {
+        const response = await fetch(`${url}${url.includes('?') ? '&' : '?'}pageNumber=${pageNumber}&pageSize=100`, {
           headers: { 'Authorization': `Bearer ${accessToken}` }
         });
-    
         if (!response.ok) {
           throw new Error(`Error fetching data: ${response.status} ${response.statusText}`);
         }
-    
         const data = await response.json();
         if (data.entities) {
           allItems = allItems.concat(data.entities);
         } else if (Array.isArray(data)) {
           allItems = allItems.concat(data);
         }
-    
         if (data.pageCount && data.pageCount > pageNumber) {
           pageNumber++;
         } else {
@@ -1080,20 +1245,6 @@
       element.style.display = 'block';
     }
     
-    async function showDetailedError(elementId, error) {
-      let message = error.message;
-      
-      if (error.response) {
-        try {
-          const errorData = await error.response.json();
-          message += `<br><small>Details: ${JSON.stringify(errorData, null, 2)}</small>`;
-        } catch (e) {
-          message += `<br><small>Status: ${error.response.status}</small>`;
-        }
-      }
-      
-      showStatusMessage(elementId, message, 'error');
-    }
   </script>
 </body>
 </html>
