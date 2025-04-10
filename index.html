@@ -443,7 +443,8 @@
     
     <div class="content-area">
       <div class="tab-content-container">
-        <!-- (Other tabs omitted for brevity; they remain unchanged.) -->
+        <!-- (Other tabs omitted for brevity; include your existing tabs here) -->
+        
         <!-- Work Team Management Tab -->
         <div id="workTeamManagement" class="tabcontent">
           <div class="app-window">
@@ -453,7 +454,7 @@
               <h3>Manage Team Members by Team</h3>
               <div class="form-row">
                 <div class="form-group">
-                  <label for="teamDropdown">Select Team</label>
+                  <label for="teamDropdown">Select Team (Current Team)</label>
                   <select id="teamDropdown"></select>
                 </div>
               </div>
@@ -473,9 +474,9 @@
                 </table>
               </div>
               <div class="form-row" style="margin-top: 20px;">
-                <!-- The Change Team button performs a two-step process: removal then addition. -->
+                <!-- Change Team button: performs two actions (removal then addition) -->
                 <button id="changeTeamBtn">Change Team for Selected Agents</button>
-                <!-- You can also keep a remove-only button if desired. -->
+                <!-- Remove-only button -->
                 <button id="removeFromTeamBtn">Remove Selected From Team</button>
               </div>
               
@@ -517,9 +518,8 @@
   </div>
   
   <script>
-    /* ---------------------------
-       Global Configuration & State
-    ---------------------------- */
+    // ---------------------------
+    // Global Configuration and State
     const CLIENT_ID = '4652c8b5-9117-43c6-8e54-77eeb38aebb8';
     const CLIENT_SECRET = 'txtfN6cb699Lu7tID5n2NSjGwKOU_6NzyghgSk-bVkY';
     const REGION = 'mypurecloud.ie';
@@ -547,9 +547,8 @@
     let availableTeams = [];
     let userMapping = {};  // Maps user id to agent name
     
-    /* ---------------------------
-       Initialization & Token Handling
-    ---------------------------- */
+    // ---------------------------
+    // Initialization & Token Handling
     document.addEventListener("DOMContentLoaded", function() {
       console.log("Initializing application...");
       const hash = window.location.hash.substring(1);
@@ -638,9 +637,8 @@
       }
     }
     
-    /* ---------------------------
-       Tab Management
-    ---------------------------- */
+    // ---------------------------
+    // Tab Management
     function openTab(evt, tabName) {
       evt.preventDefault();
       
@@ -684,30 +682,12 @@
     }
     
     /* ---------------------------
-       External Work Creation Functions
-       (Omitted for brevity—they remain unchanged.)
+       (Functions for External Work, Management Unit, Activity Code, Bulk Skills, Bulk Queues are omitted for brevity.)
+       They remain unchanged.
     ---------------------------- */
     
-    /* ---------------------------
-       Management Unit Search Functions
-       (Omitted for brevity—they remain unchanged.)
-    ---------------------------- */
-    
-    /* ---------------------------
-       Activity Code Management Functions
-       (Omitted for brevity—they remain unchanged.)
-    ---------------------------- */
-    
-    /* ---------------------------
-       Bulk Skill Changes & Bulk Queue Changes Functions
-       (Omitted for brevity—they remain unchanged.)
-    ---------------------------- */
-    
-    /* ---------------------------
-       Work Team Management Functions
-    ---------------------------- */
-    
-    // Load user mapping from users API so that agent names are available.
+    // ---------------------------
+    // Work Team Management Functions
     async function loadUserMappingForTeamManagement() {
       try {
         const users = await fetchAllPages('https://api.mypurecloud.ie/api/v2/users?pageSize=100');
@@ -730,13 +710,13 @@
       await loadUserMappingForTeamManagement();
       document.getElementById('loadTeamMembersBtn').addEventListener('click', loadTeamMembers);
       
-      // The Change Team button now performs a two-step process.
+      // Change team button: remove from current team then add to new team.
       document.getElementById('changeTeamBtn').addEventListener('click', changeTeamForSelectedAgents);
       
-      // If you still wish to have a remove-only function, attach it here:
+      // Remove-only button.
       document.getElementById('removeFromTeamBtn').addEventListener('click', removeSelectedFromTeam);
       
-      // Attach search functions.
+      // Search agents without a team.
       document.getElementById('searchAgentsBtn').addEventListener('click', searchAgentsWithoutTeam);
       document.getElementById('addAgentsWithoutTeamBtn').addEventListener('click', addAgentsWithoutTeam);
     }
@@ -826,11 +806,11 @@
     }
     
     // This function performs the two-step process:
-    // (1) Remove each selected agent from the current team.
-    // (2) Add that agent to the new team specified.
+    // First, remove each selected agent from the current team,
+    // Then add them to the new team specified.
     async function changeTeamForSelectedAgents() {
-      const teamId = document.getElementById('teamDropdown').value;
-      if (!teamId) {
+      const currentTeamId = document.getElementById('teamDropdown').value;
+      if (!currentTeamId) {
         showStatusMessage('teamStatus', 'Please select a current team.', 'error');
         return;
       }
@@ -845,14 +825,13 @@
       for (const checkbox of checkboxes) {
         const userId = checkbox.getAttribute('data-user-id');
         const selectEl = teamMembersTable.querySelector(`select.new-team-select[data-user-id="${userId}"]`);
-        // Only process if a new team is selected.
         if (!selectEl || !selectEl.value) {
-          continue;
+          continue; // Skip agents with no new team specified.
         }
         const newTeamId = selectEl.value;
         try {
-          // Step 1: Remove agent from the current team.
-          const removeResponse = await fetchWithRetry(`https://api.mypurecloud.ie/api/v2/teams/${teamId}/members`, {
+          // Step 1: Remove the agent from the current team.
+          const removeResponse = await fetchWithRetry(`https://api.mypurecloud.ie/api/v2/teams/${currentTeamId}/members`, {
             method: 'DELETE',
             headers: {
               'Authorization': `Bearer ${accessToken}`,
@@ -864,7 +843,7 @@
             const errorData = await removeResponse.json();
             throw new Error(errorData.message || 'Removal failed');
           }
-          // Step 2: Add agent to the new team.
+          // Step 2: Add the agent to the new team.
           const addResponse = await fetchWithRetry(`https://api.mypurecloud.ie/api/v2/teams/${newTeamId}/members`, {
             method: 'POST',
             headers: {
@@ -890,7 +869,7 @@
       loadTeamMembers();
     }
     
-    // Remove only: Remove selected agents from the current team.
+    // Remove selected agents from the current team (remove-only).
     async function removeSelectedFromTeam() {
       const selectedTeamId = document.getElementById('teamDropdown').value;
       if (!selectedTeamId) {
@@ -934,7 +913,7 @@
     async function searchAgentsWithoutTeam() {
       showStatusMessage('searchStatus', 'Searching agents without team...', 'info');
       try {
-        // Gather assigned user IDs across all teams.
+        // Get assigned user IDs from all teams.
         let assignedUserIds = new Set();
         const teamMemberPromises = availableTeams.map(team => {
           return fetchWithRetry(`https://api.mypurecloud.ie/api/v2/teams/${team.id}/members`, {
@@ -948,7 +927,7 @@
         });
         await Promise.all(teamMemberPromises);
         
-        // Prepare a list of all users from userMapping.
+        // Build list of all users from userMapping.
         const allUsers = Object.keys(userMapping).map(id => ({ id, name: userMapping[id] }));
         const searchTerm = document.getElementById('agentSearch').value.toLowerCase();
         let usersWithoutTeam = allUsers.filter(user => {
@@ -1042,9 +1021,8 @@
       searchAgentsWithoutTeam();
     }
     
-    /* ---------------------------
-       Shared Utility Functions
-    ---------------------------- */
+    // ---------------------------
+    // Shared Utility Functions
     async function fetchWithRetry(url, options, retries = 3) {
       try {
         const response = await fetch(url, options);
@@ -1116,7 +1094,6 @@
       
       showStatusMessage(elementId, message, 'error');
     }
-    
   </script>
 </body>
 </html>
