@@ -21,13 +21,11 @@
       --info-color: #17a2b8;
       --warning-color: #ffc107;
     }
-    
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
-    
     body {
       font-family: 'Aptos', Arial, sans-serif;
       background-color: var(--light-bg);
@@ -37,7 +35,6 @@
       flex-direction: column;
       min-height: 100vh;
     }
-    
     header {
       background-color: var(--header-bg);
       color: white;
@@ -50,7 +47,6 @@
       top: 0;
       z-index: 100;
     }
-    
     .header-content {
       display: flex;
       align-items: center;
@@ -59,12 +55,10 @@
       max-width: 1400px;
       margin: 0 auto;
     }
-    
     .logo img {
       height: 40px;
       margin-left: 20px;
     }
-    
     .app-container {
       display: flex;
       flex: 1;
@@ -74,7 +68,6 @@
       margin-left: auto;
       margin-right: auto;
     }
-    
     .sidebar {
       width: 250px;
       background-color: white;
@@ -87,13 +80,11 @@
       overflow-y: auto;
       left: 0;
     }
-    
     .sidebar-nav {
       display: flex;
       flex-direction: column;
       width: 100%;
     }
-    
     .sidebar button {
       background-color: transparent;
       border: none;
@@ -109,19 +100,16 @@
       align-items: center;
       white-space: nowrap;
     }
-    
     .sidebar button:hover {
       background-color: rgba(99, 171, 143, 0.1);
       color: var(--text-dark);
     }
-    
     .sidebar button.active {
       background-color: rgba(99, 171, 143, 0.1);
       color: var(--primary-color);
       border-left: 3px solid var(--primary-color);
       font-weight: 500;
     }
-    
     .sidebar button i {
       margin-right: 10px;
       width: 20px;
@@ -129,29 +117,24 @@
       font-style: normal;
       flex-shrink: 0;
     }
-    
     .content-area {
       flex: 1;
       padding: 30px;
       margin-left: 250px;
       width: calc(100% - 250px);
     }
-    
     .tab-content-container {
       width: 100%;
       max-width: 1000px;
       margin: 0 auto;
     }
-    
     .tabcontent {
       display: none;
       width: 100%;
     }
-    
     .tabcontent.active {
       display: block;
     }
-    
     .app-window {
       background-color: white;
       border-radius: 8px;
@@ -159,12 +142,10 @@
       padding: 30px;
       width: 100%;
     }
-    
     /* Common Form Styles */
     .form-section {
       margin-bottom: 30px;
     }
-    
     .form-section h2 {
       color: var(--text-dark);
       font-size: 20px;
@@ -174,26 +155,22 @@
       border-bottom: 2px solid var(--primary-color);
       display: inline-block;
     }
-    
     .form-row {
       display: flex;
       flex-wrap: wrap;
       gap: 25px;
       margin-bottom: 20px;
     }
-    
     .form-group {
       flex: 1;
       min-width: 300px;
     }
-    
     label {
       display: block;
       font-weight: 500;
       color: var(--text-medium);
       margin-bottom: 8px;
     }
-    
     input, select {
       width: 100%;
       padding: 12px 15px;
@@ -202,29 +179,24 @@
       font-size: 15px;
       transition: all 0.3s;
     }
-    
     input:focus, select:focus {
       outline: none;
       border-color: var(--primary-color);
       box-shadow: 0 0 0 3px rgba(99, 171, 143, 0.2);
     }
-    
     select[multiple] {
       height: auto;
       min-height: 150px;
       padding: 8px;
     }
-    
     select[multiple] option {
       padding: 8px 12px;
       border-bottom: 1px solid #eee;
       transition: background-color 0.2s;
     }
-    
     select[multiple] option:hover {
       background-color: rgba(99, 171, 143, 0.1);
     }
-    
     .checkbox-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -232,7 +204,6 @@
       width: 100%;
       max-width: 650px;
     }
-    
     .checkbox-container {
       display: flex;
       align-items: center;
@@ -241,11 +212,9 @@
       border-radius: 6px;
       transition: all 0.2s;
     }
-    
     .checkbox-container:hover {
       background-color: rgba(99, 171, 143, 0.1);
     }
-    
     .checkbox-container input[type="checkbox"] {
       width: 18px;
       height: 18px;
@@ -253,13 +222,11 @@
       accent-color: var(--primary-color);
       cursor: pointer;
     }
-    
     .checkbox-container label {
       font-weight: 400;
       margin: 0;
       cursor: pointer;
     }
-    
     button {
       background-color: var(--primary-color);
       color: white;
@@ -274,51 +241,43 @@
       align-items: center;
       justify-content: center;
     }
-    
     button:hover {
       background-color: var(--primary-dark);
       transform: translateY(-1px);
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
-    
     button:disabled {
       background-color: #cccccc;
       cursor: not-allowed;
       transform: none;
       box-shadow: none;
     }
-    
     .status-message {
       margin-top: 20px;
       padding: 12px 15px;
       border-radius: 6px;
       border-left: 4px solid transparent;
     }
-    
     .error {
       color: var(--error-color);
       background-color: rgba(220, 53, 69, 0.1);
       border-left-color: var(--error-color);
     }
-    
     .success {
       color: var(--success-color);
       background-color: rgba(40, 167, 69, 0.1);
       border-left-color: var(--success-color);
     }
-    
     .info {
       color: var(--info-color);
       background-color: rgba(23, 162, 184, 0.1);
       border-left-color: var(--info-color);
     }
-    
     .warning {
       color: var(--warning-color);
       background-color: rgba(255, 193, 7, 0.1);
       border-left-color: var(--warning-color);
     }
-    
     /* Business Unit Cards */
     .business-unit-list {
       display: grid;
@@ -326,7 +285,6 @@
       gap: 15px;
       margin-bottom: 25px;
     }
-    
     .business-unit-item {
       padding: 15px;
       background-color: var(--card-bg);
@@ -334,36 +292,30 @@
       border-left: 4px solid var(--primary-color);
       transition: all 0.2s;
     }
-    
     .business-unit-item:hover {
       transform: translateY(-2px);
       box-shadow: 0 4px 8px rgba(0,0,0,0.05);
     }
-    
     /* Results Tables */
     .results-table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 20px;
     }
-    
     .results-table th, 
     .results-table td {
       padding: 12px 15px;
       text-align: left;
       border-bottom: 1px solid var(--border-color);
     }
-    
     .results-table th {
       background-color: var(--primary-color);
       color: white;
       font-weight: 500;
     }
-    
     .results-table tr:hover {
       background-color: rgba(99, 171, 143, 0.05);
     }
-    
     /* Responsive Adjustments */
     @media (max-width: 992px) {
       .app-container {
@@ -393,7 +345,6 @@
         width: 100%;
       }
     }
-    
     @media (max-width: 768px) {
       .content-area {
         padding: 20px;
@@ -855,26 +806,13 @@
       document.getElementById(tabName).classList.add("active");
       if (!initializedTabs[tabName]) {
         switch(tabName) {
-          case 'externalWork':
-            initExternalWorkCreation();
-            break;
-          case 'wfmManagement':
-            initManagementUnitSearch();
-            break;
-          case 'activityCode':
-            initActivityCodeManagement();
-            break;
-          case 'bulkSkills':
-            initBulkSkills();
-            break;
-          case 'bulkQueues':
-            initBulkQueues();
-            break;
-          case 'workTeamManagement':
-            initWorkTeamManagement();
-            break;
-          default:
-            break;
+          case 'externalWork': initExternalWorkCreation(); break;
+          case 'wfmManagement': initManagementUnitSearch(); break;
+          case 'activityCode': initActivityCodeManagement(); break;
+          case 'bulkSkills': initBulkSkills(); break;
+          case 'bulkQueues': initBulkQueues(); break;
+          case 'workTeamManagement': initWorkTeamManagement(); break;
+          default: break;
         }
         initializedTabs[tabName] = true;
       }
@@ -941,17 +879,13 @@
             attributes: { 'External Link': externalReference || 'No reference provided' }
           })
         });
-        if (!interactionResponse.ok) {
-          throw new Error(`Error creating interaction: ${interactionResponse.status} ${interactionResponse.statusText}`);
-        }
+        if (!interactionResponse.ok) { throw new Error(`Error creating interaction: ${interactionResponse.status} ${interactionResponse.statusText}`); }
         const interaction = await interactionResponse.json();
         const conversationId = interaction.id;
         const conversationDetailsResponse = await fetchWithRetry(`https://api.mypurecloud.ie/api/v2/conversations/${conversationId}`, {
           headers: { 'Authorization': `Bearer ${accessToken}` }
         });
-        if (!conversationDetailsResponse.ok) {
-          throw new Error(`Error fetching conversation details: ${conversationDetailsResponse.status} ${conversationDetailsResponse.statusText}`);
-        }
+        if (!conversationDetailsResponse.ok) { throw new Error(`Error fetching conversation details: ${conversationDetailsResponse.status} ${conversationDetailsResponse.statusText}`); }
         const conversationDetails = await conversationDetailsResponse.json();
         const participantId = conversationDetails.participants[1].id;
         const assignResponse = await fetchWithRetry(`https://api.mypurecloud.ie/api/v2/conversations/emails/${conversationId}/participants/${participantId}/replace`, {
@@ -959,17 +893,13 @@
           headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ userId: userId })
         });
-        if (!assignResponse.ok) {
-          throw new Error(`Error assigning user: ${assignResponse.status} ${assignResponse.statusText}`);
-        }
+        if (!assignResponse.ok) { throw new Error(`Error assigning user: ${assignResponse.status} ${assignResponse.statusText}`); }
         const disconnectResponse = await fetchWithRetry(`https://api.mypurecloud.ie/api/v2/conversations/emails/${conversationId}`, {
           method: 'PATCH',
           headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({ state: 'disconnected' })
         });
-        if (!disconnectResponse.ok) {
-          throw new Error(`Error disconnecting conversation: ${disconnectResponse.status} ${disconnectResponse.statusText}`);
-        }
+        if (!disconnectResponse.ok) { throw new Error(`Error disconnecting conversation: ${disconnectResponse.status} ${disconnectResponse.statusText}`); }
         showStatusMessage('statusMessage', 'Interaction created and assigned successfully!', 'success');
       } catch (error) {
         console.error('Error during interaction creation:', error);
@@ -1050,10 +980,7 @@
     async function onMuGetManagementUnitClick() {
       const agentSelect = document.getElementById("agentSelect");
       const selectedAgentId = agentSelect.value;
-      if (!selectedAgentId) {
-        showStatusMessage('muResults', 'Please select an agent.', 'error');
-        return;
-      }
+      if (!selectedAgentId) { showStatusMessage('muResults', 'Please select an agent.', 'error'); return; }
       showStatusMessage('muResults', 'Looking up Management Unit and Manager...', 'info');
       try {
         const user = muAllUsers.find(u => u.id === selectedAgentId);
@@ -1228,8 +1155,9 @@
             errorMessages.push(`Business Unit ${businessUnitId}: ${error.message}`);
           }
         }
-        if (errorCount === 0) { showStatusMessage('activityResults', `Activity code "${name}" created successfully in all ${successCount} business units.`, 'success'); }
-        else if (successCount === 0) {
+        if (errorCount === 0) {
+          showStatusMessage('activityResults', `Activity code "${name}" created successfully in all ${successCount} business units.`, 'success');
+        } else if (successCount === 0) {
           const errorHTML = `Failed to create activity code in all business units.<br><ul>${errorMessages.map(msg => `<li>${msg}</li>`).join('')}</ul>`;
           showStatusMessage('activityResults', errorHTML, 'error');
         } else {
@@ -1734,7 +1662,9 @@
         const response = await fetchWithRetry(`${url}${url.includes('?') ? '&' : '?'}pageNumber=${pageNumber}&pageSize=100`, {
           headers: { 'Authorization': `Bearer ${accessToken}` }
         });
-        if (!response.ok) { throw new Error(`Error fetching data: ${response.status} ${response.statusText}`); }
+        if (!response.ok) {
+          throw new Error(`Error fetching data: ${response.status} ${response.statusText}`);
+        }
         const data = await response.json();
         if (data.entities) { allItems = allItems.concat(data.entities); }
         else if (Array.isArray(data)) { allItems = allItems.concat(data); }
@@ -1782,9 +1712,9 @@
       await fetchTeamsForWorkTeam();
       await loadUserMappingForTeamManagement();
       document.getElementById('loadTeamMembersBtn').addEventListener('click', loadTeamMembers);
-      // Change Team button: remove then add.
+      // Change Team: perform removal then addition.
       document.getElementById('changeTeamBtn').addEventListener('click', changeTeamForSelectedAgents);
-      // Remove Selected From Team button using new schema.
+      // Remove Selected From Team button.
       document.getElementById('removeFromTeamBtn').addEventListener('click', removeSelectedFromTeam);
       // Search Agents Without a Team.
       document.getElementById('searchAgentsBtn').addEventListener('click', searchAgentsWithoutTeam);
@@ -1864,13 +1794,40 @@
       });
     }
     
-    // Change Team for Selected Agents: Remove then add for each selected agent.
+    // CHANGE TEAM: First remove then add.
     async function changeTeamForSelectedAgents() {
       const currentTeamId = document.getElementById('teamDropdown').value;
-      if (!currentTeamId) { showStatusMessage('teamStatus', 'Please select a current team.', 'error'); return; }
+      if (!currentTeamId) { 
+        showStatusMessage('teamStatus', 'Please select a current team.', 'error'); 
+        return; 
+      }
       const teamMembersTable = document.getElementById('teamMembersTable');
       const checkboxes = teamMembersTable.querySelectorAll('tbody input[type="checkbox"]:checked');
-      if (checkboxes.length === 0) { showStatusMessage('teamStatus', 'Please select at least one agent.', 'error'); return; }
+      if (checkboxes.length === 0) { 
+        showStatusMessage('teamStatus', 'Please select at least one agent.', 'error'); 
+        return; 
+      }
+      
+      // Gather agent IDs for removal and group by new team for addition.
+      let removalUserIds = [];
+      let addGroups = {};  // key: newTeamId, value: array of userIds
+      checkboxes.forEach(cb => {
+        const userId = cb.getAttribute('data-user-id');
+        const selectEl = teamMembersTable.querySelector(`select.new-team-select[data-user-id="${userId}"]`);
+        if (selectEl && selectEl.value) {
+          removalUserIds.push(userId);
+          const newTeamId = selectEl.value;
+          if (!addGroups[newTeamId]) {
+            addGroups[newTeamId] = [];
+          }
+          addGroups[newTeamId].push(userId);
+        }
+      });
+      
+      if (removalUserIds.length === 0) {
+        showStatusMessage('teamStatus', 'No agents have a new team selected.', 'error');
+        return;
+      }
       
       // Show and reset progress bar.
       const progressContainer = document.getElementById('progressContainer');
@@ -1878,70 +1835,73 @@
       progressContainer.style.display = 'block';
       teamProgress.value = 0;
       
-      let totalAgents = checkboxes.length;
-      let processed = 0;
-      let totalChanged = 0;
-      let errorMessages = [];
-      
-      for (const checkbox of checkboxes) {
-        const userId = checkbox.getAttribute('data-user-id');
-        const selectEl = teamMembersTable.querySelector(`select.new-team-select[data-user-id="${userId}"]`);
-        if (!selectEl || !selectEl.value) {
-          processed++;
-          teamProgress.value = (processed / totalAgents) * 100;
-          continue;
+      // Step 1: Remove selected agents from current team.
+      try {
+        const idsParam = removalUserIds.join(',');
+        const removeResponse = await fetch(`https://api.mypurecloud.ie/api/v2/teams/${currentTeamId}/members?id=${idsParam}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${accessToken}` }
+        });
+        if (!removeResponse.ok) {
+          const errorData = await removeResponse.json();
+          throw new Error(errorData.message || 'Removal failed');
         }
-        const newTeamId = selectEl.value;
+      } catch (error) {
+        progressContainer.style.display = 'none';
+        showStatusMessage('teamStatus', 'Error removing agents: ' + error.message, 'error');
+        return;
+      }
+      
+      // Step 2: Add agents to their new teams.
+      let totalGroups = Object.keys(addGroups).length;
+      let groupsProcessed = 0;
+      let totalAdded = 0;
+      let errorMessages = [];
+      for (const newTeamId in addGroups) {
         try {
-          // Remove agent from current team.
-          const removeResponse = await fetch(`https://api.mypurecloud.ie/api/v2/teams/${currentTeamId}/members?id=${userId}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${accessToken}` }
-          });
-          if (!removeResponse.ok) {
-            const errorData = await removeResponse.json();
-            throw new Error(errorData.message || 'Removal failed');
-          }
-          // Add agent to new team.
-          const addResponse = await fetch(`https://api.mypurecloud.ie/api/v2/teams/${newTeamId}/members`, {
+          const response = await fetch(`https://api.mypurecloud.ie/api/v2/teams/${newTeamId}/members`, {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ memberIds: [userId] })
+            body: JSON.stringify({ memberIds: addGroups[newTeamId] })
           });
-          if (!addResponse.ok) {
-            const errorData = await addResponse.json();
+          if (!response.ok) {
+            const errorData = await response.json();
             throw new Error(errorData.message || 'Addition failed');
           }
-          totalChanged++;
+          totalAdded += addGroups[newTeamId].length;
         } catch (error) {
-          errorMessages.push(`Agent ${userId}: ${error.message}`);
+          errorMessages.push(`Team ${newTeamId}: ${error.message}`);
         }
-        processed++;
-        teamProgress.value = (processed / totalAgents) * 100;
+        groupsProcessed++;
+        // Update progress: assume removal is 50% and addition is the remaining 50%.
+        teamProgress.value = 50 + (50 * (groupsProcessed / totalGroups));
       }
       
       setTimeout(() => { progressContainer.style.display = 'none'; }, 1000);
+      
       if (errorMessages.length > 0) {
-        showStatusMessage('teamStatus', `Changed team for ${totalChanged} agents. Errors: ${errorMessages.join('; ')}`, 'warning');
+        showStatusMessage('teamStatus', `Changed team for ${totalAdded} agents. Errors: ${errorMessages.join('; ')}`, 'warning');
       } else {
-        showStatusMessage('teamStatus', `Successfully changed team for ${totalChanged} agents.`, 'success');
+        showStatusMessage('teamStatus', `Successfully changed team for ${totalAdded} agents.`, 'success');
       }
       loadTeamMembers();
     }
     
-    // Remove Selected Agents from current team using single DELETE call.
+    // Remove Selected From Team using one DELETE call with a comma-separated list.
     async function removeSelectedFromTeam() {
       const currentTeamId = document.getElementById('teamDropdown').value;
-      if (!currentTeamId) { showStatusMessage('teamStatus', 'Please select a team.', 'error'); return; }
+      if (!currentTeamId) { 
+        showStatusMessage('teamStatus', 'Please select a team.', 'error'); 
+        return; 
+      }
       const teamMembersTable = document.getElementById('teamMembersTable');
       const checkboxes = teamMembersTable.querySelectorAll('tbody input[type="checkbox"]:checked');
-      if (checkboxes.length === 0) { showStatusMessage('teamStatus', 'Please select at least one agent.', 'error'); return; }
-      
-      // Build comma-separated list of agent user IDs.
+      if (checkboxes.length === 0) { 
+        showStatusMessage('teamStatus', 'Please select at least one agent.', 'error'); 
+        return; 
+      }
       let userIds = [];
-      checkboxes.forEach(cb => {
-        userIds.push(cb.getAttribute('data-user-id'));
-      });
+      checkboxes.forEach(cb => { userIds.push(cb.getAttribute('data-user-id')); });
       const idsParam = userIds.join(',');
       
       // Show and reset progress bar.
@@ -1959,7 +1919,6 @@
           const errorData = await response.json();
           throw new Error(errorData.message || 'Removal failed');
         }
-        // Assume full removal; update progress to 100%
         teamProgress.value = 100;
         setTimeout(() => { progressContainer.style.display = 'none'; }, 1000);
         showStatusMessage('teamStatus', `Successfully removed ${userIds.length} agents from the team.`, 'success');
@@ -1989,7 +1948,9 @@
         const searchTerm = document.getElementById('agentSearch').value.toLowerCase();
         let usersWithoutTeam = allUsers.filter(user => {
           if (assignedUserIds.has(user.id)) return false;
-          if (searchTerm) { return user.name.toLowerCase().includes(searchTerm) || user.id.toLowerCase().includes(searchTerm); }
+          if (searchTerm) {
+            return user.name.toLowerCase().includes(searchTerm) || user.id.toLowerCase().includes(searchTerm);
+          }
           return true;
         });
         populateAgentsWithoutTeamTable(usersWithoutTeam);
