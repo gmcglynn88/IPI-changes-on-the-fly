@@ -107,7 +107,6 @@
       border-left: 3px solid transparent;
       display: flex;
       justify-content: flex-end;
-      align-items: right;
       white-space: nowrap;
     }
     
@@ -425,7 +424,6 @@
   <div class="app-container">
     <div class="sidebar">
       <div class="sidebar-nav">
-        <!-- Existing Tabs -->
         <button type="button" class="tablink active" onclick="openTab(event, 'wfmManagement')">
           <i>📊</i> WFM Management Unit Search
         </button>
@@ -441,7 +439,6 @@
         <button type="button" class="tablink" onclick="openTab(event, 'bulkQueues')">
           <i>🔄</i> Bulk Queue Changes
         </button>
-        <!-- Work Team Management Tab -->
         <button type="button" class="tablink" onclick="openTab(event, 'workTeamManagement')">
           <i>👥</i> Work Team Management
         </button>
@@ -471,6 +468,7 @@
             </div>
           </div>
         </div>
+        
         <!-- External Work Creation Tab -->
         <div id="externalWork" class="tabcontent">
           <div class="app-window">
@@ -499,6 +497,7 @@
             </div>
           </div>
         </div>
+        
         <!-- Activity Code Management Tab -->
         <div id="activityCode" class="tabcontent">
           <div class="app-window">
@@ -551,8 +550,9 @@
                     <input type="checkbox" id="work-time" value="countsAsWorkTime" disabled>
                     <label for="work-time">Counts as Work Time</label>
                   </div>
+                  <!-- Fixed ID: Removed extra text so the JS can find it -->
                   <div class="checkbox-container">
-                    <input type="checkbox" id="time-off-selectable (Time off Only)" value="agentTimeOffSelectable" disabled>
+                    <input type="checkbox" id="time-off-selectable" value="agentTimeOffSelectable" disabled>
                     <label for="time-off-selectable">Agent Time Off Selectable</label>
                   </div>
                   <div class="checkbox-container">
@@ -574,6 +574,7 @@
             </div>
           </div>
         </div>
+        
         <!-- Bulk Skill Changes Tab -->
         <div id="bulkSkills" class="tabcontent">
           <div class="app-window">
@@ -615,6 +616,7 @@
             </div>
           </div>
         </div>
+        
         <!-- Bulk Queue Changes Tab -->
         <div id="bulkQueues" class="tabcontent">
           <div class="app-window">
@@ -654,12 +656,14 @@
             </div>
           </div>
         </div>
+        
         <!-- Work Team Management Tab -->
         <div id="workTeamManagement" class="tabcontent">
           <div class="app-window">
             <div class="form-section">
               <h2>Work Team Management</h2>
               <!-- Section 1: Manage Team Members by Team -->
+              <h3>Manage Team Members by Team</h3>
               <div class="form-row">
                 <div class="form-group">
                   <label for="teamDropdown">Select Team (Current Team)</label>
@@ -686,17 +690,15 @@
                 </table>
               </div>
               <div class="form-row" style="margin-top: 20px;">
-                <!-- Change Team button -->
                 <button id="changeTeamBtn">Change Team for Selected Agents</button>
-                <!-- Remove Selected From Team button -->
                 <button id="removeFromTeamBtn">Remove Selected From Team</button>
               </div>
               <hr />
               <!-- Section 2: Search Agents Without a Work Team -->
+              <h3>Search Agents Without a Work Team</h3>
               <div class="form-row">
                 <div class="form-group">
                   <label for="agentSearch">Search Agents</label>
-                </div>
                   <input type="text" id="agentSearch" placeholder="Enter name or email...">
                 </div>
                 <div class="form-group">
@@ -1109,6 +1111,7 @@
       authMsg.textContent = 'Authenticated successfully!';
       authMsg.className = 'status-message success';
       setTimeout(() => { authMsg.style.display = 'none'; }, 2000);
+      // Enable form elements
       document.getElementById('business-units').disabled = false;
       document.getElementById('activity-name').disabled = false;
       document.getElementById('category').disabled = false;
@@ -1713,9 +1716,7 @@
         const response = await fetchWithRetry(`${url}${url.includes('?') ? '&' : '?'}pageNumber=${pageNumber}&pageSize=100`, {
           headers: { 'Authorization': `Bearer ${accessToken}` }
         });
-        if (!response.ok) {
-          throw new Error(`Error fetching data: ${response.status} ${response.statusText}`);
-        }
+        if (!response.ok) { throw new Error(`Error fetching data: ${response.status} ${response.statusText}`); }
         const data = await response.json();
         if (data.entities) { allItems = allItems.concat(data.entities); }
         else if (Array.isArray(data)) { allItems = allItems.concat(data); }
@@ -1868,9 +1869,7 @@
         if (selectEl && selectEl.value) {
           removalUserIds.push(userId);
           const newTeamId = selectEl.value;
-          if (!addGroups[newTeamId]) {
-            addGroups[newTeamId] = [];
-          }
+          if (!addGroups[newTeamId]) { addGroups[newTeamId] = []; }
           addGroups[newTeamId].push(userId);
         }
       });
