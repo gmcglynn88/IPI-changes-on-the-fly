@@ -15,7 +15,7 @@
       --text-light: #777;
       --border-color: #ddd;
       --light-bg: #f5f7fa;
-      --card-bg: #f9f9f9;
+      --card-bg: #ffffff; /* white background for app windows */
       --error-color: #dc3545;
       --success-color: #28a745;
       --info-color: #17a2b8;
@@ -152,11 +152,12 @@
     }
     
     .app-window {
-      background-color: white;
+      background-color: var(--card-bg);
       border-radius: 8px;
       box-shadow: 0 2px 15px rgba(0,0,0,0.05);
       padding: 30px;
       width: 100%;
+      overflow: hidden;
     }
     
     /* Common Form Styles */
@@ -291,13 +292,20 @@
       background-color: rgba(99, 171, 143, 0.05);
     }
     
-    /* Intraday Tables: ensure text does not wrap */
+    /* Intraday Tables */
+    .intraday-table {
+      width: 100%;
+    }
     .intraday-table th,
     .intraday-table td {
       white-space: nowrap;
     }
+    .table-container {
+      overflow-x: auto;
+      width: 100%;
+    }
     
-    /* Tab Navigation for Intraday Section */
+    /* Intraday Tab Navigation */
     .tab {
       display: inline-block;
       padding: 10px 15px;
@@ -547,7 +555,7 @@
                 </div>
               </div>
               <button id="fetchAgentsForSkill">Get Agents</button>
-              <div style="overflow-x: auto; margin-top: 20px;">
+              <div class="table-container" style="margin-top:20px;">
                 <table class="results-table" id="agentsTableForSkill">
                   <thead>
                     <tr>
@@ -589,7 +597,7 @@
                 </div>
               </div>
               <button id="fetchAgentsForQueue">Get Agents</button>
-              <div style="overflow-x: auto; margin-top: 20px;">
+              <div class="table-container" style="margin-top:20px;">
                 <table class="results-table" id="agentsTableForQueue">
                   <thead>
                     <tr>
@@ -625,7 +633,7 @@
               <div id="progressContainer" style="margin-top: 10px; display: none;">
                 <progress id="teamProgress" value="0" max="100" style="width: 100%;"></progress>
               </div>
-              <div style="overflow-x: auto; margin-top: 20px;">
+              <div class="table-container" style="margin-top:20px;">
                 <table class="results-table" id="teamMembersTable">
                   <thead>
                     <tr>
@@ -654,7 +662,7 @@
                 </div>
               </div>
               <div id="searchStatus" class="status-message" style="display: none;"></div>
-              <div style="overflow-x: auto; margin-top: 20px;">
+              <div class="table-container" style="margin-top:20px;">
                 <table class="results-table" id="agentsWithoutTeamTable">
                   <thead>
                     <tr>
@@ -725,15 +733,18 @@
                   </select>
                 </div>
               </div>
+              <!-- Auto-refresh the intraday view on changes -->
               <div id="intradayWeeklySummary" class="form-row loading">Select a week to view data</div>
-              <div id="intradayDailyTableContainer"></div>
-              <div id="intradayIntervalTableContainer" class="loading">Select a day to view interval data</div>
+              <div class="table-container">
+                <div id="intradayTabContentDaily" class="tab-content active"></div>
+              </div>
+              <div class="table-container">
+                <div id="intradayTabContentInterval" class="tab-content"></div>
+              </div>
               <div class="form-row">
                 <div class="tab" id="dailyIntradayTab" onclick="setIntradayActiveTab('daily')">Daily Data</div>
                 <div class="tab" id="intervalIntradayTab" onclick="setIntradayActiveTab('interval')">15-min Intervals</div>
               </div>
-              <div id="intradayTabContentDaily" class="tab-content active"></div>
-              <div id="intradayTabContentInterval" class="tab-content"></div>
             </div>
           </div>
         </div>
@@ -766,7 +777,7 @@
       workTeamManagement: false,
       intradayWeeklyPlan: false
     };
-    // Bulk Changes, Work Team Management states etc. go here...
+    // Additional states for Bulk and Work Team Management go here.
     
     /* =======================
        Initialization
@@ -790,7 +801,6 @@
     });
     
     async function validateTokenBeforeUse() {
-      // Token validation across app tabs
       const authMessage = document.getElementById('auth-message');
       const authMessageBulk = document.getElementById('auth-message-bulk');
       const authMessageBulkQueue = document.getElementById('auth-message-bulk-queue');
@@ -825,8 +835,10 @@
             authMessageBulkQueue.className = 'status-message success';
             setTimeout(() => { authMessageBulkQueue.style.display = 'none'; }, 2000);
           }
-          // Open first tab
           document.getElementsByClassName("tablink")[0].click();
+          // Also initialize intraday week select options.
+          populateIntradayWeekSelect();
+          fetchIntradayBusinessUnits();
         } else {
           console.log("Token validation failed, redirecting to auth");
           sessionStorage.removeItem('purecloud_token');
@@ -886,25 +898,27 @@
     
     /* =======================
        Intraday Weekly Plan Functions
-       (New code integrated into the main app)
     ======================= */
     const intradayState = {
       weekData: []
     };
     
     function initIntradayWeeklyPlan() {
-      // Enable the intraday dropdowns and load initial data.
+      // Enable intraday dropdowns
       document.getElementById('intradayBusinessUnitSelect').disabled = false;
-      fetchIntradayBusinessUnits();
-      populateIntradayWeekSelect();
+      document.getElementById('intradayPlanningGroup').disabled = false;
+      document.getElementById('intradayWeekSelect').disabled = false;
       
-      // Set up event listeners
-      document.getElementById('intradayBusinessUnitSelect').addEventListener('change', intradayOnBusinessUnitChange);
-      document.getElementById('intradayPlanningGroup').addEventListener('change', intradayOnPlanningGroupChange);
+      // Set up event listeners to auto-refresh when changed
+      document.getElementById('intradayBusinessUnitSelect').addEventListener('change', () => {
+        fetchIntradayBusinessUnits(); // reload planning groups if needed
+        autoRefreshIntraday();
+      });
+      document.getElementById('intradayPlanningGroup').addEventListener('change', autoRefreshIntraday);
       document.getElementById('intradayWeekSelect').addEventListener('change', intradayOnWeekChange);
-      document.getElementById('intradayMediaType').addEventListener('change', renderIntradayDailyTable);
-      document.getElementById('timeFormatSelect').addEventListener('change', renderIntradayDailyTable);
-      document.getElementById('precisionSelect').addEventListener('change', renderIntradayDailyTable);
+      document.getElementById('intradayMediaType').addEventListener('change', autoRefreshIntraday);
+      document.getElementById('timeFormatSelect').addEventListener('change', autoRefreshIntraday);
+      document.getElementById('precisionSelect').addEventListener('change', autoRefreshIntraday);
     }
     
     async function fetchIntradayBusinessUnits() {
@@ -950,29 +964,11 @@
       }
     }
     
-    function intradayOnBusinessUnitChange() {
-      const buId = this.value;
-      const pgSelect = document.getElementById('intradayPlanningGroup');
-      pgSelect.innerHTML = '<option value="">-- Loading Planning Groups --</option>';
-      pgSelect.disabled = true;
-      if (buId) {
-        fetchIntradayPlanningGroups(buId);
-      } else {
-        pgSelect.innerHTML = '<option value="">-- Select Business Unit First --</option>';
-      }
-    }
-    
-    function intradayOnPlanningGroupChange() {
-      // Enable week selection if a planning group is chosen.
-      const weekSelect = document.getElementById('intradayWeekSelect');
-      weekSelect.disabled = !this.value;
-    }
-    
     function populateIntradayWeekSelect() {
       const select = document.getElementById('intradayWeekSelect');
       select.innerHTML = '<option value="">-- Select Week --</option>';
       const today = new Date();
-      // Find the most recent Monday:
+      // Get the most recent Monday:
       const dayOfWeek = today.getDay();
       const diff = today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
       const monday = new Date(today.setDate(diff));
@@ -994,28 +990,41 @@
       select.disabled = false;
     }
     
-    async function intradayOnWeekChange() {
+    function intradayOnWeekChange() {
       if (this.value) {
         document.getElementById('intradayWeeklySummary').classList.add('loading');
         document.getElementById('intradayWeeklySummary').textContent = 'Loading data...';
-        await fetchIntradayDataForWeek(this.value);
-        renderIntradayDailyTable();
+        autoRefreshIntraday();
       }
     }
     
-    async function fetchIntradayDataForWeek(startDate) {
-      const dates = getWeekDates(startDate);
+    async function autoRefreshIntraday() {
+      const weekValue = document.getElementById('intradayWeekSelect').value;
+      if (!weekValue) return;
+      await fetchIntradayDataForWeek(weekValue);
+      renderIntradayDailyTable();
+    }
+    
+    async function fetchIntradayDataForWeek(startDateStr) {
+      const baseDate = new Date(startDateStr);
+      const dates = [];
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(baseDate);
+        d.setDate(d.getDate() + i);
+        dates.push({ raw: d.toISOString().split('T')[0], uk: getUKFormattedDate(d) });
+      }
       const planningGroupId = document.getElementById('intradayPlanningGroup').value;
       const fetchPromises = dates.map(dateObj =>
-        fetchIntradayData(dateObj.raw, planningGroupId).then(result => ({ ...result, uk: dateObj.uk }))
+        fetchIntradayData(dateObj.raw, planningGroupId)
+          .then(result => ({ ...result, uk: dateObj.uk }))
       );
       intradayState.weekData = await Promise.all(fetchPromises);
       renderIntradayWeeklySummary();
     }
     
-    async function fetchIntradayData(date, planningGroupId) {
+    async function fetchIntradayData(dateStr, planningGroupId) {
       const buId = document.getElementById('intradayBusinessUnitSelect').value;
-      if (!buId) return { date: date, data: null, error: 'No business unit selected' };
+      if (!buId) return { date: dateStr, data: null, error: 'No business unit selected' };
       try {
         const response = await fetch(`https://api.${REGION}/api/v2/workforcemanagement/businessunits/${buId}/intraday`, {
           method: 'POST',
@@ -1024,23 +1033,23 @@
             'Authorization': 'Bearer ' + accessToken
           },
           body: JSON.stringify({
-            businessUnitDate: date,
+            businessUnitDate: dateStr,
             categories: ["ForecastData", "PerformancePredictionData", "ScheduleData"],
-            intervalLengthMinutes: 15,
-            planningGroupIds: planningGroupId ? [planningGroupId] : null
+            planningGroupIds: planningGroupId ? [planningGroupId] : null,
+            intervalLengthMinutes: 15
           })
         });
         if (!response.ok) {
           if (response.status === 404) {
-            return { date: date, data: null, error: 'No data available for this date' };
+            return { date: dateStr, data: null, error: 'No data available for this date' };
           }
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        return { date: date, data: data };
+        return { date: dateStr, data: data };
       } catch (error) {
         console.error('Error fetching intraday data:', error);
-        return { date: date, data: null, error: error.message };
+        return { date: dateStr, data: null, error: error.message };
       }
     }
     
@@ -1095,13 +1104,6 @@
     }
     
     function renderIntradayDailyTable() {
-      // Read time format and precision from the dropdowns
-      const timeFormat = document.getElementById('timeFormatSelect').value;
-      const precision = parseInt(document.getElementById('precisionSelect').value, 10);
-      // Update global settings for formatting functions
-      config.timeFormat = timeFormat;
-      config.precision = precision;
-      
       const mediaTypeFilter = document.getElementById('intradayMediaType').value;
       let tableHTML = `
         <table class="results-table intraday-table">
@@ -1158,9 +1160,7 @@
               <td>${formatTime(asa)}</td>
               <td>${formatNumber(occupancy)}%</td>
               <td>
-                <button onclick='showIntradayIntervalDetails(${JSON.stringify(day).replace(/'/g, "&apos;")}, "${group.mediaType}")'>
-                  View Details
-                </button>
+                <button onclick='showIntradayIntervalDetails(${JSON.stringify(day).replace(/'/g, "&apos;")}, "${group.mediaType}")'>View Details</button>
               </td>
             </tr>
           `;
@@ -1237,10 +1237,12 @@
       document.getElementById('intervalIntradayTab').classList.toggle('active', tab === 'interval');
     }
     
-    // Helper formatting functions (same as in the intraday snippet)
+    /* =======================
+       Helper Formatting Functions
+    ======================= */
     const config = {
-      timeFormat: 'seconds', // default; can be changed via dropdown
-      precision: 1           // default precision; can be changed
+      timeFormat: 'seconds',
+      precision: 1
     };
     function formatTime(seconds) {
       if (!seconds) return '0s';
@@ -1303,8 +1305,9 @@
       return 'Unknown';
     }
     
-    // =======================
-    // Utility: fetchWithRetry (reused across the app)
+    /* =======================
+       Utility: fetchWithRetry
+    ======================= */
     async function fetchWithRetry(url, options, retries = 3) {
       try {
         const response = await fetch(url, options);
