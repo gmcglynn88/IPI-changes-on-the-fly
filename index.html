@@ -21,11 +21,13 @@
       --info-color: #17a2b8;
       --warning-color: #ffc107;
     }
+    
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
+    
     body {
       font-family: 'Aptos', Arial, sans-serif;
       background-color: var(--light-bg);
@@ -35,6 +37,7 @@
       flex-direction: column;
       min-height: 100vh;
     }
+    
     header {
       background-color: var(--header-bg);
       color: white;
@@ -47,6 +50,7 @@
       top: 0;
       z-index: 100;
     }
+    
     .header-content {
       display: flex;
       align-items: center;
@@ -54,10 +58,12 @@
       width: 100%;
       padding: 0 30px;
     }
+    
     .logo img {
       height: 40px;
       margin-left: 20px;
     }
+    
     .app-container {
       display: flex;
       flex: 1;
@@ -67,6 +73,7 @@
       margin-left: auto;
       margin-right: auto;
     }
+    
     .sidebar {
       width: 250px;
       background-color: white;
@@ -79,11 +86,13 @@
       overflow-y: auto;
       left: 0;
     }
+    
     .sidebar-nav {
       display: flex;
       flex-direction: column;
       width: 100%;
     }
+    
     .sidebar button {
       background-color: transparent;
       border: none;
@@ -99,16 +108,19 @@
       justify-content: flex-end;
       white-space: nowrap;
     }
+    
     .sidebar button:hover {
       background-color: rgba(99, 171, 143, 0.1);
       color: var(--text-dark);
     }
+    
     .sidebar button.active {
       background-color: rgba(99, 171, 143, 0.1);
       color: var(--primary-color);
       border-left: 3px solid var(--primary-color);
       font-weight: 500;
     }
+    
     .sidebar button i {
       margin-right: 10px;
       width: 20px;
@@ -116,24 +128,29 @@
       font-style: normal;
       flex-shrink: 0;
     }
+    
     .content-area {
       flex: 1;
       padding: 30px;
       margin-left: 250px;
       width: calc(100% - 250px);
     }
+    
     .tab-content-container {
       width: 100%;
       max-width: 1000px;
       margin: 0 auto;
     }
+    
     .tabcontent {
       display: none;
       width: 100%;
     }
+    
     .tabcontent.active {
       display: block;
     }
+    
     .app-window {
       background-color: var(--card-bg);
       border-radius: 8px;
@@ -142,10 +159,12 @@
       width: 100%;
       overflow: hidden;
     }
+    
     /* Common Form Styles */
     .form-section {
       margin-bottom: 30px;
     }
+    
     .form-section h2 {
       color: var(--text-dark);
       font-size: 20px;
@@ -155,22 +174,26 @@
       border-bottom: 2px solid var(--primary-color);
       display: inline-block;
     }
+    
     .form-row {
       display: flex;
       flex-wrap: wrap;
       gap: 25px;
       margin-bottom: 20px;
     }
+    
     .form-group {
       flex: 1;
       min-width: 300px;
     }
+    
     label {
       display: block;
       font-weight: 500;
       color: var(--text-medium);
       margin-bottom: 8px;
     }
+    
     input, select {
       width: 100%;
       padding: 12px 15px;
@@ -179,24 +202,29 @@
       font-size: 15px;
       transition: all 0.3s;
     }
+    
     input:focus, select:focus {
       outline: none;
       border-color: var(--primary-color);
       box-shadow: 0 0 0 3px rgba(99, 171, 143, 0.2);
     }
+    
     select[multiple] {
       height: auto;
       min-height: 150px;
       padding: 8px;
     }
+    
     select[multiple] option {
       padding: 8px 12px;
       border-bottom: 1px solid #eee;
       transition: background-color 0.2s;
     }
+    
     select[multiple] option:hover {
       background-color: rgba(99, 171, 143, 0.1);
     }
+    
     .checkbox-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -204,6 +232,7 @@
       width: 100%;
       max-width: 650px;
     }
+    
     .checkbox-container {
       display: flex;
       align-items: center;
@@ -212,9 +241,11 @@
       border-radius: 6px;
       transition: all 0.2s;
     }
+    
     .checkbox-container:hover {
       background-color: rgba(99, 171, 143, 0.1);
     }
+    
     .checkbox-container input[type="checkbox"] {
       width: 18px;
       height: 18px;
@@ -222,11 +253,13 @@
       accent-color: var(--primary-color);
       cursor: pointer;
     }
+    
     .checkbox-container label {
       font-weight: 400;
       margin: 0;
       cursor: pointer;
     }
+    
     button {
       background-color: var(--primary-color);
       color: white;
@@ -241,75 +274,90 @@
       align-items: center;
       justify-content: center;
     }
+    
     button:hover {
       background-color: var(--primary-dark);
       transform: translateY(-1px);
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
+    
     button:disabled {
       background-color: #cccccc;
       cursor: not-allowed;
       transform: none;
       box-shadow: none;
     }
+    
     .status-message {
       margin-top: 20px;
       padding: 12px 15px;
       border-radius: 6px;
       border-left: 4px solid transparent;
     }
+    
     .error {
       color: var(--error-color);
       background-color: rgba(220, 53, 69, 0.1);
       border-left-color: var(--error-color);
     }
+    
     .success {
       color: var(--success-color);
       background-color: rgba(40, 167, 69, 0.1);
       border-left-color: var(--success-color);
     }
+    
     .info {
       color: var(--info-color);
       background-color: rgba(23, 162, 184, 0.1);
       border-left-color: var(--info-color);
     }
+    
     .warning {
       color: var(--warning-color);
       background-color: rgba(255, 193, 7, 0.1);
       border-left-color: var(--warning-color);
     }
+    
     /* Results Tables */
     .results-table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 20px;
     }
+    
     .results-table th, 
     .results-table td {
       padding: 12px 15px;
       text-align: left;
       border-bottom: 1px solid var(--border-color);
     }
+    
     .results-table th {
       background-color: var(--primary-color);
       color: white;
       font-weight: 500;
     }
+    
     .results-table tr:hover {
       background-color: rgba(99, 171, 143, 0.05);
     }
+    
     /* Intraday Tables */
     .intraday-table {
       width: 100%;
     }
+    
     .intraday-table th,
     .intraday-table td {
       white-space: nowrap;
     }
+    
     .table-container {
       overflow-x: auto;
       width: 100%;
     }
+    
     /* Intraday Tab Navigation */
     .tab {
       display: inline-block;
@@ -330,6 +378,7 @@
     .tab-content.active {
       display: block;
     }
+    
     /* Responsive Adjustments */
     @media (max-width: 992px) {
       .app-container {
@@ -359,6 +408,7 @@
         width: 100%;
       }
     }
+    
     @media (max-width: 768px) {
       .content-area {
         padding: 20px;
@@ -695,21 +745,27 @@
               <div class="form-row">
                 <div class="form-group">
                   <label for="intradayBusinessUnitSelect">Select Business Unit:</label>
-                  <select id="intradayBusinessUnitSelect" disabled>
+                  <select id="intradayBusinessUnitSelect">
                     <option value="">-- Loading Business Units --</option>
                   </select>
                 </div>
                 <div class="form-group">
                   <label for="intradayPlanningGroup">Select Planning Group:</label>
-                  <select id="intradayPlanningGroup" disabled>
+                  <!-- Multiple select enabled -->
+                  <select id="intradayPlanningGroup" multiple>
                     <option value="">-- Select Business Unit First --</option>
                   </select>
+                  <!-- Select All checkbox for planning groups -->
+                  <div style="margin-top: 5px;">
+                    <input type="checkbox" id="selectAllPlanningGroups">
+                    <label for="selectAllPlanningGroups" style="font-size: 14px; cursor:pointer;">Select All Planning Groups</label>
+                  </div>
                 </div>
               </div>
               <div class="form-row">
                 <div class="form-group">
                   <label for="intradayWeekSelect">Select Week:</label>
-                  <select id="intradayWeekSelect" disabled>
+                  <select id="intradayWeekSelect">
                     <option value="">-- Loading Weeks --</option>
                   </select>
                 </div>
@@ -896,7 +952,7 @@
           case 'bulkSkills': initBulkSkills(); break;
           case 'bulkQueues': initBulkQueues(); break;
           case 'workTeamManagement': initWorkTeamManagement(); break;
-          // Intraday Weekly Plan tab initialization is called automatically via validateTokenBeforeUse()
+          // Intraday Weekly Plan tab is auto-initialized by validateTokenBeforeUse()
           default: break;
         }
         initializedTabs[tabName] = true;
@@ -2107,7 +2163,7 @@
       document.getElementById('intradayPlanningGroup').disabled = false;
       document.getElementById('intradayWeekSelect').disabled = false;
       
-      // Set up auto-refresh listeners
+      // Set up auto-refresh listeners for intraday fields
       document.getElementById('intradayBusinessUnitSelect').addEventListener('change', () => {
         fetchIntradayBusinessUnits();
         autoRefreshIntraday();
@@ -2117,6 +2173,14 @@
       document.getElementById('intradayMediaType').addEventListener('change', autoRefreshIntraday);
       document.getElementById('timeFormatSelect').addEventListener('change', autoRefreshIntraday);
       document.getElementById('precisionSelect').addEventListener('change', autoRefreshIntraday);
+      // Wire up the "Select All Planning Groups" checkbox
+      document.getElementById('selectAllPlanningGroups').addEventListener('change', function() {
+        const planningGroupSelect = document.getElementById('intradayPlanningGroup');
+        for (let i = 0; i < planningGroupSelect.options.length; i++) {
+          planningGroupSelect.options[i].selected = this.checked;
+        }
+        autoRefreshIntraday();
+      });
     }
     
     async function fetchIntradayBusinessUnits() {
@@ -2559,7 +2623,6 @@
       }
       showStatusMessage(elementId, message, 'error');
     }
-    
   </script>
 </body>
 </html>
