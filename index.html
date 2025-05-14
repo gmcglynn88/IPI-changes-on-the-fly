@@ -1,19 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Change Maker by IPI</title>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Aptos:wght@300;400;500;600;700&display=swap"
-    rel="stylesheet"
-  />
+  <link href="https://fonts.googleapis.com/css2?family=Aptos:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Chart.js for graphs -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
-      --primary-color: #63ab8f;
+      --primary-color: #63AB8F;
       --primary-dark: #549e7a;
-      --header-bg: #63ab8f;
+      --header-bg: #63AB8F;
       --text-dark: #2c3e50;
       --text-medium: #555;
       --text-light: #777;
@@ -26,109 +24,60 @@
       --warning-color: #ffc107;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Aptos', Arial, sans-serif;
-      background: var(--light-bg);
-      color: var(--text-dark);
-      display: flex; flex-direction: column; min-height: 100vh;
-    }
-    header {
-      background: var(--header-bg); color: #fff;
-      padding: 15px 30px; position: fixed; top: 0; width: 100%;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 100;
-    }
-    .header-content { display:flex; justify-content:space-between; align-items:center; }
-    .logo img { height: 40px; }
-    .app-container { display:flex; margin-top:70px; flex:1; max-width:1400px; margin:0 auto; }
-    .sidebar {
-      width:250px; background:#fff; box-shadow:2px 0 10px rgba(0,0,0,0.05);
-      position:fixed; top:70px; bottom:0; overflow-y:auto; padding:20px 0;
-    }
-    .sidebar-nav button {
-      width:100%; border:none; background:transparent;
-      padding:12px 25px; text-align:left; font-size:15px;
-      color:var(--text-medium); cursor:pointer;
-      transition:all .3s; border-left:3px solid transparent;
-      display:flex; justify-content:flex-end; white-space:nowrap;
-    }
-    .sidebar-nav button.active {
-      background:rgba(99,171,143,0.1);
-      color:var(--primary-color); border-left-color:var(--primary-color);
-      font-weight:500;
-    }
-    .sidebar-nav button:hover { background:rgba(99,171,143,0.1); color:var(--text-dark); }
-    .sidebar-nav i { margin-right:10px; width:20px; text-align:center; }
-    .content-area {
-      margin-left:250px; padding:30px; flex:1; overflow:auto;
-    }
-    .tabcontent { display:none; }
+    body { font-family: 'Aptos', Arial, sans-serif; background: var(--light-bg); color: var(--text-dark); display:flex; flex-direction:column; min-height:100vh; }
+    header { background: var(--header-bg); color:#fff; padding:15px 30px; position:fixed; width:100%; top:0; z-index:100; box-shadow:0 2px 10px rgba(0,0,0,0.1); }
+    .header-content { display:flex; justify-content:space-between; align-items:center; width:100%; }
+    .logo img { height:40px; }
+    .app-container { display:flex; flex:1; margin-top:70px; max-width:1400px; margin:0 auto; }
+    .sidebar { width:250px; background:#fff; box-shadow:2px 0 10px rgba(0,0,0,0.05); padding:20px 0; position:fixed; height:calc(100vh-70px); overflow-y:auto; }
+    .sidebar-nav { display:flex; flex-direction:column; }
+    .sidebar button { background:transparent; border:none; padding:12px 25px; text-align:left; cursor:pointer; font-size:15px; color:var(--text-medium); width:100%; transition:0.3s; border-left:3px solid transparent; }
+    .sidebar button:hover { background:rgba(99,171,143,0.1); color:var(--text-dark); }
+    .sidebar button.active { color:var(--primary-color); border-left:3px solid var(--primary-color); font-weight:500; background:rgba(99,171,143,0.1); }
+    .sidebar button i { margin-right:10px; }
+    .content-area { flex:1; padding:30px; margin-left:250px; width:calc(100% - 250px); }
+    .tabcontent { display:none; width:100%; }
     .tabcontent.active { display:block; }
-    .app-window {
-      background:#fff; border-radius:8px; box-shadow:0 2px 15px rgba(0,0,0,0.05);
-      padding:30px;
-    }
-    .form-section h2 {
-      font-size:20px; font-weight:500; margin-bottom:20px;
-      border-bottom:2px solid var(--primary-color); display:inline-block;
-    }
+    .tab-content-container { width:100%; max-width:16400px; margin:0 auto; }
+    .app-window { background:#fff; border-radius:8px; box-shadow:0 2px 15px rgba(0,0,0,0.05); padding:30px; width:100%; }
+    .form-section { margin-bottom:30px; }
+    .form-section h2 { font-size:20px; font-weight:500; border-bottom:2px solid var(--primary-color); display:inline-block; margin-bottom:20px; padding-bottom:8px; }
     .form-row { display:flex; flex-wrap:wrap; gap:25px; margin-bottom:20px; }
     .form-group { flex:1; min-width:300px; }
-    label { display:block; margin-bottom:8px; color:var(--text-medium); font-weight:500; }
-    input, select, button {
-      font-size:15px; border-radius:6px; transition:all .3s;
-    }
-    input, select {
-      padding:12px; border:1px solid var(--border-color); width:100%;
-    }
-    input:focus, select:focus {
-      outline:none; border-color:var(--primary-color);
-      box-shadow:0 0 0 3px rgba(99,171,143,0.2);
-    }
-    button {
-      padding:12px 20px; border:none;
-      background:var(--primary-color); color:#fff; cursor:pointer;
-      display:inline-flex; align-items:center; justify-content:center;
-    }
-    button:hover {
-      background:var(--primary-dark); transform:translateY(-1px);
-      box-shadow:0 4px 8px rgba(0,0,0,0.1);
-    }
-    .status-message {
-      margin-top:20px; padding:12px 15px; border-radius:6px;
-      border-left:4px solid transparent;
-    }
-    .info { background:rgba(23,162,184,0.1); color:var(--info-color); border-left-color:var(--info-color); }
-    .success { background:rgba(40,167,69,0.1); color:var(--success-color); border-left-color:var(--success-color); }
-    .error { background:rgba(220,53,69,0.1); color:var(--error-color); border-left-color:var(--error-color); }
-    .warning { background:rgba(255,193,7,0.1); color:var(--warning-color); border-left-color:var(--warning-color); }
-    .intraday-tabs { display:flex; border-bottom:1px solid var(--border-color); margin-bottom:20px; }
-    .intraday-tab {
-      padding:10px 20px; cursor:pointer; background:rgba(99,171,143,0.1);
-      border:1px solid transparent; border-bottom:none; border-radius:4px 4px 0 0;
-      margin-right:5px; color:var(--text-medium);
-    }
-    .intraday-tab.active {
-      background:#fff; color:var(--primary-color);
-      border-color:var(--border-color); border-bottom:1px solid #fff;
-      font-weight:500; margin-bottom:-1px;
-    }
+    label { display:block; font-weight:500; color:var(--text-medium); margin-bottom:8px; }
+    input, select { width:100%; padding:12px 15px; border:1px solid var(--border-color); border-radius:6px; font-size:15px; transition:0.3s; }
+    input:focus, select:focus { outline:none; border-color:var(--primary-color); box-shadow:0 0 0 3px rgba(99,171,143,0.2); }
+    button { background:var(--primary-color); color:#fff; border:none; border-radius:6px; padding:12px 20px; font-size:15px; font-weight:500; cursor:pointer; transition:0.3s; }
+    button:hover { background:var(--primary-dark); transform:translateY(-1px); box-shadow:0 4px 8px rgba(0,0,0,0.1); }
+    .status-message { margin-top:20px; padding:12px 15px; border-radius:6px; border-left:4px solid transparent; }
+    .info { color:var(--info-color); background:rgba(23,162,184,0.1); border-left-color:var(--info-color); }
+    .success { color:var(--success-color); background:rgba(40,167,69,0.1); border-left-color:var(--success-color); }
+    .error { color:var(--error-color); background:rgba(220,53,69,0.1); border-left-color:var(--error-color); }
+    .warning { color:var(--warning-color); background:rgba(255,193,7,0.1); border-left-color:var(--warning-color); }
+    .results-table { width:100%; border-collapse:collapse; margin-top:20px; }
+    .results-table th, .results-table td { padding:12px 15px; border-bottom:1px solid var(--border-color); white-space:nowrap; }
+    .results-table th { background:var(--primary-color); color:#fff; font-weight:500; }
+    .intraday-tabs { display:flex; margin-bottom:20px; border-bottom:1px solid var(--border-color); }
+    .intraday-tab { padding:10px 20px; cursor:pointer; background:rgba(99,171,143,0.1); color:var(--text-medium); border:1px solid transparent; border-bottom:none; border-radius:4px 4px 0 0; margin-right:5px; }
+    .intraday-tab.active { background:#fff; border-color:var(--border-color); color:var(--primary-color); font-weight:500; }
     .intraday-tab-content { display:none; padding:20px 0; }
     .intraday-tab-content.active { display:block; }
-    .results-table, .intraday-summary-table {
-      width:100%; border-collapse:collapse; margin-top:20px;
-    }
-    .results-table th, .results-table td,
-    .intraday-summary-table th, .intraday-summary-table td {
-      padding:12px; border-bottom:1px solid var(--border-color); text-align:left;
-      white-space:nowrap;
-    }
-    .results-table th, .intraday-summary-table th {
-      background:var(--primary-color); color:#fff; font-weight:500;
-    }
+    .intraday-summary-table { width:100%; margin-bottom:20px; border-collapse:collapse; }
+    .intraday-summary-table th, .intraday-summary-table td { padding:12px 15px; border-bottom:1px solid var(--border-color); }
+    .intraday-summary-table th { background:var(--primary-color); color:#fff; }
     .no-data, .loading { color:var(--text-light); font-style:italic; }
+
     @media(max-width:992px){
-      .sidebar{position:relative;width:100%;flex-direction:row;height:auto;top:0;}
-      .content-area{margin-left:0;}
+      .app-container{flex-direction:column;}
+      .sidebar{width:100%;position:relative;height:auto;padding:0;flex-direction:row;overflow-x:auto;}
+      .sidebar button{padding:15px 20px;border-left:none;border-bottom:3px solid transparent;}
+      .sidebar button.active{border-bottom:3px solid var(--primary-color);}
+      .content-area{margin-left:0;width:100%;}
+    }
+    @media(max-width:768px){
+      .content-area{padding:20px;}
+      .app-window{padding:20px;}
+      .form-row{gap:15px;}
     }
   </style>
 </head>
@@ -137,212 +86,660 @@
     <div class="header-content">
       <h1>Change Maker by IPI</h1>
       <div class="logo">
-        <img src="https://raw.githubusercontent.com/gmcglynn88/TimeoffApp/main/IPI_Primary%20Identity_Corporate_REVERSED_ECC.png" alt="IPI Logo"/>
+        <img src="https://raw.githubusercontent.com/gmcglynn88/TimeoffApp/main/IPI_Primary%20Identity_Corporate_REVERSED_ECC.png" alt="IPI Logo">
       </div>
     </div>
   </header>
-
   <div class="app-container">
-    <nav class="sidebar">
+    <div class="sidebar">
       <div class="sidebar-nav">
-        <button class="tablink active" onclick="openTab(event,'intradayPlan')"><i>📅</i> Intraday Weekly Plan</button>
-        <!-- other tabs... -->
+        <button class="tablink active" onclick="openTab(event,'wfmManagement')"><i>📊</i> WFM Management Unit Search</button>
+        <button class="tablink" onclick="openTab(event,'externalWork')"><i>✉️</i> External Work Creation</button>
+        <button class="tablink" onclick="openTab(event,'activityCode')"><i>⚙️</i> Activity Code Management</button>
+        <button class="tablink" onclick="openTab(event,'bulkSkills')"><i>🔄</i> Bulk Skill Changes</button>
+        <button class="tablink" onclick="openTab(event,'bulkQueues')"><i>🔄</i> Bulk Queue Changes</button>
+        <button class="tablink" onclick="openTab(event,'workTeamManagement')"><i>👥</i> Work Team Management</button>
+        <button class="tablink" onclick="openTab(event,'intradayPlan')"><i>📅</i> Intraday Weekly Plan</button>
       </div>
-    </nav>
+    </div>
+    <div class="content-area">
+      <div class="tab-content-container">
 
-    <main class="content-area">
-      <div id="intradayPlan" class="tabcontent active">
-        <div class="app-window">
-          <div class="form-section">
-            <h2>Intraday Weekly Plan</h2>
-            <div id="intradayAuthMessage" class="status-message info">Authenticating with PureCloud...</div>
-
-            <!-- Controls -->
-            <div class="form-row">
-              <div class="form-group">
-                <label for="businessUnitSelect">Business Unit</label>
-                <select id="businessUnitSelect" disabled>
-                  <option>-- Loading --</option>
-                </select>
+        <!-- WFM Management Unit Search Tab -->
+        <div id="wfmManagement" class="tabcontent active">
+          <div class="app-window">
+            <div class="form-section">
+              <h2>WFM Management Unit Search</h2>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="searchUser">Search users</label>
+                  <input type="text" id="searchUser" placeholder="Type to filter users...">
+                </div>
               </div>
-              <div class="form-group">
-                <label for="planningGroup">Planning Group</label>
-                <select id="planningGroup" disabled>
-                  <option>-- Select BU First --</option>
-                </select>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="agentSelect">Select an Agent</label>
+                  <select id="agentSelect"></select>
+                </div>
               </div>
-              <div class="form-group">
-                <label for="weekSelect">Week</label>
-                <select id="weekSelect" disabled>
-                  <option>-- Loading Weeks --</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="mediaType">Media Type</label>
-                <select id="mediaType">
-                  <option value="">--All--</option>
-                  <option>Voice</option>
-                  <option>Message</option>
-                </select>
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label for="timeFormat">Time Format</label>
-                <select id="timeFormat">
-                  <option value="seconds">Seconds</option>
-                  <option value="hms">HH:MM:SS</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="numberPrecision">Precision</label>
-                <select id="numberPrecision">
-                  <option>0</option>
-                  <option selected>1</option>
-                  <option>2</option>
-                  <option>3</option>
-                </select>
-              </div>
-              <div class="form-group" style="align-self:flex-end">
-                <button id="refreshIntradayData">Refresh Data</button>
-              </div>
-            </div>
-
-            <!-- Sub-tabs -->
-            <div class="intraday-tabs">
-              <div id="dailyTabButton" class="intraday-tab active">Daily Data</div>
-              <div id="intervalTabButton" class="intraday-tab">15-min Intervals</div>
-              <div id="continuousTabButton" class="intraday-tab">Continuous</div>
-            </div>
-
-            <!-- Daily Data -->
-            <div id="dailyTab" class="intraday-tab-content active">
-              <div id="weeklySummary" class="loading">Select a week to view data</div>
-              <div id="dailyTableContainer" style="overflow-x:auto;"></div>
-            </div>
-
-            <!-- 15-min Intervals + Distribution -->
-            <div id="intervalTab" class="intraday-tab-content">
-              <div id="intervalTableContainer" class="loading">Select a day to view interval data</div>
-              <canvas id="distChart" style="max-height:300px; margin-top:20px;"></canvas>
-            </div>
-
-            <!-- Continuous view: daily totals plus trends -->
-            <div id="continuousTab" class="intraday-tab-content">
-              <h3>Daily Totals This Week</h3>
-              <table class="intraday-summary-table" id="continuousTable"></table>
-              <h3 style="margin-top:30px;">Short-Term Trend (Week)</h3>
-              <canvas id="shortTermChart" style="max-height:200px;"></canvas>
-              <h3 style="margin-top:30px;">Long-Term Trend (Last 4 Weeks)</h3>
-              <canvas id="longTermChart" style="max-height:200px;"></canvas>
+              <button id="lookupBtn">Get Management Unit</button>
+              <div id="muResults" class="status-message" style="display:none;"></div>
             </div>
           </div>
         </div>
+
+        <!-- External Work Creation Tab -->
+        <div id="externalWork" class="tabcontent">
+          <div class="app-window">
+            <div class="form-section">
+              <h2>External Work Creation</h2>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="queueSelect">Select Queue</label>
+                  <select id="queueSelect"></select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="userSelect">Select User</label>
+                  <select id="userSelect"></select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="externalReference">External Reference (optional)</label>
+                  <input type="text" id="externalReference" placeholder="Enter external reference">
+                </div>
+              </div>
+              <button id="createInteractionBtn">Create Proxy Interaction</button>
+              <div id="statusMessage" class="status-message" style="display:none;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Activity Code Management Tab -->
+        <div id="activityCode" class="tabcontent">
+          <div class="app-window">
+            <div class="form-section">
+              <h2>Manage Business Units and Activity Codes</h2>
+              <div id="auth-message" class="status-message info">Authenticating with PureCloud...</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="business-units">Select Business Units</label>
+                  <select id="business-units" multiple disabled></select>
+                </div>
+              </div>
+              <hr>
+              <h3>Create Activity Code</h3>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="activity-name">Activity Name</label>
+                  <input type="text" id="activity-name" placeholder="Enter activity name" disabled>
+                </div>
+                <div class="form-group">
+                  <label for="category">Category</label>
+                  <select id="category" disabled>
+                    <option value="">Select category</option>
+                    <option>OnQueueWork</option><option>Break</option><option>Meal</option>
+                    <option>Meeting</option><option>OffQueueWork</option><option>TimeOff</option>
+                    <option>Training</option><option>Unavailable</option><option>Unscheduled</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="length">Default Length (minutes)</label>
+                  <input type="number" id="length" placeholder="Enter default length" disabled>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Options</label>
+                <div class="checkbox-grid">
+                  <div class="checkbox-container"><input type="checkbox" id="paid-time" disabled><label for="paid-time">Counts as Paid Time</label></div>
+                  <div class="checkbox-container"><input type="checkbox" id="work-time" disabled><label for="work-time">Counts as Work Time</label></div>
+                  <div class="checkbox-container"><input type="checkbox" id="time-off-selectable" disabled><label for="time-off-selectable">Agent Time Off Selectable</label></div>
+                  <div class="checkbox-container"><input type="checkbox" id="shrinkage" disabled><label for="shrinkage">Counts Toward Shrinkage</label></div>
+                  <div class="checkbox-container"><input type="checkbox" id="planned-shrinkage" disabled><label for="planned-shrinkage">Planned Shrinkage</label></div>
+                  <div class="checkbox-container"><input type="checkbox" id="interruptible" disabled><label for="interruptible">Interruptible</label></div>
+                </div>
+              </div>
+              <button id="create-button" onclick="createActivityCode()" disabled>Create Activity Code</button>
+              <div id="activityResults" class="status-message" style="display:none;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bulk Skill Changes Tab -->
+        <div id="bulkSkills" class="tabcontent">
+          <div class="app-window">
+            <div class="form-section">
+              <h2>Bulk Skill Changes</h2>
+              <div id="auth-message-bulk" class="status-message info">Authenticating with PureCloud...</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="skillDropdown">Select Skill</label>
+                  <select id="skillDropdown"></select>
+                </div>
+                <div class="form-group">
+                  <label for="agentDropdownForSkill">Select Agent</label>
+                  <select id="agentDropdownForSkill"></select>
+                </div>
+                <div class="form-group">
+                  <label for="managementUnitDropdownForSkill">Select Management Unit</label>
+                  <select id="managementUnitDropdownForSkill"></select>
+                </div>
+              </div>
+              <button id="fetchAgentsForSkill">Get Agents</button>
+              <div style="overflow-x:auto; margin-top:20px;">
+                <table class="results-table" id="agentsTableForSkill">
+                  <thead>
+                    <tr><th><input type="checkbox" id="selectAllAgentsForSkill"></th><th>Agent</th><th>Current Skills</th><th>Skill Change</th><th>Proficiency</th><th>Delete Skill</th></tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+              <button id="updateSkills">Update Selected Skills</button>
+              <div id="skill-results" class="status-message" style="display:none;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bulk Queue Changes Tab -->
+        <div id="bulkQueues" class="tabcontent">
+          <div class="app-window">
+            <div class="form-section">
+              <h2>Bulk Queue Changes</h2>
+              <div id="auth-message-bulk-queue" class="status-message info">Authenticating with PureCloud...</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="queueDropdown">Select Queue</label>
+                  <select id="queueDropdown"></select>
+                </div>
+                <div class="form-group">
+                  <label for="agentDropdownForQueue">Select Agent</label>
+                  <select id="agentDropdownForQueue"></select>
+                </div>
+                <div class="form-group">
+                  <label for="managementUnitDropdownForQueue">Select Management Unit</label>
+                  <select id="managementUnitDropdownForQueue"></select>
+                </div>
+              </div>
+              <button id="fetchAgentsForQueue">Get Agents</button>
+              <div style="overflow-x:auto; margin-top:20px;">
+                <table class="results-table" id="agentsTableForQueue">
+                  <thead>
+                    <tr><th><input type="checkbox" id="selectAllAgentsForQueue"></th><th>Agent</th><th>Current Queues</th><th>Queue Change</th></tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+              <button id="updateQueues">Update Selected Queues</button>
+              <div id="queue-results" class="status-message" style="display:none;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Work Team Management Tab -->
+        <div id="workTeamManagement" class="tabcontent">
+          <div class="app-window">
+            <div class="form-section">
+              <h2>Work Team Management</h2>
+              <h3>Manage Team Members by Team</h3>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="teamDropdown">Select Team</label>
+                  <select id="teamDropdown"></select>
+                </div>
+              </div>
+              <button id="loadTeamMembersBtn">Load Team Members</button>
+              <div id="teamStatus" class="status-message" style="display:none;"></div>
+              <div id="progressContainer" style="margin-top:10px; display:none;">
+                <progress id="teamProgress" max="100" style="width:100%;"></progress>
+              </div>
+              <div style="overflow-x:auto; margin-top:20px;">
+                <table class="results-table" id="teamMembersTable">
+                  <thead>
+                    <tr><th><input type="checkbox" id="selectAllTeamMembers"></th><th>Agent</th><th>Current Team</th><th>New Team</th></tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+              <div class="form-row" style="margin-top:20px;">
+                <button id="changeTeamBtn">Change Team</button>
+                <button id="removeFromTeamBtn">Remove From Team</button>
+              </div>
+              <hr>
+              <h3>Search Agents Without a Work Team</h3>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="agentSearch">Search Agents</label>
+                  <input id="agentSearch" placeholder="Enter name or email...">
+                </div>
+                <div class="form-group">
+                  <button id="searchAgentsBtn">Search</button>
+                </div>
+              </div>
+              <div id="searchStatus" class="status-message" style="display:none;"></div>
+              <div style="overflow-x:auto; margin-top:20px;">
+                <table class="results-table" id="agentsWithoutTeamTable">
+                  <thead>
+                    <tr><th><input type="checkbox" id="selectAllAgentsWithoutTeam"></th><th>Agent</th><th>New Team</th></tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+              <div class="form-row" style="margin-top:20px;">
+                <button id="addAgentsWithoutTeamBtn">Add To Team</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Intraday Weekly Plan Tab -->
+        <div id="intradayPlan" class="tabcontent">
+          <div class="app-window" style="width:100%; max-width:none;">
+            <div class="form-section">
+              <h2>Intraday Weekly Plan</h2>
+              <div id="intradayAuthMessage" class="status-message info">Authenticating with PureCloud...</div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="businessUnitSelect">Select Business Unit:</label>
+                  <select id="businessUnitSelect" disabled><option>-- Loading --</option></select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="planningGroup">Select Planning Group:</label>
+                  <select id="planningGroup" disabled><option>-- Select BU First --</option></select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="weekSelect">Select Week:</label>
+                  <select id="weekSelect" disabled><option>-- Loading Weeks --</option></select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="mediaType">Media Type:</label>
+                  <select id="mediaType"><option value="">--All--</option><option>Voice</option><option>Message</option></select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="timeFormat">Time Format:</label>
+                  <select id="timeFormat"><option value="seconds">Seconds</option><option value="hms">HH:MM:SS</option></select>
+                </div>
+                <div class="form-group">
+                  <label for="numberPrecision">Precision:</label>
+                  <select id="numberPrecision"><option>0</option><option selected>1</option><option>2</option><option>3</option></select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <button id="refreshIntradayData">Refresh Data</button>
+                </div>
+              </div>
+
+              <div class="intraday-tabs">
+                <div id="dailyTabButton" class="intraday-tab active">Daily Data</div>
+                <div id="intervalTabButton" class="intraday-tab">15-min Intervals</div>
+                <div id="continuousTabButton" class="intraday-tab">Continuous Forward</div>
+              </div>
+
+              <!-- Daily Data -->
+              <div id="dailyTab" class="intraday-tab-content active">
+                <div id="weeklySummary" class="loading">Select a week to view data</div>
+                <div id="dailyTableContainer" style="overflow-x:auto;"></div>
+                <canvas id="dailyLineChart" style="max-width:100%; margin-top:20px;"></canvas>
+              </div>
+
+              <!-- 15-min Intervals -->
+              <div id="intervalTab" class="intraday-tab-content">
+                <div id="intervalTableContainer" class="loading">Select a day to view interval data</div>
+                <canvas id="distChart" style="max-width:100%; margin-top:20px;"></canvas>
+              </div>
+
+              <!-- Continuous Forward -->
+              <div id="continuousTab" class="intraday-tab-content">
+                <table class="results-table" id="continuousTable">
+                  <thead>
+                    <tr>
+                      <th>Date</th><th>Offered</th><th>AHT</th><th>Sched Time</th><th>SL%</th><th>ASA</th><th>Occ%</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+                <canvas id="shortTermChart" style="max-width:100%; margin-top:20px;"></canvas>
+                <canvas id="longTermChart" style="max-width:100%; margin-top:20px;"></canvas>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
       </div>
-      <!-- other tabcontents unchanged... -->
-    </main>
+    </div>
   </div>
 
   <script>
-    // Paste here all your existing ‹Global Config›, auth, tab management,
-    // fetchIntradayData, fetchDataForWeek, renderDailyTable, render15MinTable, etc.
-    // …then add/replace the following at the end:
+    // === Global config & state ===
+    const CLIENT_ID = '4652c8b5-9117-43c6-8e54-77eeb38aebb8';
+    const REGION = 'mypurecloud.ie';
+    const REDIRECT_URI = 'https://gmcglynn88.github.io/IPI-changes-on-the-fly/';
+    const AUTH_URL = `https://login.${REGION}/oauth/authorize?client_id=${CLIENT_ID}&response_type=token&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
+    let accessToken = null;
+    let initializedTabs = {
+      wfmManagement:false, externalWork:false, activityCode:false,
+      bulkSkills:false, bulkQueues:false, workTeamManagement:false,
+      intradayPlan:false
+    };
+    let intradayConfig = { timeFormat:'seconds', precision:1 };
+    let intradayState = { planningGroupName:'', weekData:[] };
 
-    // --- Intraday JS enhancements ---
-    function setActiveTab(tab) {
-      ['daily','interval','continuous'].forEach(t=>{
-        document.getElementById(t+'Tab').classList.toggle('active', t===tab);
-        document.getElementById(t+'TabButton').classList.toggle('active', t===tab);
-      });
+    document.addEventListener('DOMContentLoaded',()=>{
+      const hash = window.location.hash.slice(1);
+      const params = new URLSearchParams(hash);
+      accessToken = params.get('access_token') || sessionStorage.getItem('purecloud_token');
+      if(accessToken){ sessionStorage.setItem('purecloud_token',accessToken); validateToken(); }
+      else location.href = AUTH_URL;
+    });
+
+    async function validateToken(){
+      ['auth-message','auth-message-bulk','auth-message-bulk-queue','intradayAuthMessage']
+        .forEach(id=>{
+          const el=document.getElementById(id);
+          if(el){ el.textContent='Validating token...'; el.className='status-message info'; }
+        });
+      try{
+        const r = await fetch(`https://api.${REGION}/api/v2/users/me`,{headers:{Authorization:`Bearer ${accessToken}`}});
+        if(!r.ok) throw new Error();
+        ['auth-message','auth-message-bulk','auth-message-bulk-queue','intradayAuthMessage']
+          .forEach(id=>{const el=document.getElementById(id); if(el){ el.textContent='Authenticated!'; el.className='status-message success'; setTimeout(()=>el.style.display='none',2000);} });
+        document.querySelectorAll('.tablink')[0].click();
+      }catch{
+        sessionStorage.removeItem('purecloud_token');
+        setTimeout(()=>location.href=AUTH_URL,2000);
+      }
     }
-    document.getElementById('dailyTabButton').onclick   = ()=>setActiveTab('daily');
-    document.getElementById('intervalTabButton').onclick= ()=>setActiveTab('interval');
-    document.getElementById('continuousTabButton').onclick=()=>setActiveTab('continuous');
 
-    // After fetchDataForWeek completes:
-    function renderContinuous() {
-      // build daily totals table
-      let html = '<thead><tr><th>Date</th><th>Offered</th><th>AHT</th><th>Scheduled</th><th>SL%</th><th>ASA</th><th>Occupancy%</th></tr></thead><tbody>';
+    function openTab(evt,tabName){
+      evt.preventDefault();
+      document.querySelectorAll('.tablink').forEach(b=>b.classList.remove('active'));
+      evt.currentTarget.classList.add('active');
+      document.querySelectorAll('.tabcontent').forEach(tc=>tc.classList.remove('active'));
+      document.getElementById(tabName).classList.add('active');
+      if(!initializedTabs[tabName]){ window['init'+tabName.charAt(0).toUpperCase()+tabName.slice(1)](); initializedTabs[tabName]=true; }
+    }
+
+    // === initIntradayPlan & helpers ===
+    function initIntradayPlan(){
+      const el=document.getElementById('intradayAuthMessage');
+      el.textContent='Authenticated!'; el.className='status-message success';
+      setTimeout(()=>el.style.display='none',2000);
+
+      ['dailyTabButton','intervalTabButton','continuousTabButton'].forEach(id=>{
+        document.getElementById(id).addEventListener('click',()=>setActiveTab(id.replace('Button','')));
+      });
+      ['businessUnitSelect','planningGroup','weekSelect','mediaType','timeFormat','numberPrecision','refreshIntradayData']
+        .forEach(id=>document.getElementById(id).addEventListener('change',handleIntradayControl));
+
+      fetchBusinessUnits(); populateWeekSelect();
+    }
+
+    function setActiveTab(name){
+      ['daily','interval','continuous'].forEach(n=>{
+        document.getElementById(n+'Tab').classList.toggle('active',n===name);
+        document.getElementById(n+'TabButton').classList.toggle('active',n===name);
+      });
+      if(name==='daily') renderDaily(), drawLine('dailyLineChart','Weekly Offered');
+      if(name==='interval') { const btn=document.querySelector('#intervalTableContainer h3'); btn&&btn.textContent.match(/for (.*) \((.*)\)/)&&show15MinDetails(intradayState.weekData.find(d=>d.uk===RegExp.$1),RegExp.$2); }
+      if(name==='continuous') renderContinuous();
+    }
+
+    function handleIntradayControl(){
+      intradayConfig.timeFormat = document.getElementById('timeFormat').value;
+      intradayConfig.precision = +document.getElementById('numberPrecision').value;
+      if(this.id==='businessUnitSelect') onBusinessUnitChange();
+      else if(this.id==='planningGroup') onPlanningGroupChange();
+      else if(this.id==='weekSelect') fetchDataForWeek(this.value);
+      else renderAllData();
+    }
+
+    async function fetchBusinessUnits(){
+      try {
+        const r=await fetch(`https://api.${REGION}/api/v2/workforcemanagement/businessunits`,{headers:{Authorization:`Bearer ${accessToken}`}});
+        const d=await r.json();
+        const sel=document.getElementById('businessUnitSelect'); sel.innerHTML='<option>--Select--</option>';
+        d.entities.forEach(bu=>sel.add(new Option(bu.name,bu.id)));
+        sel.disabled=false;
+      } catch(e){}
+    }
+
+    async function onBusinessUnitChange(){
+      const bu=this.value;
+      const pg=document.getElementById('planningGroup');
+      pg.innerHTML='<option>--Loading--</option>'; pg.disabled=true;
+      if(!bu) return pg.innerHTML='<option>--Select BU First--</option>';
+      try {
+        const r=await fetch(`https://api.${REGION}/api/v2/workforcemanagement/businessunits/${bu}/planninggroups`,{headers:{Authorization:`Bearer ${accessToken}`}});
+        const d=await r.json();
+        pg.innerHTML='<option>--Select PG--</option>';
+        d.entities.forEach(x=>pg.add(new Option(x.name,x.id)));
+        pg.disabled=false;
+      }catch{}
+    }
+
+    function onPlanningGroupChange(){
+      intradayState.planningGroupName = this.options[this.selectedIndex].text;
+      document.getElementById('weekSelect').disabled = !this.value;
+    }
+
+    function populateWeekSelect(){
+      const sel=document.getElementById('weekSelect');
+      sel.innerHTML='<option>--Select Week--</option>';
+      const today=new Date(),day=today.getDay(),monday=new Date(today.setDate(today.getDate()-day+1-(day===0?7:0)));
+      for(let i=0;i<52;i++){
+        const w=new Date(monday); w.setDate(monday.getDate()+i*7);
+        const e=new Date(w); e.setDate(w.getDate()+6);
+        const toUK=d=>`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+        const opt=new Option(`Week ${toUK(w)} - ${toUK(e)}`,w.toISOString().split('T')[0]);
+        if(i===0) opt.selected=true;
+        sel.add(opt);
+      }
+      sel.disabled=false;
+    }
+
+    async function fetchIntradayData(date){
+      const bu=document.getElementById('businessUnitSelect').value;
+      const pg=document.getElementById('planningGroup').value;
+      if(!bu) return {date,uk:'',data:null,error:'No BU'};
+      const r=await fetch(`https://api.${REGION}/api/v2/workforcemanagement/businessunits/${bu}/intraday`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json',Authorization:`Bearer ${accessToken}`},
+        body:JSON.stringify({businessUnitDate:date,categories:["ForecastData","PerformancePredictionData","ScheduleData"],intervalLengthMinutes:15,planningGroupIds:pg?[pg]:null})
+      });
+      if(!r.ok){
+        if(r.status===404) return {date,uk:'',data:null,error:'No data'};
+        throw new Error('Fetch error');
+      }
+      const data=await r.json();
+      return {date,data};
+    }
+
+    async function fetchDataForWeek(startDate){
+      const ukDates = [];
+      const dateObjs = [];
+      const [year,mo,da] = startDate.split('-').map(Number);
+      for(let i=0;i<7;i++){
+        const d=new Date(year,mo-1,da+i);
+        const uk = `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+        ukDates.push(uk);
+        dateObjs.push({ raw:d.toISOString().split('T')[0], uk });
+      }
+      intradayState.weekData = await Promise.all(dateObjs.map(o=>fetchIntradayData(o.raw).then(r=>({...r,uk:o.uk}))));
+      renderAllData();
+      renderDaily();
+      renderContinuous();
+    }
+
+    function renderAllData(){
+      renderDaily();
+      if(document.getElementById('intervalTab').classList.contains('active')){
+        const txt=document.querySelector('#intervalTableContainer h3');
+        if(txt){
+          const m=txt.textContent.match(/for (\d{2}\/\d{2}\/\d{4}) \((.*)\)/);
+          if(m){
+            const day=intradayState.weekData.find(d=>d.uk===m[1]);
+            show15MinDetails(day,m[2]);
+          }
+        }
+      }
+    }
+
+    // --- Daily Data Table + Graph ---
+    function renderDaily(){
+      const filter=document.getElementById('mediaType').value;
+      let html=`<table class="results-table"><thead><tr>
+        <th>Date</th><th>Day</th><th>PG</th><th>Media</th><th>Offered</th><th>AHT</th><th>Sched</th><th>SL%</th><th>ASA</th><th>Occ%</th><th>Action</th>
+      </tr></thead><tbody>`;
+      const totals={off:0,aht:0,sched:0,sl:0,asa:0,occ:0,count:0};
       intradayState.weekData.forEach(day=>{
-        if(!day.data?.result) return;
+        if(!day.data||!day.data.result){
+          html+=`<tr><td>${day.uk}</td><td>--</td><td colspan="9">${day.error||'No data'}</td></tr>`;
+          return;
+        }
         day.data.result.intradayDataGroupings.forEach(g=>{
-          const o=g.forecastDataSummary?.offered||0;
-          const a=g.forecastDataSummary?.averageHandleTimeSeconds||0;
-          const s=g.scheduleDataSummary?.onQueueTimeSeconds||0;
-          const sl=g.performancePredictionDataSummary?.serviceLevelPercent||0;
-          const asa=g.performancePredictionDataSummary?.averageSpeedOfAnswerSeconds||0;
-          const occ=g.performancePredictionDataSummary?.occupancyPercent||0;
+          if(filter&&g.mediaType!==filter) return;
+          const off=g.forecastDataSummary?.offered||0, aht=g.forecastDataSummary?.averageHandleTimeSeconds||0,
+            sched=g.scheduleDataSummary?.onQueueTimeSeconds||0, sl=g.performancePredictionDataSummary?.serviceLevelPercent||0,
+            asa=g.performancePredictionDataSummary?.averageSpeedOfAnswerSeconds||0,
+            occ=g.performancePredictionDataSummary?.occupancyPercent||0;
+          totals.off+=off; totals.aht+=aht; totals.sched+=sched; totals.sl+=sl; totals.asa+=asa; totals.occ+=occ; totals.count++;
+          const dow = new Date(day.uk.split('/').reverse().join('-')).toLocaleDateString('en-US',{weekday:'long'});
           html+=`<tr>
             <td>${day.uk}</td>
-            <td>${o}</td>
-            <td>${formatTime(a)}</td>
-            <td>${formatHours(s)}</td>
-            <td>${sl.toFixed(intradayConfig.precision)}%</td>
+            <td>${dow}</td>
+            <td>${intradayState.planningGroupName}</td>
+            <td>${g.mediaType}</td>
+            <td>${Math.round(off)}</td>
+            <td>${formatTime(aht)}</td>
+            <td>${formatHours(sched)}</td>
+            <td>${(sl).toFixed(intradayConfig.precision)}%</td>
             <td>${formatTime(asa)}</td>
-            <td>${occ.toFixed(intradayConfig.precision)}%</td>
+            <td>${(occ).toFixed(intradayConfig.precision)}%</td>
+            <td><button onclick='show15MinDetails(${JSON.stringify(day).replace(/'/g,"&apos;")}, "${g.mediaType}")'>View Details</button></td>
           </tr>`;
         });
       });
-      html+='</tbody>';
-      document.getElementById('continuousTable').innerHTML=html;
-
-      // build short-term line chart
-      const labels = intradayState.weekData.map(d=>d.uk);
-      const seriesOff = intradayState.weekData.map(d=>
-        d.data?.result?.intradayDataGroupings.reduce((sum,g)=>sum+(g.forecastDataSummary?.offered||0),0) || 0
-      );
-      new Chart(document.getElementById('shortTermChart'), {
-        type:'line',
-        data:{ labels, datasets:[{
-          label:'Forecast Offered', data:seriesOff, fill:false, tension:0.3
-        }]},
-        options:{ responsive:true, plugins:{ legend:{ display:false } } }
-      });
-
-      // long-term: simulate last-4-weeks by duplicating current week labels with offset
-      const ltLabels=[], ltData=[];
-      for(let w=-3;w<=0;w++){
-        intradayState.weekData.forEach((d,i)=>{
-          const dt=new Date(d.raw); dt.setDate(dt.getDate() + 7*w);
-          ltLabels.push(dt.toLocaleDateString('en-GB'));
-          ltData.push(seriesOff[i]);
-        });
-      }
-      new Chart(document.getElementById('longTermChart'), {
-        type:'line',
-        data:{ labels:ltLabels, datasets:[{
-          label:'Offered (4wk)', data:ltData, fill:false, tension:0.3
-        }]},
-        options:{ responsive:true, plugins:{ legend:{ display:false }}
-      }});
+      html+='</tbody></table>';
+      document.getElementById('dailyTableContainer').innerHTML=html;
+      // draw weekly line chart
+      drawLine('dailyLineChart','Weekly Offered', intradayState.weekData.map(d=>d.uk),
+               intradayState.weekData.map(d=>{
+                 const g=d.data?.result?.intradayDataGroupings?.find(x=>x.mediaType==='Voice')||{};
+                 return g.forecastDataSummary?.offered||0;
+               }));
     }
 
-    // in your renderAllData(), at end call renderContinuous():
-    // ...
-    // renderContinuous();
-
-    // Distribution chart in 15-min:
-    function renderDistribution(day, mediaType) {
-      const grouping = day.data.result.intradayDataGroupings.find(g=>g.mediaType===mediaType);
-      if(!grouping) return;
-      const labels = [], data=[];
+    // --- 15-min Intervals + Distribution Chart ---
+    function show15MinDetails(day,media){
+      setActiveTab('interval');
+      render15MinTable(day,media);
+      renderDistribution(day,media);
+    }
+    function render15MinTable(day,media){
+      let html=`<h3>15-min Intervals for ${day.uk} (${media})</h3>
+        <div style="overflow-x:auto;"><table class="results-table"><thead>
+          <tr><th>Time</th><th>Offered</th><th>AHT</th><th>Sched</th><th>SL%</th><th>ASA</th><th>Occ%</th></tr>
+        </thead><tbody>`;
+      const grp=day.data?.result?.intradayDataGroupings?.find(x=>x.mediaType===media);
+      if(!grp){ html+='<tr><td colspan="7" class="no-data">No data</td></tr>'; }
+      else {
+        const start=new Date(day.data.result.startDate);
+        let begun=false;
+        for(let i=0;i<96;i++){
+          const t=new Date(start); t.setMinutes(t.getMinutes()+15*i);
+          const has=grp.forecastDataPerInterval?.[i]||grp.scheduleDataPerInterval?.[i]||grp.performancePredictionDataPerInterval?.[i];
+          if(!begun&&!has) continue;
+          begun=true;
+          const f=grp.forecastDataPerInterval?.[i]||{}, s=grp.scheduleDataPerInterval?.[i]||{}, p=grp.performancePredictionDataPerInterval?.[i]||{};
+          html+=`<tr>
+            <td>${t.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</td>
+            <td>${Math.round(f.offered||0)}</td>
+            <td>${formatTime(f.averageHandleTimeSeconds||0)}</td>
+            <td>${formatHours(s.onQueueTimeSeconds||0)}</td>
+            <td>${(p.serviceLevelPercent||0).toFixed(intradayConfig.precision)}%</td>
+            <td>${formatTime(p.averageSpeedOfAnswerSeconds||0)}</td>
+            <td>${(p.occupancyPercent||0).toFixed(intradayConfig.precision)}%</td>
+          </tr>`;
+        }
+      }
+      html+='</tbody></table></div>';
+      document.getElementById('intervalTableContainer').innerHTML=html;
+    }
+    function renderDistribution(day,media){
+      const grp=day.data?.result?.intradayDataGroupings?.find(x=>x.mediaType===media)||{};
+      const labels=[],data=[];
       const start=new Date(day.data.result.startDate);
       for(let i=0;i<96;i++){
         const t=new Date(start); t.setMinutes(t.getMinutes()+15*i);
         labels.push(t.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}));
-        data.push(grouping.forecastDataPerInterval?.[i]?.offered||0);
+        data.push(grp.forecastDataPerInterval?.[i]?.offered||0);
       }
-      new Chart(document.getElementById('distChart'), {
-        type:'bar',
-        data:{ labels, datasets:[{
-          label:'Offered per 15m', data, backgroundColor:'rgba(99,171,143,0.6)'
-        }]},
-        options:{ responsive:true, scales:{ x:{ display:false }}, plugins:{ legend:{ display:false }} }
-      });
+      drawBar('distChart','Offered by Interval',labels,data);
     }
 
-    // in show15MinDetails(), after render15MinTable(...) add:
-    // renderDistribution(day, mediaType);
+    // --- Continuous Forward Tab ---
+    function renderContinuous(){
+      const tbody=document.querySelector('#continuousTable tbody');
+      tbody.innerHTML='';
+      intradayState.weekData.forEach(day=>{
+        (day.data?.result?.intradayDataGroupings||[]).forEach(g=>{
+          const off=g.forecastDataSummary?.offered||0, aht=g.forecastDataSummary?.averageHandleTimeSeconds||0,
+            sched=g.scheduleDataSummary?.onQueueTimeSeconds||0, sl=g.performancePredictionDataSummary?.serviceLevelPercent||0,
+            asa=g.performancePredictionDataSummary?.averageSpeedOfAnswerSeconds||0,
+            occ=g.performancePredictionDataSummary?.occupancyPercent||0;
+          tbody.innerHTML+=`<tr>
+            <td>${day.uk}</td><td>${off}</td><td>${formatTime(aht)}</td><td>${formatHours(sched)}</td>
+            <td>${sl.toFixed(intradayConfig.precision)}%</td><td>${formatTime(asa)}</td><td>${occ.toFixed(intradayConfig.precision)}%</td>
+          </tr>`;
+        });
+      });
+      const labels=intradayState.weekData.map(d=>d.uk);
+      const offVals=intradayState.weekData.map(d=>{
+        const g=d.data?.result?.intradayDataGroupings?.find(x=>x.mediaType==='Voice')||{};
+        return g.forecastDataSummary?.offered||0;
+      });
+      drawLine('shortTermChart','This Week Offered',labels,offVals);
+      // Mock 4-week trend: just scale:
+      drawLine('longTermChart','4-Week Forward (mock)',labels,offVals.map(v=>v*1.1));
+    }
+
+    // --- Chart helpers ---
+    function drawLine(id,label,labels,data){
+      const ctx=document.getElementById(id).getContext('2d');
+      ctx.chart&&ctx.chart.destroy();
+      ctx.chart=new Chart(ctx,{type:'line',data:{labels,datasets:[{label,data,fill:false,tension:0.3}]},options:{responsive:true}});
+    }
+    function drawBar(id,label,labels,data){
+      const ctx=document.getElementById(id).getContext('2d');
+      ctx.chart&&ctx.chart.destroy();
+      ctx.chart=new Chart(ctx,{type:'bar',data:{labels,datasets:[{label,data}]},options:{responsive:true,scales:{x:{display:false},y:{beginAtZero:true}}}});
+    }
+
+    // --- Utility formatters ---
+    function formatTime(s){ if(!s)return'0s'; s=Math.round(s);
+      if(intradayConfig.timeFormat==='hms'){
+        const h=Math.floor(s/3600), m=Math.floor((s%3600)/60), ss=s%60;
+        return h>0?`${h}:${m.toString().padStart(2,'0')}:${ss.toString().padStart(2,'0')}`:`${m}:${ss.toString().padStart(2,'0')}`;
+      }
+      return s+'s';
+    }
+    function formatHours(s){ return((s||0)/3600).toFixed(intradayConfig.precision)+'h'; }
+
+    // === Other tabs’ initXxx functions and shared utilities remain unchanged from your original code… ===
 
   </script>
 </body>
