@@ -2266,883 +2266,517 @@
       searchAgentsWithoutTeam();
     }
     
-// =======================
-// Intraday Weekly Plan Functions
-function initIntradayPlan() {
-  if (!accessToken) { window.location.href = AUTH_URL; return; }
-  initializeIntradayPlan();
-}
-
-function initializeIntradayPlan() {
-  const authMsg = document.getElementById('intradayAuthMessage');
-  authMsg.textContent = 'Authenticated successfully!';
-  authMsg.className = 'status-message success';
-  setTimeout(() => { authMsg.style.display = 'none'; }, 2000);
-  
-  // Set up event listeners
-  document.getElementById('businessUnitSelect').addEventListener('change', onBusinessUnitChange);
-  document.getElementById('planningGroup').addEventListener('change', onPlanningGroupChange);
-  document.getElementById('weekSelect').addEventListener('change', onWeekSelectChange);
-  document.getElementById('monthSelect').addEventListener('change', onMonthSelectChange);
-  document.getElementById('yearSelect').addEventListener('change', onYearSelectChange);
-  document.getElementById('mediaType').addEventListener('change', renderAllData);
-  document.getElementById('dailyTabButton').addEventListener('click', () => setActiveTab('daily'));
-  document.getElementById('intervalTabButton').addEventListener('click', () => setActiveTab('interval'));
-  document.getElementById('continuousTabButton').addEventListener('click', () => setActiveTab('continuous'));
-  document.getElementById('timeFormat').addEventListener('change', updateTimeFormat);
-  document.getElementById('numberPrecision').addEventListener('change', updateNumberPrecision);
-  document.getElementById('refreshIntradayData').addEventListener('click', refreshIntradayData);
-  
-  // Load initial data
-  fetchBusinessUnits();
-  populateWeekSelect();
-  populateMonthSelect();
-  populateYearSelect();
-}
-
-function updateTimeFormat() {
-  intradayConfig.timeFormat = this.value;
-  renderAllData();
-}
-
-function updateNumberPrecision() {
-  intradayConfig.precision = parseInt(this.value, 10);
-  renderAllData();
-}
-
-function refreshIntradayData() {
-  const activeTab = document.querySelector('.tab-button.active').id;
-  if (activeTab === 'dailyTabButton' && document.getElementById('weekSelect').value) {
-    fetchDataForWeek(document.getElementById('weekSelect').value);
-  } else if (activeTab === 'continuousTabButton') {
-    if (document.getElementById('monthSelect').value) {
-      fetchContinuousData('month', document.getElementById('monthSelect').value);
-    } else if (document.getElementById('yearSelect').value) {
-      fetchContinuousData('year', document.getElementById('yearSelect').value);
-    }
-  }
-}
-
-function onBusinessUnitChange() {
-  const buId = this.value;
-  const planningGroupSelect = document.getElementById('planningGroup');
-  
-  planningGroupSelect.innerHTML = '<option value="">-- Loading Planning Groups --</option>';
-  planningGroupSelect.disabled = true;
-  
-  if (buId) {
-    fetchPlanningGroups(buId);
-  } else {
-    planningGroupSelect.innerHTML = '<option value="">-- Select Business Unit First --</option>';
-    planningGroupSelect.disabled = true;
-  }
-}
-
-function onPlanningGroupChange() {
-  intradayState.planningGroupName = this.options[this.selectedIndex].text;
-  document.getElementById('weekSelect').disabled = !this.value;
-  document.getElementById('monthSelect').disabled = !this.value;
-  document.getElementById('yearSelect').disabled = !this.value;
-}
-
-function onWeekSelectChange() {
-  if (this.value) {
-    document.getElementById('weeklySummary').className = 'loading';
-    document.getElementById('weeklySummary').textContent = 'Loading data...';
-    fetchDataForWeek(this.value);
-  }
-}
-
-function onMonthSelectChange() {
-  if (this.value) {
-    document.getElementById('continuousSummary').className = 'loading';
-    document.getElementById('continuousSummary').textContent = 'Loading data...';
-    fetchContinuousData('month', this.value);
-  }
-}
-
-function onYearSelectChange() {
-  if (this.value) {
-    document.getElementById('monthSelect').value = '';
-    document.getElementById('continuousSummary').className = 'loading';
-    document.getElementById('continuousSummary').textContent = 'Loading data...';
-    fetchContinuousData('year', this.value);
-  }
-}
-
-function setActiveTab(tabName) {
-  document.getElementById('dailyTab').classList.toggle('active', tabName === 'daily');
-  document.getElementById('intervalTab').classList.toggle('active', tabName === 'interval');
-  document.getElementById('continuousTab').classList.toggle('active', tabName === 'continuous');
-  document.getElementById('dailyTabButton').classList.toggle('active', tabName === 'daily');
-  document.getElementById('intervalTabButton').classList.toggle('active', tabName === 'interval');
-  document.getElementById('continuousTabButton').classList.toggle('active', tabName === 'continuous');
-  
-  // Hide/show appropriate controls
-  document.getElementById('weeklyControls').style.display = tabName === 'daily' ? 'block' : 'none';
-  document.getElementById('intervalControls').style.display = tabName === 'interval' ? 'block' : 'none';
-  document.getElementById('continuousControls').style.display = tabName === 'continuous' ? 'block' : 'none';
-}
-
-// Helper functions
-function formatTime(seconds) {
-  if (!seconds) return '0s';
-  seconds = Math.round(seconds);
-  
-  if (intradayConfig.timeFormat === 'hms') {
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    const s = Math.floor(seconds % 60);
-    return h > 0 ? `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}` 
-                 : `${m}:${s.toString().padStart(2, '0')}`;
-  }
-  return seconds + 's';
-}
-
-function formatHours(seconds) {
-  if (!seconds) return '0h';
-  return (seconds / 3600).toFixed(intradayConfig.precision) + 'h';
-}
-
-function formatNumber(num) {
-  return num.toFixed(intradayConfig.precision);
-}
-
-function getDayOfWeek(dateStr) {
-  try {
-    // Try parsing as UK format (DD/MM/YYYY)
-    const parts = dateStr.split('/');
-    if (parts.length === 3) {
-      const day = parseInt(parts[0], 10);
-      const month = parseInt(parts[1], 10) - 1;
-      const year = parseInt(parts[2], 10);
-      const date = new Date(year, month, day);
-      if (!isNaN(date.getTime())) {
-        return date.toLocaleDateString('en-US', { weekday: 'long' });
-      }
-    }
-    
-    // Fallback to ISO format
-    const date = new Date(dateStr);
-    if (!isNaN(date.getTime())) {
-      return date.toLocaleDateString('en-US', { weekday: 'long' });
-    }
-  } catch (e) {
-    console.error('Error parsing date:', dateStr, e);
-  }
-  return 'Unknown';
-}
-
-function getUKFormattedDate(date) {
-  const day = date.getDate();
-  const month = date.getMonth() + 1;
-  const year = date.getFullYear();
-  return (day < 10 ? '0' + day : day) + '/' +
-         (month < 10 ? '0' + month : month) + '/' +
-         year;
-}
-
-function getWeekDates(startDate) {
-  const dates = [];
-  const start = new Date(startDate);
-  
-  for (let i = 0; i < 7; i++) {
-    const currentDate = new Date(start);
-    currentDate.setDate(start.getDate() + i);
-    const raw = currentDate.toISOString().split('T')[0];
-    const uk = getUKFormattedDate(currentDate);
-    dates.push({ raw, uk });
-  }
-  
-  return dates;
-}
-
-function getMonthDates(year, month) {
-  const dates = [];
-  const start = new Date(year, month - 1, 1);
-  const end = new Date(year, month, 0);
-  
-  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-    const raw = d.toISOString().split('T')[0];
-    const uk = getUKFormattedDate(d);
-    dates.push({ raw, uk });
-  }
-  
-  return dates;
-}
-
-function getYearDates(year) {
-  const dates = [];
-  const start = new Date(year, 0, 1);
-  const end = new Date(year, 11, 31);
-  
-  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-    const raw = d.toISOString().split('T')[0];
-    const uk = getUKFormattedDate(d);
-    dates.push({ raw, uk });
-  }
-  
-  return dates;
-}
-
-function populateWeekSelect() {
-  const select = document.getElementById('weekSelect');
-  select.innerHTML = '<option value="">-- Select Week --</option>';
-  
-  const today = new Date();
-  const currentYear = today.getFullYear();
-  
-  // Start from the most recent Monday
-  const dayOfWeek = today.getDay();
-  const diff = today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
-  const monday = new Date(today.setDate(diff));
-  
-  // Create options for 52 weeks (1 year)
-  for (let w = 0; w < 52; w++) {
-    const weekStart = new Date(monday);
-    weekStart.setDate(monday.getDate() + (w * 7));
-    const weekEnd = new Date(weekStart);
-    weekEnd.setDate(weekStart.getDate() + 6);
-    
-    const weekStartStr = getUKFormattedDate(weekStart);
-    const weekEndStr = getUKFormattedDate(weekEnd);
-    const isoWeekStart = weekStart.toISOString().split('T')[0];
-    
-    const option = document.createElement('option');
-    option.value = isoWeekStart;
-    option.textContent = `Week ${weekStartStr} - ${weekEndStr}`;
-    
-    // Mark current week as selected
-    if (w === 0) {
-      option.selected = true;
-    }
-    
-    select.appendChild(option);
-  }
-  
-  select.disabled = true;
-}
-
-function populateMonthSelect() {
-  const select = document.getElementById('monthSelect');
-  select.innerHTML = '<option value="">-- Select Month --</option>';
-  
-  const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ];
-  
-  const today = new Date();
-  const currentYear = today.getFullYear();
-  
-  for (let m = 0; m < 12; m++) {
-    const option = document.createElement('option');
-    option.value = `${currentYear}-${m + 1}`;
-    option.textContent = `${months[m]} ${currentYear}`;
-    
-    // Mark current month as selected
-    if (m === today.getMonth()) {
-      option.selected = true;
-    }
-    
-    select.appendChild(option);
-  }
-  
-  select.disabled = true;
-}
-
-function populateYearSelect() {
-  const select = document.getElementById('yearSelect');
-  select.innerHTML = '<option value="">-- Select Year --</option>';
-  
-  const today = new Date();
-  const currentYear = today.getFullYear();
-  
-  for (let y = currentYear - 1; y <= currentYear + 1; y++) {
-    const option = document.createElement('option');
-    option.value = y;
-    option.textContent = y;
-    
-    // Mark current year as selected
-    if (y === currentYear) {
-      option.selected = true;
-    }
-    
-    select.appendChild(option);
-  }
-  
-  select.disabled = true;
-}
-
-// Data fetching functions
-async function fetchBusinessUnits() {
-  try {
-    const response = await fetch(`https://api.${REGION}/api/v2/workforcemanagement/businessunits`, {
-      headers: {
-        'Authorization': 'Bearer ' + accessToken
-      }
-    });
-    
-    if (!response.ok) throw new Error('Failed to fetch business units');
-    
-    const data = await response.json();
-    const select = document.getElementById('businessUnitSelect');
-    select.innerHTML = '<option value="">-- Select Business Unit --</option>';
-    
-    data.entities.forEach(bu => {
-      const option = document.createElement('option');
-      option.value = bu.id;
-      option.textContent = bu.name;
-      select.appendChild(option);
-    });
-    
-    select.disabled = false;
-  } catch (error) {
-    console.error('Error fetching business units:', error);
-    document.getElementById('businessUnitSelect').innerHTML = '<option value="">-- Error loading business units --</option>';
-  }
-}
-
-async function fetchPlanningGroups(businessUnitId) {
-  try {
-    const response = await fetch(`https://api.${REGION}/api/v2/workforcemanagement/businessunits/${businessUnitId}/planninggroups`, {
-      headers: {
-        'Authorization': 'Bearer ' + accessToken
-      }
-    });
-    
-    if (!response.ok) throw new Error('Failed to fetch planning groups');
-    
-    const data = await response.json();
-    const select = document.getElementById('planningGroup');
-    select.innerHTML = '<option value="">-- Select Planning Group --</option>';
-    
-    data.entities.forEach(pg => {
-      const option = document.createElement('option');
-      option.value = pg.id;
-      option.textContent = pg.name;
-      select.appendChild(option);
-    });
-    
-    select.disabled = false;
-  } catch (error) {
-    console.error('Error fetching planning groups:', error);
-    document.getElementById('planningGroup').innerHTML = '<option value="">-- Error loading groups --</option>';
-  }
-}
-
-async function fetchIntradayData(date) {
-  const businessUnitId = document.getElementById('businessUnitSelect').value;
-  const planningGroupId = document.getElementById('planningGroup').value;
-  
-  if (!businessUnitId) {
-    return { date: date, data: null, error: 'No business unit selected' };
-  }
-  
-  try {
-    const response = await fetch(`https://api.${REGION}/api/v2/workforcemanagement/businessunits/${businessUnitId}/intraday`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + accessToken
-      },
-      body: JSON.stringify({
-        businessUnitDate: date,
-        categories: ["ForecastData", "PerformancePredictionData", "ScheduleData"],
-        intervalLengthMinutes: 15,
-        planningGroupIds: planningGroupId ? [planningGroupId] : null
-      })
-    });
-    
-    if (!response.ok) {
-      if (response.status === 404) {
-        return { date: date, data: null, error: 'No data available for this date' };
-      }
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    return { date: date, data: data };
-  } catch (error) {
-    console.error('Error fetching intraday data:', error);
-    return { date: date, data: null, error: error.message };
-  }
-}
-
-async function fetchDataForWeek(startDate) {
-  const dateObjs = getWeekDates(startDate);
-  const fetchPromises = dateObjs.map(dateObj => 
-    fetchIntradayData(dateObj.raw).then(result => ({ ...result, uk: dateObj.uk }))
-  );
-  
-  intradayState.weekData = await Promise.all(fetchPromises);
-  renderAllData();
-}
-
-async function fetchContinuousData(type, value) {
-  let dateObjs = [];
-  
-  if (type === 'month') {
-    const [year, month] = value.split('-');
-    dateObjs = getMonthDates(parseInt(year), parseInt(month));
-  } else if (type === 'year') {
-    dateObjs = getYearDates(parseInt(value));
-  }
-  
-  // Fetch data in batches to avoid overwhelming the API
-  const batchSize = 7; // Fetch one week at a time
-  intradayState.continuousData = [];
-  
-  for (let i = 0; i < dateObjs.length; i += batchSize) {
-    const batch = dateObjs.slice(i, i + batchSize);
-    const fetchPromises = batch.map(dateObj => 
-      fetchIntradayData(dateObj.raw).then(result => ({ ...result, uk: dateObj.uk }))
-    );
-    
-    const batchResults = await Promise.all(fetchPromises);
-    intradayState.continuousData.push(...batchResults);
-    
-    // Update progress
-    const progress = Math.min(100, Math.round((i + batchSize) / dateObjs.length * 100));
-    document.getElementById('continuousSummary').textContent = `Loading data... ${progress}%`;
-  }
-  
-  renderAllData();
-}
-
-// Rendering functions
-function renderAllData() {
-  renderDailyTable();
-  
-  if (document.getElementById('intervalTab').classList.contains('active')) {
-    const intervalTitle = document.querySelector('#intervalTableContainer h3');
-    if (intervalTitle) {
-      const match = intervalTitle.textContent.match(/for (\d{2}\/\d{2}\/\d{4}) \((Voice|Message)\)/);
-      if (match) {
-        const day = intradayState.weekData.find(d => d.uk === match[1]);
-        if (day) {
-          render15MinTable(day, match[2]);
-        }
-      }
-    }
-  }
-  
-  if (document.getElementById('continuousTab').classList.contains('active')) {
-    renderContinuousTable();
-  }
-}
-
-function renderDailyTable() {
-  const mediaTypeFilter = document.getElementById('mediaType').value;
-  let tableHTML = `
-    <table class="results-table">
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Day</th>
-          <th>Planning Group</th>
-          <th>Media Type</th>
-          <th>Forecast Offered</th>
-          <th>Forecast AHT</th>
-          <th>Scheduled Time</th>
-          <th>Service Level</th>
-          <th>ASA</th>
-          <th>Occupancy</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-  `;
-
-  const weeklyTotals = {
-    offered: 0,
-    aht: 0,
-    scheduledTime: 0,
-    serviceLevel: 0,
-    asa: 0,
-    occupancy: 0,
-    count: 0
-  };
-
-  intradayState.weekData.forEach(day => {
-    if (!day.data || !day.data.result) {
-      const dayOfWeek = getDayOfWeek(day.uk);
-      tableHTML += `
-        <tr>
-          <td>${day.uk}</td>
-          <td>${dayOfWeek}</td>
-          <td colspan="9" class="no-data">${day.error || 'No data available'}</td>
-        </tr>
-      `;
-      return;
+    // =======================
+    // Intraday Weekly Plan Functions
+    function initIntradayPlan() {
+      if (!accessToken) { window.location.href = AUTH_URL; return; }
+      initializeIntradayPlan();
     }
 
-    day.data.result.intradayDataGroupings.forEach(group => {
-      if (mediaTypeFilter && group.mediaType !== mediaTypeFilter) return;
-
-      const offered = group.forecastDataSummary?.offered || 0;
-      const aht = group.forecastDataSummary?.averageHandleTimeSeconds || 0;
-      const scheduledTime = group.scheduleDataSummary?.onQueueTimeSeconds || 0;
-      const serviceLevel = group.performancePredictionDataSummary?.serviceLevelPercent || 0;
-      const asa = group.performancePredictionDataSummary?.averageSpeedOfAnswerSeconds || 0;
-      const occupancy = group.performancePredictionDataSummary?.occupancyPercent || 0;
-
-      weeklyTotals.offered += offered;
-      weeklyTotals.aht += aht;
-      weeklyTotals.scheduledTime += scheduledTime;
-      weeklyTotals.serviceLevel += serviceLevel;
-      weeklyTotals.asa += asa;
-      weeklyTotals.occupancy += occupancy;
-      weeklyTotals.count++;
-
-      const dayOfWeek = getDayOfWeek(day.uk);
+    function initializeIntradayPlan() {
+      const authMsg = document.getElementById('intradayAuthMessage');
+      authMsg.textContent = 'Authenticated successfully!';
+      authMsg.className = 'status-message success';
+      setTimeout(() => { authMsg.style.display = 'none'; }, 2000);
       
-      tableHTML += `
-        <tr>
-          <td>${day.uk}</td>
-          <td>${dayOfWeek}</td>
-          <td>${intradayState.planningGroupName}</td>
-          <td>${group.mediaType}</td>
-          <td>${Math.round(offered)}</td>
-          <td>${formatTime(aht)}</td>
-          <td>${formatHours(scheduledTime)}</td>
-          <td>${formatNumber(serviceLevel)}%</td>
-          <td>${formatTime(asa)}</td>
-          <td>${formatNumber(occupancy)}%</td>
-          <td>
-            <button onclick='show15MinDetails(${JSON.stringify(day).replace(/'/g, "&apos;")}, "${group.mediaType}")'>
-              View Details
-            </button>
-          </td>
-        </tr>
-      `;
-    });
-  });
-
-  // Calculate weekly averages
-  const weeklyAvgAHT = weeklyTotals.count > 0 ? weeklyTotals.aht / weeklyTotals.count : 0;
-  const weeklyAvgSL = weeklyTotals.count > 0 ? weeklyTotals.serviceLevel / weeklyTotals.count : 0;
-  const weeklyAvgASA = weeklyTotals.count > 0 ? weeklyTotals.asa / weeklyTotals.count : 0;
-  const weeklyAvgOccupancy = weeklyTotals.count > 0 ? weeklyTotals.occupancy / weeklyTotals.count : 0;
-
-  // Create weekly summary
-  const summaryHTML = `
-    <table class="intraday-summary-table">
-      <thead>
-        <tr>
-          <th>Summary</th>
-          <th>Forecast Offered</th>
-          <th>Avg AHT</th>
-          <th>Total Scheduled</th>
-          <th>Avg SL</th>
-          <th>Avg ASA</th>
-          <th>Avg Occupancy</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Weekly Totals/Averages</td>
-          <td>${Math.round(weeklyTotals.offered)}</td>
-          <td>${formatTime(weeklyAvgAHT)}</td>
-          <td>${formatHours(weeklyTotals.scheduledTime)}</td>
-          <td>${formatNumber(weeklyAvgSL)}%</td>
-          <td>${formatTime(weeklyAvgASA)}</td>
-          <td>${formatNumber(weeklyAvgOccupancy)}%</td>
-        </tr>
-      </tbody>
-    </table>
-  `;
-
-  document.getElementById('weeklySummary').innerHTML = summaryHTML;
-  document.getElementById('weeklySummary').className = '';
-  tableHTML += '</tbody></table>';
-  document.getElementById('dailyTableContainer').innerHTML = tableHTML;
-  
-  // Render charts for daily view
-  renderDailyCharts();
-}
-
-function render15MinTable(day, mediaType) {
-  let tableHTML = `<h3>15-min Intervals for ${day.uk} (${mediaType})</h3>`;
-  tableHTML += `
-    <div style="overflow-x: auto;">
-      <table class="results-table">
-        <thead>
-          <tr>
-            <th>Time</th>
-            <th>Forecast Offered</th>
-            <th>Forecast AHT</th>
-            <th>Scheduled Time</th>
-            <th>Service Level</th>
-            <th>ASA</th>
-            <th>Occupancy</th>
-          </tr>
-        </thead>
-        <tbody>
-  `;
-  
-  if (day.data?.result?.intradayDataGroupings) {
-    const grouping = day.data.result.intradayDataGroupings.find(g => g.mediaType === mediaType);
-    if (!grouping) {
-      tableHTML += '<tr><td colspan="7" class="no-data">No data for selected media type</td></tr>';
-    } else {
-      const startDate = new Date(day.data.result.startDate);
-      let hasDataStarted = false;
+      // Set up event listeners
+      document.getElementById('businessUnitSelect').addEventListener('change', onBusinessUnitChange);
+      document.getElementById('planningGroup').addEventListener('change', onPlanningGroupChange);
+      document.getElementById('weekSelect').addEventListener('change', onWeekSelectChange);
+      document.getElementById('mediaType').addEventListener('change', renderAllData);
+      document.getElementById('dailyTabButton').addEventListener('click', () => setActiveTab('daily'));
+      document.getElementById('intervalTabButton').addEventListener('click', () => setActiveTab('interval'));
+      document.getElementById('timeFormat').addEventListener('change', updateTimeFormat);
+      document.getElementById('numberPrecision').addEventListener('change', updateNumberPrecision);
+      document.getElementById('refreshIntradayData').addEventListener('click', refreshIntradayData);
       
-      for (let i = 0; i < 96; i++) {
-        const intervalTime = new Date(startDate);
-        intervalTime.setMinutes(intervalTime.getMinutes() + i * 15);
-        const timeStr = intervalTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        
-        const hasData = (grouping.forecastDataPerInterval?.[i] || 
-                        grouping.scheduleDataPerInterval?.[i] || 
-                        grouping.performancePredictionDataPerInterval?.[i]);
-        
-        if (!hasDataStarted && !hasData) continue;
-        hasDataStarted = true;
-        
-        const forecast = grouping.forecastDataPerInterval?.[i] || {};
-        const schedule = grouping.scheduleDataPerInterval?.[i] || {};
-        const performance = grouping.performancePredictionDataPerInterval?.[i] || {};
-        
-        tableHTML += `
-          <tr>
-            <td>${timeStr}</td>
-            <td>${Math.round(forecast.offered || 0)}</td>
-            <td>${formatTime(forecast.averageHandleTimeSeconds || 0)}</td>
-            <td>${formatHours(schedule.onQueueTimeSeconds || 0)}</td>
-            <td>${performance.serviceLevelPercent ? formatNumber(performance.serviceLevelPercent) + '%' : '0%'}</td>
-            <td>${formatTime(performance.averageSpeedOfAnswerSeconds || 0)}</td>
-            <td>${performance.occupancyPercent ? formatNumber(performance.occupancyPercent) + '%' : '0%'}</td>
-          </tr>
-        `;
+      // Load initial data
+      fetchBusinessUnits();
+      populateWeekSelect();
+    }
+
+    function updateTimeFormat() {
+      intradayConfig.timeFormat = document.getElementById('timeFormat').value;
+      renderAllData();
+    }
+
+    function updateNumberPrecision() {
+      intradayConfig.precision = parseInt(document.getElementById('numberPrecision').value, 10);
+      renderAllData();
+    }
+
+    function refreshIntradayData() {
+      const activeTab = document.querySelector('.intraday-tab.active').id;
+      if (activeTab === 'dailyTab' && document.getElementById('weekSelect').value) {
+        fetchDataForWeek(document.getElementById('weekSelect').value);
       }
     }
-  } else {
-    tableHTML += '<tr><td colspan="7" class="no-data">No data available</td></tr>';
-  }
-  
-  tableHTML += '</tbody></table></div>';
-  document.getElementById('intervalTableContainer').innerHTML = tableHTML;
-  document.getElementById('intervalTableContainer').className = '';
-  
-  // Render charts for interval view
-  renderIntervalCharts(day, mediaType);
-}
 
-function renderContinuousTable() {
-  const mediaTypeFilter = document.getElementById('mediaType').value;
-  let tableHTML = `
-    <table class="results-table">
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Day</th>
-          <th>Planning Group</th>
-          <th>Media Type</th>
-          <th>Forecast Offered</th>
-          <th>Forecast AHT</th>
-          <th>Scheduled Time</th>
-          <th>Service Level</th>
-          <th>ASA</th>
-          <th>Occupancy</th>
-        </tr>
-      </thead>
-      <tbody>
-  `;
-
-  const summaryData = {
-    dates: [],
-    offered: [],
-    aht: [],
-    scheduledTime: [],
-    serviceLevel: [],
-    asa: [],
-    occupancy: []
-  };
-
-  intradayState.continuousData.forEach(day => {
-    if (!day.data || !day.data.result) {
-      const dayOfWeek = getDayOfWeek(day.uk);
-      tableHTML += `
-        <tr>
-          <td>${day.uk}</td>
-          <td>${dayOfWeek}</td>
-          <td colspan="8" class="no-data">${day.error || 'No data available'}</td>
-        </tr>
-      `;
-      return;
+    function onBusinessUnitChange() {
+      const buId = this.value;
+      const planningGroupSelect = document.getElementById('planningGroup');
+      
+      planningGroupSelect.innerHTML = '<option value="">-- Loading Planning Groups --</option>';
+      planningGroupSelect.disabled = true;
+      
+      if (buId) {
+        fetchPlanningGroups(buId);
+      } else {
+        planningGroupSelect.innerHTML = '<option value="">-- Select Business Unit First --</option>';
+        planningGroupSelect.disabled = true;
+      }
     }
 
-    day.data.result.intradayDataGroupings.forEach(group => {
-      if (mediaTypeFilter && group.mediaType !== mediaTypeFilter) return;
+    function onPlanningGroupChange() {
+      intradayState.planningGroupName = this.options[this.selectedIndex].text;
+      document.getElementById('weekSelect').disabled = !this.value;
+    }
 
-      const offered = group.forecastDataSummary?.offered || 0;
-      const aht = group.forecastDataSummary?.averageHandleTimeSeconds || 0;
-      const scheduledTime = group.scheduleDataSummary?.onQueueTimeSeconds || 0;
-      const serviceLevel = group.performancePredictionDataSummary?.serviceLevelPercent || 0;
-      const asa = group.performancePredictionDataSummary?.averageSpeedOfAnswerSeconds || 0;
-      const occupancy = group.performancePredictionDataSummary?.occupancyPercent || 0;
+    function onWeekSelectChange() {
+      if (this.value) {
+        document.getElementById('weeklySummary').className = 'loading';
+        document.getElementById('weeklySummary').textContent = 'Loading data...';
+        fetchDataForWeek(this.value);
+      }
+    }
 
-      const dayOfWeek = getDayOfWeek(day.uk);
+    function setActiveTab(tabName) {
+      document.getElementById('dailyTab').classList.toggle('active', tabName === 'daily');
+      document.getElementById('intervalTab').classList.toggle('active', tabName === 'interval');
+      document.getElementById('dailyTabButton').classList.toggle('active', tabName === 'daily');
+      document.getElementById('intervalTabButton').classList.toggle('active', tabName === 'interval');
+    }
+
+    // Helper functions
+    function formatTime(seconds) {
+      if (!seconds) return '0s';
+      seconds = Math.round(seconds);
       
-      tableHTML += `
-        <tr>
-          <td>${day.uk}</td>
-          <td>${dayOfWeek}</td>
-          <td>${intradayState.planningGroupName}</td>
-          <td>${group.mediaType}</td>
-          <td>${Math.round(offered)}</td>
-          <td>${formatTime(aht)}</td>
-          <td>${formatHours(scheduledTime)}</td>
-          <td>${formatNumber(serviceLevel)}%</td>
-          <td>${formatTime(asa)}</td>
-          <td>${formatNumber(occupancy)}%</td>
-        </tr>
-      `;
+      if (intradayConfig.timeFormat === 'hms') {
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = Math.floor(seconds % 60);
+        return h > 0 ? `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}` 
+                     : `${m}:${s.toString().padStart(2, '0')}`;
+      }
+      return seconds + 's';
+    }
 
-      // Store data for charts
-      summaryData.dates.push(day.uk);
-      summaryData.offered.push(offered);
-      summaryData.aht.push(aht);
-      summaryData.scheduledTime.push(scheduledTime);
-      summaryData.serviceLevel.push(serviceLevel);
-      summaryData.asa.push(asa);
-      summaryData.occupancy.push(occupancy);
-    });
-  });
+    function formatHours(seconds) {
+      if (!seconds) return '0h';
+      return (seconds / 3600).toFixed(intradayConfig.precision) + 'h';
+    }
 
-  tableHTML += '</tbody></table>';
-  document.getElementById('continuousTableContainer').innerHTML = tableHTML;
-  document.getElementById('continuousSummary').className = '';
-  
-  // Render charts for continuous view
-  renderContinuousCharts(summaryData);
-}
+    function formatNumber(num) {
+      return num.toFixed(intradayConfig.precision);
+    }
 
-function show15MinDetails(day, mediaType) {
-  setActiveTab('interval');
-  render15MinTable(day, mediaType);
-}
-
-// Chart rendering functions
-function renderDailyCharts() {
-  const container = document.getElementById('dailyChartsContainer');
-  if (!container) return;
-  
-  container.innerHTML = '<h3>Weekly Metrics Overview</h3><div id="dailyCharts" class="chart-container"></div>';
-  
-  const chartData = {
-    dates: [],
-    offered: [],
-    aht: [],
-    scheduledTime: [],
-    serviceLevel: [],
-    asa: [],
-    occupancy: []
-  };
-
-  intradayState.weekData.forEach(day => {
-    if (!day.data || !day.data.result) return;
-    
-    day.data.result.intradayDataGroupings.forEach(group => {
-      const mediaTypeFilter = document.getElementById('mediaType').value;
-      if (mediaTypeFilter && group.mediaType !== mediaTypeFilter) return;
-      
-      chartData.dates.push(day.uk);
-      chartData.offered.push(group.forecastDataSummary?.offered || 0);
-      chartData.aht.push(group.forecastDataSummary?.averageHandleTimeSeconds || 0);
-      chartData.scheduledTime.push(group.scheduleDataSummary?.onQueueTimeSeconds || 0);
-      chartData.serviceLevel.push(group.performancePredictionDataSummary?.serviceLevelPercent || 0);
-      chartData.asa.push(group.performancePredictionDataSummary?.averageSpeedOfAnswerSeconds || 0);
-      chartData.occupancy.push(group.performancePredictionDataSummary?.occupancyPercent || 0);
-    });
-  });
-
-  // Create charts using Chart.js (make sure it's included in your page)
-  if (typeof Chart !== 'undefined') {
-    const ctx = document.createElement('div');
-    ctx.className = 'chart-wrapper';
-    document.getElementById('dailyCharts').appendChild(ctx);
-    
-    new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: chartData.dates,
-        datasets: [
-          {
-            label: 'Forecast Offered',
-            data: chartData.offered,
-            backgroundColor: 'rgba(54, 162, 235, 0.5)',
-            borderColor: 'rgba(54, 162, 235, 1)',
-            borderWidth: 1
+    function getDayOfWeek(dateStr) {
+      try {
+        // Try parsing as UK format (DD/MM/YYYY)
+        const parts = dateStr.split('/');
+        if (parts.length === 3) {
+          const day = parseInt(parts[0], 10);
+          const month = parseInt(parts[1], 10) - 1;
+          const year = parseInt(parts[2], 10);
+          const date = new Date(year, month, day);
+          if (!isNaN(date.getTime())) {
+            return date.toLocaleDateString('en-US', { weekday: 'long' });
           }
-        ]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: { beginAtZero: true }
+        }
+        
+        // Fallback to ISO format
+        const date = new Date(dateStr);
+        if (!isNaN(date.getTime())) {
+          return date.toLocaleDateString('en-US', { weekday: 'long' });
+        }
+      } catch (e) {
+        console.error('Error parsing date:', dateStr, e);
+      }
+      return 'Unknown';
+    }
+
+    function getUKFormattedDate(date) {
+      const day = date.getDate();
+      const month = date.getMonth() + 1;
+      const year = date.getFullYear();
+      return (day < 10 ? '0' + day : day) + '/' +
+             (month < 10 ? '0' + month : month) + '/' +
+             year;
+    }
+
+    function getWeekDates(startDate) {
+      const dates = [];
+      const start = new Date(startDate);
+      
+      for (let i = 0; i < 7; i++) {
+        const currentDate = new Date(start);
+        currentDate.setDate(start.getDate() + i);
+        const raw = currentDate.toISOString().split('T')[0];
+        const uk = getUKFormattedDate(currentDate);
+        dates.push({ raw, uk });
+      }
+      
+      return dates;
+    }
+
+    function populateWeekSelect() {
+      const select = document.getElementById('weekSelect');
+      select.innerHTML = '<option value="">-- Select Week --</option>';
+      
+      const today = new Date();
+      const currentYear = today.getFullYear();
+      
+      // Start from the most recent Monday
+      const dayOfWeek = today.getDay();
+      const diff = today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+      const monday = new Date(today.setDate(diff));
+      
+      // Create options for 52 weeks (1 year)
+      for (let w = 0; w < 52; w++) {
+        const weekStart = new Date(monday);
+        weekStart.setDate(monday.getDate() + (w * 7));
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekStart.getDate() + 6);
+        
+        const weekStartStr = getUKFormattedDate(weekStart);
+        const weekEndStr = getUKFormattedDate(weekEnd);
+        const isoWeekStart = weekStart.toISOString().split('T')[0];
+        
+        const option = document.createElement('option');
+        option.value = isoWeekStart;
+        option.textContent = `Week ${weekStartStr} - ${weekEndStr}`;
+        
+        // Mark current week as selected
+        if (w === 0) {
+          option.selected = true;
+        }
+        
+        select.appendChild(option);
+      }
+      
+      select.disabled = true;
+    }
+
+    // Data fetching functions
+    async function fetchBusinessUnits() {
+      try {
+        const response = await fetch(`https://api.${REGION}/api/v2/workforcemanagement/businessunits`, {
+          headers: {
+            'Authorization': 'Bearer ' + accessToken
+          }
+        });
+        
+        if (!response.ok) throw new Error('Failed to fetch business units');
+        
+        const data = await response.json();
+        const select = document.getElementById('businessUnitSelect');
+        select.innerHTML = '<option value="">-- Select Business Unit --</option>';
+        
+        data.entities.forEach(bu => {
+          const option = document.createElement('option');
+          option.value = bu.id;
+          option.textContent = bu.name;
+          select.appendChild(option);
+        });
+        
+        select.disabled = false;
+      } catch (error) {
+        console.error('Error fetching business units:', error);
+        document.getElementById('businessUnitSelect').innerHTML = '<option value="">-- Error loading business units --</option>';
+      }
+    }
+
+    async function fetchPlanningGroups(businessUnitId) {
+      try {
+        const response = await fetch(`https://api.${REGION}/api/v2/workforcemanagement/businessunits/${businessUnitId}/planninggroups`, {
+          headers: {
+            'Authorization': 'Bearer ' + accessToken
+          }
+        });
+        
+        if (!response.ok) throw new Error('Failed to fetch planning groups');
+        
+        const data = await response.json();
+        const select = document.getElementById('planningGroup');
+        select.innerHTML = '<option value="">-- Select Planning Group --</option>';
+        
+        data.entities.forEach(pg => {
+          const option = document.createElement('option');
+          option.value = pg.id;
+          option.textContent = pg.name;
+          select.appendChild(option);
+        });
+        
+        select.disabled = false;
+      } catch (error) {
+        console.error('Error fetching planning groups:', error);
+        document.getElementById('planningGroup').innerHTML = '<option value="">-- Error loading groups --</option>';
+      }
+    }
+
+    async function fetchIntradayData(date) {
+      const businessUnitId = document.getElementById('businessUnitSelect').value;
+      const planningGroupId = document.getElementById('planningGroup').value;
+      
+      if (!businessUnitId) {
+        return { date: date, data: null, error: 'No business unit selected' };
+      }
+      
+      try {
+        const response = await fetch(`https://api.${REGION}/api/v2/workforcemanagement/businessunits/${businessUnitId}/intraday`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + accessToken
+          },
+          body: JSON.stringify({
+            businessUnitDate: date,
+            categories: ["ForecastData", "PerformancePredictionData", "ScheduleData"],
+            intervalLengthMinutes: 15,
+            planningGroupIds: planningGroupId ? [planningGroupId] : null
+          })
+        });
+        
+        if (!response.ok) {
+          if (response.status === 404) {
+            return { date: date, data: null, error: 'No data available for this date' };
+          }
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        return { date: date, data: data };
+      } catch (error) {
+        console.error('Error fetching intraday data:', error);
+        return { date: date, data: null, error: error.message };
+      }
+    }
+
+    async function fetchDataForWeek(startDate) {
+      const dateObjs = getWeekDates(startDate);
+      const fetchPromises = dateObjs.map(dateObj => 
+        fetchIntradayData(dateObj.raw).then(result => ({ ...result, uk: dateObj.uk }))
+      );
+      
+      intradayState.weekData = await Promise.all(fetchPromises);
+      renderAllData();
+    }
+
+    // Rendering functions
+    function renderAllData() {
+      renderDailyTable();
+      
+      if (document.getElementById('intervalTab').classList.contains('active')) {
+        const intervalTitle = document.querySelector('#intervalTableContainer h3');
+        if (intervalTitle) {
+          const match = intervalTitle.textContent.match(/for (\d{2}\/\d{2}\/\d{4}) \((Voice|Message)\)/);
+          if (match) {
+            const day = intradayState.weekData.find(d => d.uk === match[1]);
+            if (day) {
+              render15MinTable(day, match[2]);
+            }
+          }
         }
       }
-    });
+    }
 
-    // Add more charts for other metrics...
-  }
-}
+    function renderDailyTable() {
+      const mediaTypeFilter = document.getElementById('mediaType').value;
+      let tableHTML = `
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Day</th>
+              <th>Planning Group</th>
+              <th>Media Type</th>
+              <th>Forecast Offered</th>
+              <th>Forecast AHT</th>
+              <th>Scheduled Time</th>
+              <th>Service Level</th>
+              <th>ASA</th>
+              <th>Occupancy</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
 
-function renderIntervalCharts(day, mediaType) {
-  const container = document.getElementById('intervalChartsContainer');
-  if (!container) return;
-  
-  container.innerHTML = `<h3>15-min Interval Metrics for ${day.uk} (${mediaType})</h3><div id="intervalCharts" class="chart-container"></div>`;
-  
-  if (!day.data?.result?.intradayDataGroupings) return;
-  
-  const grouping = day.data.result.intradayDataGroupings.find(g => g.mediaType === mediaType);
-  if (!grouping) return;
-  
-  const startDate = new Date(day.data.result.startDate);
-  const labels = [];
-  const offeredData = [];
-  const ahtData = [];
-  const scheduledData = [];
-  const slData = [];
-  const asaData = [];
-  const occupancyData = [];
-  
-  for (let i = 0; i < 96; i++) {
-    const intervalTime = new Date(startDate);
-    intervalTime.setMinutes(intervalTime.getMinutes() + i * 15);
-    labels.push(intervalTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}));
-    
-    const forecast = grouping.forecastDataPerInterval?.[i] || {};
-    const schedule = grouping.scheduleDataPerInterval?.[i] || {};
-    const performance = grouping.performancePredictionDataPerInterval?.[i] || {};
-    
-    offeredData.push(forecast.offered || 0);
-    ahtData.push(forecast.averageHandleTimeSeconds || 0);
-    scheduledData.push(schedule.onQueueTimeSeconds || 0);
-    slData.push(performance.serviceLevelPercent || 0);
-    asaData.push(performance.averageSpeedOfAnswerSeconds || 0);
-    occupancyData.push(performance.occupancyPercent || 0);
-  }
-  
-  if (typeof Chart !== 'undefined') {
-    // Create charts for interval data...
-  }
-}
+      const weeklyTotals = {
+        offered: 0,
+        aht: 0,
+        scheduledTime: 0,
+        serviceLevel: 0,
+        asa: 0,
+        occupancy: 0,
+        count: 0
+      };
 
-function renderContinuousCharts(summaryData) {
-  const container = document.getElementById('continuousChartsContainer');
-  if (!container) return;
-  
-  container.innerHTML = '<h3>Historical Trends</h3><div id="continuousCharts" class="chart-container"></div>';
-  
-  if (typeof Chart !== 'undefined') {
-    // Create charts for continuous data...
-  }
-}
-</script>
+      intradayState.weekData.forEach(day => {
+        if (!day.data || !day.data.result) {
+          const dayOfWeek = getDayOfWeek(day.uk);
+          tableHTML += `
+            <tr>
+              <td>${day.uk}</td>
+              <td>${dayOfWeek}</td>
+              <td colspan="9" class="no-data">${day.error || 'No data available'}</td>
+            </tr>
+          `;
+          return;
+        }
+
+        day.data.result.intradayDataGroupings.forEach(group => {
+          if (mediaTypeFilter && group.mediaType !== mediaTypeFilter) return;
+
+          const offered = group.forecastDataSummary?.offered || 0;
+          const aht = group.forecastDataSummary?.averageHandleTimeSeconds || 0;
+          const scheduledTime = group.scheduleDataSummary?.onQueueTimeSeconds || 0;
+          const serviceLevel = group.performancePredictionDataSummary?.serviceLevelPercent || 0;
+          const asa = group.performancePredictionDataSummary?.averageSpeedOfAnswerSeconds || 0;
+          const occupancy = group.performancePredictionDataSummary?.occupancyPercent || 0;
+
+          weeklyTotals.offered += offered;
+          weeklyTotals.aht += aht;
+          weeklyTotals.scheduledTime += scheduledTime;
+          weeklyTotals.serviceLevel += serviceLevel;
+          weeklyTotals.asa += asa;
+          weeklyTotals.occupancy += occupancy;
+          weeklyTotals.count++;
+
+          const dayOfWeek = getDayOfWeek(day.uk);
+          
+          tableHTML += `
+            <tr>
+              <td>${day.uk}</td>
+              <td>${dayOfWeek}</td>
+              <td>${intradayState.planningGroupName}</td>
+              <td>${group.mediaType}</td>
+              <td>${Math.round(offered)}</td>
+              <td>${formatTime(aht)}</td>
+              <td>${formatHours(scheduledTime)}</td>
+              <td>${formatNumber(serviceLevel)}%</td>
+              <td>${formatTime(asa)}</td>
+              <td>${formatNumber(occupancy)}%</td>
+              <td>
+                <button onclick='show15MinDetails(${JSON.stringify(day).replace(/'/g, "&apos;")}, "${group.mediaType}")'>
+                  View Details
+                </button>
+              </td>
+            </tr>
+          `;
+        });
+      });
+
+      // Calculate weekly averages
+      const weeklyAvgAHT = weeklyTotals.count > 0 ? weeklyTotals.aht / weeklyTotals.count : 0;
+      const weeklyAvgSL = weeklyTotals.count > 0 ? weeklyTotals.serviceLevel / weeklyTotals.count : 0;
+      const weeklyAvgASA = weeklyTotals.count > 0 ? weeklyTotals.asa / weeklyTotals.count : 0;
+      const weeklyAvgOccupancy = weeklyTotals.count > 0 ? weeklyTotals.occupancy / weeklyTotals.count : 0;
+
+      // Create weekly summary
+      const summaryHTML = `
+        <table class="intraday-summary-table">
+          <thead>
+            <tr>
+              <th>Summary</th>
+              <th>Forecast Offered</th>
+              <th>Avg AHT</th>
+              <th>Total Scheduled</th>
+              <th>Avg SL</th>
+              <th>Avg ASA</th>
+              <th>Avg Occupancy</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Weekly Totals/Averages</td>
+              <td>${Math.round(weeklyTotals.offered)}</td>
+              <td>${formatTime(weeklyAvgAHT)}</td>
+              <td>${formatHours(weeklyTotals.scheduledTime)}</td>
+              <td>${formatNumber(weeklyAvgSL)}%</td>
+              <td>${formatTime(weeklyAvgASA)}</td>
+              <td>${formatNumber(weeklyAvgOccupancy)}%</td>
+            </tr>
+          </tbody>
+        </table>
+      `;
+
+      document.getElementById('weeklySummary').innerHTML = summaryHTML;
+      document.getElementById('weeklySummary').className = '';
+      tableHTML += '</tbody></table>';
+      document.getElementById('dailyTableContainer').innerHTML = tableHTML;
+    }
+
+    function render15MinTable(day, mediaType) {
+      let tableHTML = `<h3>15-min Intervals for ${day.uk} (${mediaType})</h3>`;
+      tableHTML += `
+        <div style="overflow-x: auto;">
+          <table class="results-table">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Forecast Offered</th>
+                <th>Forecast AHT</th>
+                <th>Scheduled Time</th>
+                <th>Service Level</th>
+                <th>ASA</th>
+                <th>Occupancy</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+      
+      if (day.data?.result?.intradayDataGroupings) {
+        const grouping = day.data.result.intradayDataGroupings.find(g => g.mediaType === mediaType);
+        if (!grouping) {
+          tableHTML += '<tr><td colspan="7" class="no-data">No data for selected media type</td></tr>';
+        } else {
+          const startDate = new Date(day.data.result.startDate);
+          let hasDataStarted = false;
+          
+          for (let i = 0; i < 96; i++) {
+            const intervalTime = new Date(startDate);
+            intervalTime.setMinutes(intervalTime.getMinutes() + i * 15);
+            const timeStr = intervalTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            
+            const hasData = (grouping.forecastDataPerInterval?.[i] || 
+                            grouping.scheduleDataPerInterval?.[i] || 
+                            grouping.performancePredictionDataPerInterval?.[i]);
+            
+            if (!hasDataStarted && !hasData) continue;
+            hasDataStarted = true;
+            
+            const forecast = grouping.forecastDataPerInterval?.[i] || {};
+            const schedule = grouping.scheduleDataPerInterval?.[i] || {};
+            const performance = grouping.performancePredictionDataPerInterval?.[i] || {};
+            
+            tableHTML += `
+              <tr>
+                <td>${timeStr}</td>
+                <td>${Math.round(forecast.offered || 0)}</td>
+                <td>${formatTime(forecast.averageHandleTimeSeconds || 0)}</td>
+                <td>${formatHours(schedule.onQueueTimeSeconds || 0)}</td>
+                <td>${performance.serviceLevelPercent ? formatNumber(performance.serviceLevelPercent) + '%' : '0%'}</td>
+                <td>${formatTime(performance.averageSpeedOfAnswerSeconds || 0)}</td>
+                <td>${performance.occupancyPercent ? formatNumber(performance.occupancyPercent) + '%' : '0%'}</td>
+              </tr>
+            `;
+          }
+        }
+      } else {
+        tableHTML += '<tr><td colspan="7" class="no-data">No data available</td></tr>';
+      }
+      
+      tableHTML += '</tbody></table></div>';
+      document.getElementById('intervalTableContainer').innerHTML = tableHTML;
+      document.getElementById('intervalTableContainer').className = '';
+    }
+
+    function show15MinDetails(day, mediaType) {
+      setActiveTab('interval');
+      render15MinTable(day, mediaType);
+    }
+  </script>
 </body>
 </html>
