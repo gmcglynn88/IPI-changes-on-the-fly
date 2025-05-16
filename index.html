@@ -4,137 +4,108 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Change Maker by IPI</title>
-  <!-- Your CSS styles here -->
+  <style>
+    body {
+      font-family: 'Aptos', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .loading {
+      text-align: center;
+      margin-top: 50px;
+    }
+  </style>
 </head>
 <body>
-  <!-- Your HTML structure here -->
+  <div id="app">
+    <div class="loading">Loading application...</div>
+  </div>
 
   <script>
-    const repoMap = {
-      wfmManagement: 'https://raw.githubusercontent.com/gmcglynn88/MU-Search---Changemaker/main/index.html',
-      externalWork: 'https://raw.githubusercontent.com/gmcglynn88/External-Work-Creation---Changemaker/main/index.html',
-      activityCode: 'https://raw.githubusercontent.com/gmcglynn88/Activity-code-management---changemaker/main/index.html',
-      bulkSkills: 'https://raw.githubusercontent.com/gmcglynn88/Bulk-Skills-Update---Changemaker/main/index.html',
-      bulkQueues: 'https://raw.githubusercontent.com/gmcglynn88/Bulk-Queue-Updater---Changemaker/main/index.html',
-      workTeamManagement: 'https://raw.githubusercontent.com/gmcglynn88/Workteam-Management---Chnagemaker/main/index.html',
-      intradayPlan: 'https://raw.githubusercontent.com/gmcglynn88/Intraday-Plan---Changemaker/main/index.html'
+    // 1. Configuration - Replace with your actual values
+    const CONFIG = {
+      region: 'mypurecloud.ie',
+      clientId: '4652c8b5-9117-43c6-8e54-77eeb38aebb8',
+      redirectUri: window.location.origin + window.location.pathname
     };
-    
-    let initialized = {};
-    let accessToken = null;
-    const REGION = 'mypurecloud.ie';
-    const CLIENT_ID = '4652c8b5-9117-43c6-8e54-77eeb38aebb8';
-    const REDIRECT_URI = window.location.href.split('#')[0]; // Original approach
 
-    // 1. Check for token in URL hash first
-    function checkAuth() {
+    // 2. Authentication Flow
+    function handleAuthentication() {
+      console.log("Starting authentication...");
+      
+      // Check URL hash for token first
       const hash = window.location.hash.substring(1);
       const params = new URLSearchParams(hash);
-      accessToken = params.get('access_token');
+      const token = params.get('access_token');
 
-      if (accessToken) {
-        // Store token and clean URL - original working approach
-        sessionStorage.setItem('purecloud_token', accessToken);
-        window.history.replaceState({}, document.title, window.location.pathname);
-        initializeApp();
+      if (token) {
+        console.log("Token found in URL");
+        // Store token and clean URL
+        sessionStorage.setItem('pc_token', token);
+        window.history.replaceState({}, document.title, CONFIG.redirectUri);
+        initializeApp(token);
       } else {
-        // Fall back to session storage
-        accessToken = sessionStorage.getItem('purecloud_token');
-        if (accessToken) {
-          initializeApp();
+        // Check session storage
+        const storedToken = sessionStorage.getItem('pc_token');
+        if (storedToken) {
+          console.log("Using stored token");
+          initializeApp(storedToken);
         } else {
-          // Original auth flow that worked before
-          window.location.href = `https://login.${REGION}/oauth/authorize?client_id=${CLIENT_ID}&response_type=token&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
+          console.log("No token found - redirecting to login");
+          redirectToLogin();
         }
       }
     }
 
-    // 2. Initialize application after auth
-    function initializeApp() {
-      setupTabs();
-      openTab({preventDefault: () => {}}, 'wfmManagement');
-    }
-
-    // 3. Tab management (original working version)
-    function setupTabs() {
-      document.querySelectorAll('.tablink').forEach(btn => {
-        btn.addEventListener('click', function(event) {
-          const tabName = this.getAttribute('onclick').match(/'([^']+)'/)[1];
-          openTab(event, tabName);
-        });
-      });
-    }
-
-    function openTab(evt, tabName) {
-      evt.preventDefault();
-      document.querySelectorAll('.tabcontent').forEach(tab => {
-        tab.classList.remove('active');
-      });
-      document.querySelectorAll('.tablink').forEach(btn => {
-        btn.classList.remove('active');
-      });
-      document.getElementById(tabName).classList.add('active');
-      evt.currentTarget.classList.add('active');
+    function redirectToLogin() {
+      const authUrl = `https://login.${CONFIG.region}/oauth/authorize?` +
+        `client_id=${CONFIG.clientId}&` +
+        `response_type=token&` +
+        `redirect_uri=${encodeURIComponent(CONFIG.redirectUri)}`;
       
-      if (!initialized[tabName]) {
-        loadRepo(tabName);
-      }
+      window.location.href = authUrl;
     }
 
-    // 4. Load repository content (original approach)
-    async function loadRepo(name) {
-      const tabContent = document.querySelector(`#${name} .app-window`);
-      
+    // 3. Basic App Initialization
+    function initializeApp(token) {
+      console.log("Initializing app with token");
+      document.getElementById('app').innerHTML = `
+        <h1>Change Maker by IPI</h1>
+        <p>Successfully authenticated!</p>
+        <button onclick="loadModule('externalWork')">Load External Work Module</button>
+      `;
+    }
+
+    // 4. Module Loading (Simplified)
+    async function loadModule(moduleName) {
+      console.log(`Loading module: ${moduleName}`);
       try {
-        tabContent.innerHTML = `
-          <div class="loading-state">
-            <div class="loading-spinner"></div>
-            <p class="loading-text">Loading ${name.replace(/([A-Z])/g, ' $1').trim()}...</p>
-          </div>
-        `;
+        const response = await fetch(`https://raw.githubusercontent.com/gmcglynn88/${moduleName}-Changemaker/main/index.html`);
+        const content = await response.text();
+        document.getElementById('app').innerHTML = content;
         
-        const res = await fetch(repoMap[name]);
-        if (!res.ok) throw new Error(`Failed to load ${name}`);
-        
-        let content = await res.text();
-        
-        // Original token injection that worked before
-        content = content.replace(/let token = null;/, `let token = '${accessToken}';`);
-        content = content.replace(/const REGION = '[^']*';/, `const REGION = '${REGION}';`);
-        
-        const container = document.createElement('div');
-        container.innerHTML = content;
-        const scripts = container.querySelectorAll('script');
-        scripts.forEach(script => script.remove());
-        
-        tabContent.innerHTML = container.innerHTML;
-        
-        // Execute scripts as in original working version
-        scripts.forEach(oldScript => {
-          const newScript = document.createElement('script');
-          if (oldScript.src) {
-            newScript.src = oldScript.src;
-          } else {
-            newScript.textContent = oldScript.textContent
-              .replace(/window\.location\.href/g, 'window.top.location.href');
+        // Inject token into loaded module
+        const scripts = document.querySelectorAll('script');
+        scripts.forEach(script => {
+          if (script.textContent.includes('let token = null')) {
+            script.textContent = script.textContent.replace('let token = null', `let token = '${sessionStorage.getItem('pc_token')}'`);
           }
-          document.body.appendChild(newScript);
         });
-        
-        initialized[name] = true;
-      } catch (err) {
-        tabContent.innerHTML = `
-          <div class="error-message">
-            <h3>Error loading module</h3>
-            <p>${err.message}</p>
-            <button onclick="loadRepo('${name}')">Retry</button>
+      } catch (error) {
+        console.error("Failed to load module:", error);
+        document.getElementById('app').innerHTML = `
+          <div style="color: red;">
+            <h2>Error Loading Module</h2>
+            <p>${error.message}</p>
+            <button onclick="initializeApp()">Return to App</button>
           </div>
         `;
       }
     }
 
     // Start the application
-    document.addEventListener('DOMContentLoaded', checkAuth);
+    console.log("Starting application...");
+    document.addEventListener('DOMContentLoaded', handleAuthentication);
   </script>
 </body>
 </html>
