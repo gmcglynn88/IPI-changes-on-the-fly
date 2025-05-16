@@ -6,12 +6,241 @@
   <title>Change Maker by IPI</title>
   <link href="https://fonts.googleapis.com/css2?family=Aptos:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    /* [Previous CSS styles remain exactly the same] */
+    :root {
+      --primary-color: #63AB8F;
+      --primary-dark: #549e7a;
+      --header-bg: #63AB8F;
+      --text-dark: #2c3e50;
+      --text-medium: #555;
+      --text-light: #777;
+      --border-color: #ddd;
+      --light-bg: #f5f7fa;
+      --card-bg: #f9f9f9;
+      --error-color: #dc3545;
+      --success-color: #28a745;
+      --info-color: #17a2b8;
+      --warning-color: #ffc107;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Aptos', Arial, sans-serif;
+      background-color: var(--light-bg);
+      color: var(--text-dark);
+      line-height: 1.6;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    
+    header {
+      background-color: var(--header-bg);
+      color: white;
+      padding: 15px 30px;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 0 30px;
+    }
+    
+    .logo img {
+      height: 40px;
+      margin-left: 20px;
+    }
+    
+    .app-container {
+      display: flex;
+      flex: 1;
+      margin-top: 70px;
+      max-width: 1400px;
+      width: 100%;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .sidebar {
+      width: 250px;
+      background-color: white;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+      padding: 20px 0;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      height: calc(100vh - 70px);
+      overflow-y: auto;
+      left: 0;
+    }
+    
+    .sidebar-nav {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+    }
+    
+    .sidebar button {
+      background-color: transparent;
+      border: none;
+      padding: 12px 25px;
+      text-align: left;
+      cursor: pointer;
+      font-size: 15px;
+      color: var(--text-medium);
+      width: 100%;
+      transition: all 0.3s;
+      border-left: 3px solid transparent;
+      display: flex;
+      justify-content: flex-end;
+      white-space: nowrap;
+    }
+    
+    .sidebar button:hover {
+      background-color: rgba(99, 171, 143, 0.1);
+      color: var(--text-dark);
+    }
+    
+    .sidebar button.active {
+      background-color: rgba(99, 171, 143, 0.1);
+      color: var(--primary-color);
+      border-left: 3px solid var(--primary-color);
+      font-weight: 500;
+    }
+    
+    .sidebar button i {
+      margin-right: 10px;
+      width: 20px;
+      text-align: center;
+      font-style: normal;
+      flex-shrink: 0;
+    }
+    
+    .content-area {
+      flex: 1;
+      padding: 30px;
+      margin-left: 250px;
+      width: calc(100% - 250px);
+    }
+    
+    .tab-content-container {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    
+    .tabcontent {
+      display: none;
+      width: 100%;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .tabcontent.active {
+      display: block;
+    }
+    
+    .app-window {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+      padding: 30px;
+      width: 100%;
+      min-height: calc(100vh - 112px);
+    }
+
+    /* Loading State */
+    .loading-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 0;
+    }
+
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(99, 171, 143, 0.1);
+      border-top-color: var(--primary-color);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 16px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      color: var(--text-light);
+      font-size: 14px;
+    }
+
+    .error-message {
+      padding: 20px;
+      background-color: #f8d7da;
+      color: #721c24;
+      border-radius: 4px;
+      margin: 20px 0;
+    }
+
+    .error-message button {
+      margin-top: 10px;
+      padding: 8px 16px;
+    }
   </style>
 </head>
 <body>
-  <!-- [Previous HTML structure remains exactly the same] -->
-
+  <header>
+    <div class="header-content">
+      <h1>Change Maker by IPI</h1>
+      <div class="logo">
+        <img src="https://raw.githubusercontent.com/gmcglynn88/TimeoffApp/main/IPI_Primary%20Identity_Corporate_REVERSED_ECC.png" alt="IPI Logo">
+      </div>
+    </div>
+  </header>
+  <div class="app-container">
+    <div class="sidebar">
+      <div class="sidebar-nav">
+        <button class="tablink active" onclick="openTab(event,'wfmManagement')"><i>📊</i> WFM Management Unit Search</button>
+        <button class="tablink" onclick="openTab(event,'externalWork')"><i>✉️</i> External Work Creation</button>
+        <button class="tablink" onclick="openTab(event,'activityCode')"><i>⚙️</i> Activity Code Management</button>
+        <button class="tablink" onclick="openTab(event,'bulkSkills')"><i>🔄</i> Bulk Skill Changes</button>
+        <button class="tablink" onclick="openTab(event,'bulkQueues')"><i>🔄</i> Bulk Queue Changes</button>
+        <button class="tablink" onclick="openTab(event,'workTeamManagement')"><i>👥</i> Work Team Management</button>
+        <button class="tablink" onclick="openTab(event,'intradayPlan')"><i>📅</i> Intraday Weekly Plan</button>
+      </div>
+    </div>
+    <div class="content-area">
+      <div class="tab-content-container">
+        <div id="wfmManagement" class="tabcontent active"><div class="app-window"></div></div>
+        <div id="externalWork" class="tabcontent"><div class="app-window"></div></div>
+        <div id="activityCode" class="tabcontent"><div class="app-window"></div></div>
+        <div id="bulkSkills" class="tabcontent"><div class="app-window"></div></div>
+        <div id="bulkQueues" class="tabcontent"><div class="app-window"></div></div>
+        <div id="workTeamManagement" class="tabcontent"><div class="app-window"></div></div>
+        <div id="intradayPlan" class="tabcontent"><div class="app-window"></div></div>
+      </div>
+    </div>
+  </div>
   <script>
     const repoMap = {
       wfmManagement: 'https://raw.githubusercontent.com/gmcglynn88/MU-Search---Changemaker/main/index.html',
@@ -30,7 +259,7 @@
     const REDIRECT_URI = window.location.href.split('?')[0];
 
     // Initialize auth when page loads
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', function() {
       const hash = window.location.hash.substring(1);
       const params = new URLSearchParams(hash);
       accessToken = params.get('access_token');
@@ -48,7 +277,7 @@
         }
       }
       
-      // Set up tab navigation as before
+      // Set up tab navigation
       setupTabs();
     });
 
@@ -58,15 +287,47 @@
           headers: { "Authorization": `Bearer ${accessToken}` }
         });
         if (!response.ok) throw new Error("Token invalid");
-        loadRepo('wfmManagement');
+        
+        // Initialize the first tab
+        openTab({preventDefault: () => {}}, 'wfmManagement');
       } catch (error) {
+        console.error("Token validation failed:", error);
         sessionStorage.removeItem('purecloud_token');
         window.location.href = `https://login.${REGION}/oauth/authorize?client_id=${CLIENT_ID}&response_type=token&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
       }
     }
 
     function setupTabs() {
-      // [Previous tab setup code remains the same]
+      // Add click handlers to all tab buttons
+      document.querySelectorAll('.tablink').forEach(btn => {
+        btn.addEventListener('click', function(event) {
+          const tabName = this.getAttribute('onclick').match(/'([^']+)'/)[1];
+          openTab(event, tabName);
+        });
+      });
+    }
+
+    function openTab(evt, tabName) {
+      evt.preventDefault();
+      
+      // Hide all tab content
+      document.querySelectorAll('.tabcontent').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      
+      // Remove active class from all tab buttons
+      document.querySelectorAll('.tablink').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      // Show the current tab and mark button as active
+      document.getElementById(tabName).classList.add('active');
+      evt.currentTarget.classList.add('active');
+      
+      // Load the content if not already initialized
+      if (!initialized[tabName]) {
+        loadRepo(tabName);
+      }
     }
 
     async function loadRepo(name) {
@@ -82,48 +343,46 @@
           </div>
         `;
         
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`Failed to fetch ${name} module (HTTP ${res.status})`);
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`Failed to load ${name} (HTTP ${response.status})`);
         
-        let content = await res.text();
+        let htmlContent = await response.text();
         
-        // Inject the access token into the module's code
-        content = content.replace(/let token = null;/, `let token = '${accessToken}';`);
-        content = content.replace(/const REGION = '[^']*';/, `const REGION = '${REGION}';`);
+        // Inject the access token and region into the module's code
+        htmlContent = htmlContent.replace(/let token = null;/, `let token = '${accessToken}';`);
+        htmlContent = htmlContent.replace(/const REGION = '[^']*';/, `const REGION = '${REGION}';`);
         
-        // Create a secure container for the module
+        // Create a container for the HTML
         const container = document.createElement('div');
-        container.innerHTML = content;
+        container.innerHTML = htmlContent;
         
-        // Remove any existing scripts (we'll handle them specially)
+        // Remove any scripts (we'll handle them separately)
         const scripts = container.querySelectorAll('script');
         scripts.forEach(script => script.remove());
         
-        // Insert the sanitized HTML
+        // Insert the HTML content
         tabContent.innerHTML = container.innerHTML;
         
-        // Now handle the scripts
+        // Process the scripts
         scripts.forEach(oldScript => {
           if (oldScript.src) {
-            // Don't load external scripts - we'll handle the functionality in the main app
-            console.log('Skipping external script:', oldScript.src);
+            // For external scripts, we'll need to handle them specially
+            console.warn('External script skipped:', oldScript.src);
           } else {
-            // Rewrite the script content to work in our context
-            const scriptContent = oldScript.textContent
-              .replace(/document\.addEventListener\('DOMContentLoaded'/g, 'function initModule')
-              .replace(/window\.location\.href/g, 'parent.window.location.href');
-            
+            // For inline scripts, we'll execute them in a controlled way
             try {
-              // Create a function with the module's code
-              const moduleInit = new Function('accessToken', 'REGION', `
+              const scriptContent = oldScript.textContent
+                .replace(/document\.addEventListener\('DOMContentLoaded'/g, 'function initModule')
+                .replace(/window\.location\.href/g, 'window.location.href');
+              
+              const moduleInit = new Function(`
                 ${scriptContent}
-                return initModule ? initModule() : null;
+                if (typeof initModule === 'function') initModule();
               `);
               
-              // Execute the module initialization
-              moduleInit(accessToken, REGION);
+              moduleInit();
             } catch (e) {
-              console.error('Error executing module script:', e);
+              console.error(`Error executing script for ${name}:`, e);
             }
           }
         });
@@ -131,6 +390,7 @@
         initialized[name] = true;
         
       } catch (err) {
+        console.error(`Error loading ${name}:`, err);
         tabContent.innerHTML = `
           <div class="error-message">
             <h3>Error loading module</h3>
@@ -138,12 +398,11 @@
             <button onclick="loadRepo('${name}')">Retry</button>
           </div>
         `;
-        console.error(`Error loading ${name}:`, err);
       }
     }
 
-    // Shared API functions that modules can use
-    async function fetchAllPages(url) {
+    // Shared API functions
+    window.fetchAllPages = async function(url) {
       let allItems = [];
       let pageNumber = 1;
       let hasMorePages = true;
@@ -154,7 +413,7 @@
         });
         
         if (!response.ok) {
-          throw new Error(`Error fetching data: ${response.status} ${response.statusText}`);
+          throw new Error(`API request failed: ${response.status} ${response.statusText}`);
         }
         
         const data = await response.json();
@@ -172,16 +431,16 @@
       }
       
       return allItems;
-    }
+    };
 
-    function showStatusMessage(elementId, message, type) {
+    window.showStatusMessage = function(elementId, message, type) {
       const element = document.getElementById(elementId);
       if (element) {
         element.innerHTML = message;
         element.className = `status-message ${type}`;
         element.style.display = 'block';
       }
-    }
+    };
   </script>
 </body>
 </html>
