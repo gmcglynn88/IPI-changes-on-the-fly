@@ -370,15 +370,32 @@
     }
     
     .results-table tr:hover {
-      background-color: rgba(99, 171, 143, 0.05);
-    }
+.results-table tr:hover {
+  background-color: rgba(99, 171, 143, 0.05);
+}
 
-    /* Intraday Plan specific styles */
-    .intraday-tabs {
-      display: flex;
-      margin-bottom: 20px;
-      border-bottom: 1px solid var(--border-color);
-    }
+/* Add these new styles here */
+.skill-list {
+  vertical-align: top;
+}
+
+.skill-list div {
+  margin: 3px 0;
+  padding: 2px 0;
+  line-height: 1.4;
+}
+
+.error-text {
+  color: var(--error-color);
+  font-style: italic;
+}
+
+/* Intraday Plan specific styles */
+.intraday-tabs {
+  display: flex;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border-color);
+}
     
     .intraday-tab {
       padding: 10px 20px;
@@ -1578,30 +1595,39 @@
       }
     }
     
-    function populateBulkSkillsTable(agents) {
-      const tableBody = document.querySelector('#agentsTableForSkill tbody');
-      tableBody.innerHTML = "";
-      agents.forEach(agent => {
-        const row = document.createElement("tr");
-        let skillList = 'No skills found';
-        if (agent.error) { skillList = `Error: ${agent.error}`; }
-        else if (agent.skills && agent.skills.length > 0) { skillList = agent.skills.map(skill => skill.name).join(', '); }
-        row.innerHTML = `
-          <td><input type="checkbox" data-user-id="${agent.id}"></td>
-          <td>${agent.name || 'N/A'}</td>
-          <td>${skillList}</td>
-          <td>
-            <select data-user-id="${agent.id}">
-              <option value="">Select</option>
-              ${availableSkills.map(skill => `<option value="${skill.id}">${skill.name}</option>`).join('')}
-            </select>
-          </td>
-          <td><input type="number" min="0" max="5" step="0.1" data-user-id="${agent.id}" placeholder="Proficiency"></td>
-          <td><input type="checkbox" class="delete-skill-checkbox" data-user-id="${agent.id}"></td>
-        `;
-        tableBody.appendChild(row);
-      });
+function populateBulkSkillsTable(agents) {
+  const tableBody = document.querySelector('#agentsTableForSkill tbody');
+  tableBody.innerHTML = "";
+  agents.forEach(agent => {
+    const row = document.createElement("tr");
+    
+    // Format skills as separate lines
+    let skillList = 'No skills found';
+    if (agent.error) { 
+      skillList = `<div class="error-text">Error: ${agent.error}</div>`; 
     }
+    else if (agent.skills && agent.skills.length > 0) { 
+      skillList = agent.skills.map(skill => 
+        `<div>${skill.name} (${skill.proficiency || 0})</div>`
+      ).join(''); 
+    }
+    
+    row.innerHTML = `
+      <td><input type="checkbox" data-user-id="${agent.id}"></td>
+      <td>${agent.name || 'N/A'}</td>
+      <td class="skill-list">${skillList}</td>
+      <td>
+        <select data-user-id="${agent.id}">
+          <option value="">Select</option>
+          ${availableSkills.map(skill => `<option value="${skill.id}">${skill.name}</option>`).join('')}
+        </select>
+      </td>
+      <td><input type="number" min="0" max="5" step="0.1" data-user-id="${agent.id}" placeholder="Proficiency"></td>
+      <td><input type="checkbox" class="delete-skill-checkbox" data-user-id="${agent.id}"></td>
+    `;
+    tableBody.appendChild(row);
+  });
+}
     
     async function updateSkills() {
       showStatusMessage('skill-results', 'Updating skills...', 'info');
