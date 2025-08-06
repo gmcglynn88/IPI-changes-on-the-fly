@@ -2795,10 +2795,10 @@
       });
     
       // Calculate weekly averages
-      const weeklyAvgAHT = weeklyTotals.count > 0 ? weeklyTotals.aht / weeklyTotals.count : 0;
-      const weeklyAvgSL = weeklyTotals.count > 0 ? weeklyTotals.serviceLevel / weeklyTotals.count : 0;
-      const weeklyAvgASA = weeklyTotals.count > 0 ? weeklyTotals.asa / weeklyTotals.count : 0;
-      const weeklyAvgOccupancy = weeklyTotals.count > 0 ? weeklyTotals.occupancy / weeklyTotals.count : 0;
+      const weeklyAHT = weeklyTotals.count > 0 ? weeklyTotals.aht / weeklyTotals.count : 0;
+      const weeklySL = weeklyTotals.count > 0 ? weeklyTotals.serviceLevel / weeklyTotals.count : 0;
+      const weeklyASA = weeklyTotals.count > 0 ? weeklyTotals.asa / weeklyTotals.count : 0;
+      const weeklyOccupancy = weeklyTotals.count > 0 ? weeklyTotals.occupancy / weeklyTotals.count : 0;
     
       // Create weekly summary
       const summaryHTML = `
