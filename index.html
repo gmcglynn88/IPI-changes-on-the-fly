@@ -2795,10 +2795,10 @@
       });
     
       // Calculate weekly averages
-      const weeklyAHT = weeklyTotals.count > 0 ? weeklyTotals.aht / weeklyTotals.count : 0;
-      const weeklySL = weeklyTotals.count > 0 ? weeklyTotals.serviceLevel / weeklyTotals.count : 0;
-      const weeklyASA = weeklyTotals.count > 0 ? weeklyTotals.asa / weeklyTotals.count : 0;
-      const weeklyOccupancy = weeklyTotals.count > 0 ? weeklyTotals.occupancy / weeklyTotals.count : 0;
+      const weeklyAvgAHT        = weeklyTotals.count ? (weeklyTotals.aht / weeklyTotals.count) : 0;
+      const weeklyAvgSL         = weeklyTotals.count ? (weeklyTotals.serviceLevel / weeklyTotals.count) : 0;
+      const weeklyAvgASA        = weeklyTotals.count ? (weeklyTotals.asa / weeklyTotals.count) : 0;
+      const weeklyAvgOccupancy  = weeklyTotals.count ? (weeklyTotals.occupancy / weeklyTotals.count) : 0;
     
       // Create weekly summary
       const summaryHTML = `
@@ -2807,22 +2807,22 @@
             <tr>
               <th>Summary</th>
               <th>Forecast<br>Offered</th>
-              <th>AHT</th>
+              <th>Avg<br>AHT</th>
               <th>Total<br>Scheduled</th>
-              <th>SL</th>
-              <th>ASA</th>
-              <th>Occupancy</th>
+              <th>Avg<br>SL</th>
+              <th>Avg<br>ASA</th>
+              <th>Avg<br>Occupancy</th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td>Weekly Totals/Averages</td>
               <td>${Math.round(weeklyTotals.offered)}</td>
-              <td>${formatTime(weeklyAAHT)}</td>
+              <td>${formatTime(weeklyAvgAHT)}</td>
               <td>${formatHours(weeklyTotals.scheduledTime)}</td>
-              <td>${formatNumber(weeklySL)}%</td>
-              <td>${formatTime(weeklyASA)}</td>
-              <td>${formatNumber(weeklyOccupancy)}%</td>
+              <td>${formatNumber(weeklyAvgSL)}%</td>
+              <td>${formatTime(weeklyAvgASA)}</td>
+              <td>${formatNumber(weeklyAvgOccupancy)}%</td>
             </tr>
           </tbody>
         </table>
