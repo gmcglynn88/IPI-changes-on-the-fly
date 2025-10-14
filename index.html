@@ -108,30 +108,6 @@
       font-size:14px;
     }
 
-    /* Loading states */
-    .loading{opacity:0.5; pointer-events:none;}
-    .auth-overlay{
-      position:fixed; top:0; left:0; right:0; bottom:0;
-      background:rgba(248,249,250,0.95); z-index:100;
-      display:flex; flex-direction:column; align-items:center; justify-content:center;
-      gap:20px;
-    }
-    .auth-form{
-      background:white; padding:30px; border-radius:12px;
-      box-shadow:0 10px 30px rgba(0,0,0,0.1); border:1px solid var(--border);
-      max-width:400px; width:90%;
-    }
-    .auth-input{
-      width:100%; padding:12px; border:1px solid var(--border);
-      border-radius:8px; margin-bottom:15px; font-size:15px;
-    }
-    .auth-btn{
-      width:100%; padding:12px; background:var(--primary);
-      color:white; border:none; border-radius:8px; font-size:15px;
-      font-weight:600; cursor:pointer;
-    }
-    .auth-btn:hover{background:var(--primary-dark)}
-
     /* Nav groups */
     .nav-group {
       margin:16px 0 8px 0; padding:0 12px;
@@ -163,21 +139,6 @@
     </div>
   </header>
 
-  <!-- Auth Overlay -->
-  <div id="authOverlay" class="auth-overlay" style="display:none;">
-    <div class="auth-form">
-      <h2 style="margin-top:0; text-align:center;">IPI Admin Hub Authentication</h2>
-      <p style="text-align:center; color:var(--muted); margin-bottom:20px;">
-        Enter your credentials to access all admin tools
-      </p>
-      <input type="text" id="authInput" class="auth-input" placeholder="Enter access code" autocomplete="off">
-      <button id="authSubmit" class="auth-btn">Authenticate</button>
-      <div id="authError" style="color:#dc3545; text-align:center; margin-top:10px; display:none;">
-        Invalid access code
-      </div>
-    </div>
-  </div>
-
   <div class="wrap">
     <aside class="sidebar">
       <nav id="nav" class="nav"></nav>
@@ -204,15 +165,6 @@
   </div>
 
   <script>
-    // ---- Authentication Configuration ----
-    const AUTH_CONFIG = {
-      clientId: 'fe305808-b368-4547-8af9-325d28d552bb',
-      authUri: 'https://gmcglynn88.github.io/IPI-changes-on-the-fly/',
-      validCode: 'fe305808-b368-4547-8af9-325d28d552bb',
-      storageKey: 'ipi-adminhub-auth',
-      tokenKey: 'ipi-adminhub-token'
-    };
-
     // ---- App registry (edit here to add/remove apps) ----
     const APPS = [
       { 
@@ -290,98 +242,6 @@
     const iconEl = document.getElementById('currentIcon');
     const fallback = document.getElementById('fallback');
     const urlHint = document.getElementById('urlHint');
-    const authOverlay = document.getElementById('authOverlay');
-    const authInput = document.getElementById('authInput');
-    const authSubmit = document.getElementById('authSubmit');
-    const authError = document.getElementById('authError');
-
-    // ---- Authentication System ----
-    function checkAuthentication() {
-      const authData = localStorage.getItem(AUTH_CONFIG.storageKey);
-      if (authData) {
-        try {
-          const { code, timestamp } = JSON.parse(authData);
-          // Check if auth is still valid (24 hours)
-          const isExpired = Date.now() - timestamp > 24 * 60 * 60 * 1000;
-          if (code === AUTH_CONFIG.validCode && !isExpired) {
-            // Generate and store authentication token for apps
-            generateAuthToken();
-            return true;
-          }
-        } catch (e) {
-          console.error('Auth data parse error:', e);
-        }
-      }
-      return false;
-    }
-
-    function generateAuthToken() {
-      // Create a secure token that can be verified by all apps
-      const tokenData = {
-        clientId: AUTH_CONFIG.clientId,
-        timestamp: Date.now(),
-        expires: Date.now() + (24 * 60 * 60 * 1000), // 24 hours
-        signature: btoa(`${AUTH_CONFIG.clientId}:${Date.now()}:${AUTH_CONFIG.validCode}`).slice(0, 32)
-      };
-      const token = btoa(JSON.stringify(tokenData));
-      localStorage.setItem(AUTH_CONFIG.tokenKey, token);
-      return token;
-    }
-
-    function getAuthToken() {
-      return localStorage.getItem(AUTH_CONFIG.tokenKey);
-    }
-
-    function validateAuthToken(token) {
-      try {
-        const tokenData = JSON.parse(atob(token));
-        return tokenData && 
-               tokenData.clientId === AUTH_CONFIG.clientId &&
-               tokenData.expires > Date.now();
-      } catch (e) {
-        return false;
-      }
-    }
-
-    function showAuthOverlay() {
-      authOverlay.style.display = 'flex';
-      authInput.focus();
-    }
-
-    function hideAuthOverlay() {
-      authOverlay.style.display = 'none';
-      authInput.value = '';
-      authError.style.display = 'none';
-    }
-
-    function authenticate(code) {
-      if (code === AUTH_CONFIG.validCode) {
-        const authData = {
-          code: code,
-          timestamp: Date.now()
-        };
-        localStorage.setItem(AUTH_CONFIG.storageKey, JSON.stringify(authData));
-        generateAuthToken();
-        hideAuthOverlay();
-        initializeHub();
-        return true;
-      } else {
-        authError.style.display = 'block';
-        return false;
-      }
-    }
-
-    // ---- Build Enhanced URLs with Authentication ----
-    function buildAuthenticatedUrl(baseUrl) {
-      const token = getAuthToken();
-      if (!token) return baseUrl;
-
-      // Add authentication parameters to the URL
-      const separator = baseUrl.includes('?') ? '&' : '?';
-      const authParams = `authToken=${encodeURIComponent(token)}&clientId=${encodeURIComponent(AUTH_CONFIG.clientId)}&source=ipi-adminhub`;
-      
-      return `${baseUrl}${separator}${authParams}`;
-    }
 
     // ---- Build sidebar with categories ----
     function buildNavigation() {
@@ -442,22 +302,14 @@
       return APPS[0].id;
     }
 
-    // ---- App selection with Centralized Auth ----
+    // ---- App selection ----
     function selectApp(id){
-      if (!checkAuthentication()) {
-        showAuthOverlay();
-        return;
-      }
-
       const app = byId(id) || APPS[0];
       setActive(app.id);
       setHash(app.id);
       titleEl.textContent = app.name;
       iconEl.textContent = app.icon;
-      
-      // Build authenticated URL
-      const authenticatedUrl = buildAuthenticatedUrl(app.url);
-      urlHint.textContent = authenticatedUrl;
+      urlHint.textContent = app.url;
       fallback.style.display = 'none';
 
       // Show loading state
@@ -505,15 +357,15 @@
         fallback.style.display = 'block';
       };
 
-      // Load the authenticated URL
+      // Load the app
       setTimeout(() => {
-        frame.src = authenticatedUrl;
+        frame.src = app.url;
       }, 100);
 
-      // Update button actions to use authenticated URLs
-      openNew.onclick = () => window.open(authenticatedUrl, '_blank', 'noopener');
+      // Update button actions
+      openNew.onclick = () => window.open(app.url, '_blank', 'noopener');
       reloadB.onclick = () => { 
-        frame.contentWindow?.location?.reload?.() || (frame.src = authenticatedUrl); 
+        frame.contentWindow?.location?.reload?.() || (frame.src = app.url); 
       };
 
       // Preload adjacent apps for better performance
@@ -528,10 +380,9 @@
       );
       
       toPreload.forEach(idx => {
-        const authenticatedUrl = buildAuthenticatedUrl(APPS[idx].url);
         const preloadLink = document.createElement('link');
         preloadLink.rel = 'prefetch';
-        preloadLink.href = authenticatedUrl;
+        preloadLink.href = APPS[idx].url;
         preloadLink.crossOrigin = 'anonymous';
         document.head.appendChild(preloadLink);
       });
@@ -540,7 +391,7 @@
     // ---- Keyboard Navigation ----
     function setupKeyboardNavigation() {
       document.addEventListener('keydown', (e) => {
-        if (e.altKey && authOverlay.style.display === 'none') {
+        if (e.altKey) {
           const activeBtn = nav.querySelector('.nav-btn.active');
           if (!activeBtn) return;
           
@@ -558,30 +409,10 @@
       });
     }
 
-    // ---- Logout functionality ----
-    function setupLogout() {
-      // Add logout button to header
-      const logoutBtn = document.createElement('button');
-      logoutBtn.className = 'btn secondary';
-      logoutBtn.textContent = 'Logout';
-      logoutBtn.style.marginLeft = '10px';
-      logoutBtn.style.fontSize = '12px';
-      logoutBtn.style.padding = '6px 10px';
-      
-      logoutBtn.addEventListener('click', () => {
-        localStorage.removeItem(AUTH_CONFIG.storageKey);
-        localStorage.removeItem(AUTH_CONFIG.tokenKey);
-        location.reload();
-      });
-      
-      document.querySelector('.brand').prepend(logoutBtn);
-    }
-
     // ---- Initialize Hub ----
     function initializeHub() {
       buildNavigation();
       setupKeyboardNavigation();
-      setupLogout();
       
       // Handle hash changes
       window.addEventListener('hashchange', () => {
@@ -593,30 +424,8 @@
       selectApp(preferredStart());
     }
 
-    // ---- Event Listeners ----
-    authSubmit.addEventListener('click', () => {
-      authenticate(authInput.value.trim());
-    });
-
-    authInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        authenticate(authInput.value.trim());
-      }
-    });
-
-    // Allow Escape key to close auth overlay
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && authOverlay.style.display !== 'none') {
-        hideAuthOverlay();
-      }
-    });
-
     // ---- Initialization ----
-    if (checkAuthentication()) {
-      initializeHub();
-    } else {
-      showAuthOverlay();
-    }
+    initializeHub();
   </script>
 </body>
 </html>
