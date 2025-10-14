@@ -108,6 +108,22 @@
       font-size:14px;
     }
 
+    /* Loading states */
+    .loading-overlay{
+      position:fixed; top:0; left:0; right:0; bottom:0;
+      background:rgba(248,249,250,0.95); z-index:100;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:20px;
+    }
+    .loading-spinner{
+      width:40px; height:40px; border:4px solid var(--primary);
+      border-left-color:transparent; border-radius:50%;
+      animation:spin 1s linear infinite;
+    }
+    @keyframes spin{
+      0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)}
+    }
+
     /* Nav groups */
     .nav-group {
       margin:16px 0 8px 0; padding:0 12px;
@@ -139,6 +155,15 @@
     </div>
   </header>
 
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay" class="loading-overlay" style="display:none;">
+    <div class="loading-spinner"></div>
+    <div style="text-align:center;">
+      <h3>Authenticating with Genesys Cloud...</h3>
+      <p style="color:var(--muted);">Please wait while we connect to your apps</p>
+    </div>
+  </div>
+
   <div class="wrap">
     <aside class="sidebar">
       <nav id="nav" class="nav"></nav>
@@ -155,7 +180,7 @@
         </div>
 
         <div id="fallback" class="error" style="display:none;">
-          We couldn’t embed this app (some sites don’t like being framed). Use <strong>Open in new tab</strong> instead.
+          We couldn’t embed this app (some sites don't like being framed). Use <strong>Open in new tab</strong> instead.
         </div>
 
         <iframe id="frame" class="appframe" src="about:blank" title="App"></iframe>
@@ -165,7 +190,16 @@
   </div>
 
   <script>
-    // ---- App registry (edit here to add/remove apps) ----
+    // ---- OAuth Configuration ----
+    const OAUTH_CONFIG = {
+      clientId: 'fe305808-b368-4547-8af9-325d28d552bb',
+      redirectUri: 'https://gmcglynn88.github.io/IPI-changes-on-the-fly/',
+      genesysCloudEnv: 'mypurecloud.ie', // Change if different environment
+      scopes: 'conversations analytics users routing external_contacts coaching authorization',
+      storageKey: 'ipi-adminhub-oauth'
+    };
+
+    // ---- App registry ----
     const APPS = [
       { 
         id:'ExternalWorkCreation',   
@@ -242,12 +276,93 @@
     const iconEl = document.getElementById('currentIcon');
     const fallback = document.getElementById('fallback');
     const urlHint = document.getElementById('urlHint');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+
+    // ---- OAuth Authentication ----
+    function checkOAuthStatus() {
+      const oauthData = localStorage.getItem(OAUTH_CONFIG.storageKey);
+      if (oauthData) {
+        try {
+          const { accessToken, expiresAt } = JSON.parse(oauthData);
+          // Check if token is still valid (with 5 minute buffer)
+          if (accessToken && expiresAt > (Date.now() + 300000)) {
+            return { isAuthenticated: true, accessToken };
+          }
+        } catch (e) {
+          console.error('OAuth data parse error:', e);
+        }
+      }
+      return { isAuthenticated: false };
+    }
+
+    function initiateOAuthFlow() {
+      loadingOverlay.style.display = 'flex';
+      
+      // Build OAuth URL
+      const authUrl = new URL(`https://login.${OAUTH_CONFIG.genesysCloudEnv}/oauth/authorize`);
+      authUrl.searchParams.set('response_type', 'token');
+      authUrl.searchParams.set('client_id', OAUTH_CONFIG.clientId);
+      authUrl.searchParams.set('redirect_uri', OAUTH_CONFIG.redirectUri);
+      authUrl.searchParams.set('scope', OAUTH_CONFIG.scopes);
+      
+      // Redirect to Genesys Cloud login
+      window.location.href = authUrl.toString();
+    }
+
+    function handleOAuthCallback() {
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const accessToken = hashParams.get('access_token');
+      const expiresIn = hashParams.get('expires_in');
+      const error = hashParams.get('error');
+
+      if (error) {
+        console.error('OAuth error:', error);
+        loadingOverlay.style.display = 'none';
+        return false;
+      }
+
+      if (accessToken && expiresIn) {
+        // Store OAuth data
+        const oauthData = {
+          accessToken: accessToken,
+          expiresAt: Date.now() + (parseInt(expiresIn) * 1000),
+          timestamp: Date.now()
+        };
+        localStorage.setItem(OAUTH_CONFIG.storageKey, JSON.stringify(oauthData));
+        
+        // Clean URL by removing hash parameters
+        window.history.replaceState({}, document.title, window.location.pathname);
+        
+        loadingOverlay.style.display = 'none';
+        return true;
+      }
+
+      return false;
+    }
+
+    function autoAuthenticate() {
+      // Check if we're returning from OAuth callback
+      if (window.location.hash.includes('access_token')) {
+        if (handleOAuthCallback()) {
+          initializeHub();
+        }
+        return;
+      }
+
+      // Check existing authentication
+      const authStatus = checkOAuthStatus();
+      if (authStatus.isAuthenticated) {
+        initializeHub();
+      } else {
+        // Start OAuth flow automatically
+        initiateOAuthFlow();
+      }
+    }
 
     // ---- Build sidebar with categories ----
     function buildNavigation() {
       nav.innerHTML = '';
       
-      // Group apps by category
       const appsByCategory = APPS.reduce((acc, app) => {
         const category = app.category || 'Other';
         if (!acc[category]) acc[category] = [];
@@ -255,15 +370,12 @@
         return acc;
       }, {});
 
-      // Create navigation with categories
       Object.keys(appsByCategory).forEach(category => {
-        // Add category header
         const groupHeader = document.createElement('div');
         groupHeader.className = 'nav-group';
         groupHeader.textContent = category;
         nav.appendChild(groupHeader);
 
-        // Add apps for this category
         appsByCategory[category].forEach((app, idx) => {
           const btn = document.createElement('button');
           btn.className = 'nav-btn';
@@ -328,7 +440,6 @@
         frame.style.opacity = '1';
       };
 
-      // Set up loading timeout
       guardTimer = setTimeout(() => {
         if (!loaded) {
           fallback.style.display = 'block';
@@ -338,8 +449,6 @@
 
       frame.onload = () => {
         clearGuard();
-        
-        // Try to detect framing errors for same-origin content
         try {
           const frameDoc = frame.contentDocument || frame.contentWindow.document;
           if (frameDoc.body.innerHTML.includes('refused to connect') || 
@@ -347,7 +456,6 @@
             fallback.style.display = 'block';
           }
         } catch (e) {
-          // Cross-origin - we can't access the content, which is normal
           console.log('Cross-origin frame loaded successfully');
         }
       };
@@ -357,22 +465,19 @@
         fallback.style.display = 'block';
       };
 
-      // Load the app
       setTimeout(() => {
         frame.src = app.url;
       }, 100);
 
-      // Update button actions
       openNew.onclick = () => window.open(app.url, '_blank', 'noopener');
       reloadB.onclick = () => { 
         frame.contentWindow?.location?.reload?.() || (frame.src = app.url); 
       };
 
-      // Preload adjacent apps for better performance
       preloadAdjacentApps(app.id);
     }
 
-    // ---- Preloading for better performance ----
+    // ---- Preloading ----
     function preloadAdjacentApps(currentId) {
       const currentIndex = APPS.findIndex(app => app.id === currentId);
       const toPreload = [currentIndex - 1, currentIndex + 1].filter(idx => 
@@ -414,18 +519,17 @@
       buildNavigation();
       setupKeyboardNavigation();
       
-      // Handle hash changes
       window.addEventListener('hashchange', () => {
         const id = new URLSearchParams(location.hash.replace('#','')).get('app');
         if (id && byId(id)) selectApp(id);
       });
       
-      // Start with preferred app
       selectApp(preferredStart());
     }
 
     // ---- Initialization ----
-    initializeHub();
+    // Start auto-authentication process
+    autoAuthenticate();
   </script>
 </body>
 </html>
