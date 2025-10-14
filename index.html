@@ -51,12 +51,20 @@
       width:100%; border:0; background:transparent; cursor:pointer;
       padding:10px 12px; border-radius:10px; font-size:15px; color:#1f2937;
       text-align:left; transition:background .18s ease, color .18s ease, transform .04s ease;
+      position:relative;
     }
     .nav-btn:hover{background:var(--hover)}
     .nav-btn.active{
       background:rgba(99,171,143,.14); color:var(--primary-dark);
       box-shadow: inset 0 0 0 1px var(--primary);
     }
+    .nav-btn .app-tooltip{
+      position:absolute; left:100%; top:50%; transform:translateY(-50%);
+      background:#2C3E50; color:white; padding:8px 12px; border-radius:6px;
+      font-size:12px; white-space:nowrap; opacity:0; pointer-events:none;
+      transition:opacity 0.2s ease; margin-left:10px; z-index:100;
+    }
+    .nav-btn:hover .app-tooltip{opacity:1;}
     .icon{
       width:28px; height:28px; display:grid; place-items:center;
       border-radius:8px; background:#f0f5f3; font-size:16px;
@@ -78,16 +86,20 @@
     .btn{
       border:0; background:var(--primary); color:#fff; border-radius:8px;
       padding:9px 12px; font-weight:600; cursor:pointer;
+      transition:background .18s ease;
     }
+    .btn:hover{background:var(--primary-dark)}
     .btn.secondary{
       background:#fff; color:var(--primary-dark);
       border:1px solid var(--primary-dark);
     }
+    .btn.secondary:hover{background:var(--hover)}
     .hint{font-size:12px; color:var(--muted)}
 
     iframe.appframe{
       width:100%; border:1px solid var(--border); border-radius:10px;
       background:#fff; flex:1; min-height:400px;
+      transition:opacity 0.3s ease;
     }
 
     .error{
@@ -96,16 +108,49 @@
       font-size:14px;
     }
 
+    /* Loading states */
+    .loading{opacity:0.5; pointer-events:none;}
+    .auth-overlay{
+      position:fixed; top:0; left:0; right:0; bottom:0;
+      background:rgba(248,249,250,0.95); z-index:100;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:20px;
+    }
+    .auth-form{
+      background:white; padding:30px; border-radius:12px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.1); border:1px solid var(--border);
+      max-width:400px; width:90%;
+    }
+    .auth-input{
+      width:100%; padding:12px; border:1px solid var(--border);
+      border-radius:8px; margin-bottom:15px; font-size:15px;
+    }
+    .auth-btn{
+      width:100%; padding:12px; background:var(--primary);
+      color:white; border:none; border-radius:8px; font-size:15px;
+      font-weight:600; cursor:pointer;
+    }
+    .auth-btn:hover{background:var(--primary-dark)}
+
+    /* Nav groups */
+    .nav-group {
+      margin:16px 0 8px 0; padding:0 12px;
+      font-size:12px; font-weight:600; color:var(--muted);
+      text-transform:uppercase; letter-spacing:0.5px;
+    }
+
     /* Responsive */
     @media (max-width: 980px){
       .sidebar{width:210px}
       .nav-btn{font-size:14px}
+      .nav-btn .app-tooltip{display:none;}
     }
     @media (max-width: 760px){
       .wrap{flex-direction:column}
       .sidebar{width:auto; border-right:0; border-bottom:1px solid var(--border); display:flex; overflow:auto}
       .nav{flex-direction:row; gap:8px; padding:8px}
       .nav-btn{white-space:nowrap}
+      .nav-group{display:none;}
     }
   </style>
 </head>
@@ -117,6 +162,21 @@
       <img src="https://raw.githubusercontent.com/gmcglynn88/TimeoffApp/main/IPI_Primary%20Identity_Corporate_REVERSED_ECC.png" alt="IPI Logo">
     </div>
   </header>
+
+  <!-- Auth Overlay -->
+  <div id="authOverlay" class="auth-overlay" style="display:none;">
+    <div class="auth-form">
+      <h2 style="margin-top:0; text-align:center;">IPI Admin Hub Authentication</h2>
+      <p style="text-align:center; color:var(--muted); margin-bottom:20px;">
+        Enter your credentials to access all admin tools
+      </p>
+      <input type="text" id="authInput" class="auth-input" placeholder="Enter access code" autocomplete="off">
+      <button id="authSubmit" class="auth-btn">Authenticate</button>
+      <div id="authError" style="color:#dc3545; text-align:center; margin-top:10px; display:none;">
+        Invalid access code
+      </div>
+    </div>
+  </div>
 
   <div class="wrap">
     <aside class="sidebar">
@@ -144,44 +204,181 @@
   </div>
 
   <script>
+    // ---- Authentication Configuration ----
+    const AUTH_CONFIG = {
+      clientId: 'fe305808-b368-4547-8af9-325d28d552bb',
+      authUri: 'https://gmcglynn88.github.io/IPI-changes-on-the-fly/',
+      validCode: 'fe305808-b368-4547-8af9-325d28d552bb', // The code users enter
+      storageKey: 'ipi-adminhub-auth'
+    };
+
     // ---- App registry (edit here to add/remove apps) ----
     const APPS = [
-      { id:'ExternalWorkCreation',   name:'External Work Creation',     url:'https://gmcglynn88.github.io/ExternalWorkCreation/',   icon:'✉️' },
-      { id:'ConversationExplorer',   name:'Conversation Explorer',      url:'https://gmcglynn88.github.io/ConversationExplorer/',   icon:'🧭' },
-      { id:'Queue-updater',          name:'Bulk Queue Changes',         url:'https://gmcglynn88.github.io/Queue-updater/',          icon:'🗂️' },
-      { id:'Skills-Updater',         name:'Bulk Skill Changes',         url:'https://gmcglynn88.github.io/Skills-Updater/',         icon:'🎯' },
-      { id:'Bulk-Activity-Code-Creation', name:'Activity Code Management', url:'https://gmcglynn88.github.io/Bulk-Activity-Code-Creation/', icon:'⚙️' },
-      { id:'WorkTeamManagement',     name:'Work Team Management',       url:'https://gmcglynn88.github.io/WorkTeamManagement/',     icon:'👥' },
-      { id:'Management-Unit-Search', name:'WFM Management Unit Search', url:'https://gmcglynn88.github.io/Management-Unit-Search/', icon:'📊' },
-      { id:'Intraday-Plan',          name:'Intraday Weekly Plan',       url:'https://gmcglynn88.github.io/Intraday-Plan/',          icon:'📅' },
+      { 
+        id:'ExternalWorkCreation',   
+        name:'External Work Creation',     
+        url:'https://gmcglynn88.github.io/ExternalWorkCreation/',   
+        icon:'✉️',
+        category: 'Work Management',
+        description: 'Create and manage external work items'
+      },
+      { 
+        id:'ConversationExplorer',   
+        name:'Conversation Explorer',      
+        url:'https://gmcglynn88.github.io/ConversationExplorer/',   
+        icon:'🧭',
+        category: 'Analytics',
+        description: 'Explore and analyze conversations'
+      },
+      { 
+        id:'Queue-updater',          
+        name:'Bulk Queue Changes',         
+        url:'https://gmcglynn88.github.io/Queue-updater/',          
+        icon:'🗂️',
+        category: 'Bulk Operations',
+        description: 'Make bulk changes to queues'
+      },
+      { 
+        id:'Skills-Updater',         
+        name:'Bulk Skill Changes',         
+        url:'https://gmcglynn88.github.io/Skills-Updater/',         
+        icon:'🎯',
+        category: 'Bulk Operations', 
+        description: 'Update skills in bulk'
+      },
+      { 
+        id:'Bulk-Activity-Code-Creation', 
+        name:'Activity Code Management', 
+        url:'https://gmcglynn88.github.io/Bulk-Activity-Code-Creation/', 
+        icon:'⚙️',
+        category: 'Configuration',
+        description: 'Manage activity codes in bulk'
+      },
+      { 
+        id:'WorkTeamManagement',     
+        name:'Work Team Management',       
+        url:'https://gmcglynn88.github.io/WorkTeamManagement/',     
+        icon:'👥',
+        category: 'Team Management',
+        description: 'Manage work teams and assignments'
+      },
+      { 
+        id:'Management-Unit-Search', 
+        name:'WFM Management Unit Search', 
+        url:'https://gmcglynn88.github.io/Management-Unit-Search/', 
+        icon:'📊',
+        category: 'Analytics',
+        description: 'Search and analyze management units'
+      },
+      { 
+        id:'Intraday-Plan',          
+        name:'Intraday Weekly Plan',       
+        url:'https://gmcglynn88.github.io/Intraday-Plan/',          
+        icon:'📅',
+        category: 'Planning',
+        description: 'Create and manage intraday weekly plans'
+      },
     ];
 
     // ---- DOM elements ----
-    const nav     = document.getElementById('nav');
-    const frame   = document.getElementById('frame');
+    const nav = document.getElementById('nav');
+    const frame = document.getElementById('frame');
     const openNew = document.getElementById('openNew');
     const reloadB = document.getElementById('reload');
     const titleEl = document.getElementById('currentTitle');
-    const iconEl  = document.getElementById('currentIcon');
-    const fallback= document.getElementById('fallback');
+    const iconEl = document.getElementById('currentIcon');
+    const fallback = document.getElementById('fallback');
     const urlHint = document.getElementById('urlHint');
+    const authOverlay = document.getElementById('authOverlay');
+    const authInput = document.getElementById('authInput');
+    const authSubmit = document.getElementById('authSubmit');
+    const authError = document.getElementById('authError');
 
-    // ---- Build sidebar ----
-    APPS.forEach((app, idx) => {
-      const btn = document.createElement('button');
-      btn.className = 'nav-btn' + (idx===0 ? ' active' : '');
-      btn.setAttribute('data-app', app.id);
-      btn.innerHTML = `
-        <span class="icon" aria-hidden="true">${app.icon}</span>
-        <span class="label">${app.name}</span>
-        <span class="chev">›</span>
-      `;
-      btn.addEventListener('click', () => selectApp(app.id));
-      nav.appendChild(btn);
-    });
+    // ---- Authentication ----
+    function checkAuthentication() {
+      const authData = localStorage.getItem(AUTH_CONFIG.storageKey);
+      if (authData) {
+        try {
+          const { code, timestamp } = JSON.parse(authData);
+          // Check if auth is still valid (24 hours)
+          const isExpired = Date.now() - timestamp > 24 * 60 * 60 * 1000;
+          if (code === AUTH_CONFIG.validCode && !isExpired) {
+            return true;
+          }
+        } catch (e) {
+          // Invalid stored data
+        }
+      }
+      return false;
+    }
+
+    function showAuthOverlay() {
+      authOverlay.style.display = 'flex';
+      authInput.focus();
+    }
+
+    function hideAuthOverlay() {
+      authOverlay.style.display = 'none';
+      authInput.value = '';
+      authError.style.display = 'none';
+    }
+
+    function authenticate(code) {
+      if (code === AUTH_CONFIG.validCode) {
+        const authData = {
+          code: code,
+          timestamp: Date.now()
+        };
+        localStorage.setItem(AUTH_CONFIG.storageKey, JSON.stringify(authData));
+        hideAuthOverlay();
+        initializeHub();
+        return true;
+      } else {
+        authError.style.display = 'block';
+        return false;
+      }
+    }
+
+    // ---- Build sidebar with categories ----
+    function buildNavigation() {
+      nav.innerHTML = '';
+      
+      // Group apps by category
+      const appsByCategory = APPS.reduce((acc, app) => {
+        const category = app.category || 'Other';
+        if (!acc[category]) acc[category] = [];
+        acc[category].push(app);
+        return acc;
+      }, {});
+
+      // Create navigation with categories
+      Object.keys(appsByCategory).forEach(category => {
+        // Add category header
+        const groupHeader = document.createElement('div');
+        groupHeader.className = 'nav-group';
+        groupHeader.textContent = category;
+        nav.appendChild(groupHeader);
+
+        // Add apps for this category
+        appsByCategory[category].forEach((app, idx) => {
+          const btn = document.createElement('button');
+          btn.className = 'nav-btn';
+          btn.setAttribute('data-app', app.id);
+          btn.innerHTML = `
+            <span class="icon" aria-hidden="true">${app.icon}</span>
+            <span class="label">${app.name}</span>
+            <span class="chev">›</span>
+            ${app.description ? `<span class="app-tooltip">${app.description}</span>` : ''}
+          `;
+          btn.addEventListener('click', () => selectApp(app.id));
+          nav.appendChild(btn);
+        });
+      });
+    }
 
     // ---- State & helpers ----
     function byId(id){ return APPS.find(a => a.id === id); }
+    
     function setActive(id){
       [...nav.querySelectorAll('.nav-btn')].forEach(b => {
         b.classList.toggle('active', b.getAttribute('data-app') === id);
@@ -201,8 +398,13 @@
       return APPS[0].id;
     }
 
-    // ---- App selection ----
+    // ---- App selection with enhanced loading ----
     function selectApp(id){
+      if (!checkAuthentication()) {
+        showAuthOverlay();
+        return;
+      }
+
       const app = byId(id) || APPS[0];
       setActive(app.id);
       setHash(app.id);
@@ -211,34 +413,142 @@
       urlHint.textContent = app.url;
       fallback.style.display = 'none';
 
-      // Load iframe
-      frame.src = app.url;
+      // Show loading state
+      frame.style.opacity = '0.5';
+      frame.src = 'about:blank'; // Clear previous content
 
-      // If the site refuses to be framed (X-Frame-Options / CSP), show fallback message after a short delay.
-      // We can’t reliably detect cross-origin frame errors, so we show the hint if navigation stalls.
-      let guarded = true;
-      const guard = setTimeout(() => {
-        if (guarded) fallback.style.display = 'block';
-      }, 2500);
+      // Configure iframe with security sandbox
+      frame.setAttribute('sandbox', 'allow-scripts allow-forms allow-same-origin allow-popups allow-modals');
 
-      frame.onload = () => {
-        guarded = false;
-        clearTimeout(guard);
-        // When same-origin (your GH Pages), hide fallback.
-        fallback.style.display = 'none';
+      let loaded = false;
+      let guardTimer;
+
+      const clearGuard = () => {
+        loaded = true;
+        clearTimeout(guardTimer);
+        frame.style.opacity = '1';
       };
 
-      // Buttons
+      // Set up loading timeout
+      guardTimer = setTimeout(() => {
+        if (!loaded) {
+          fallback.style.display = 'block';
+          frame.style.opacity = '1';
+        }
+      }, 5000);
+
+      frame.onload = () => {
+        clearGuard();
+        
+        // Try to detect framing errors for same-origin content
+        try {
+          const frameDoc = frame.contentDocument || frame.contentWindow.document;
+          if (frameDoc.body.innerHTML.includes('refused to connect') || 
+              frameDoc.body.innerHTML.includes('X-Frame-Options')) {
+            fallback.style.display = 'block';
+          }
+        } catch (e) {
+          // Cross-origin - we can't access the content, which is normal
+          console.log('Cross-origin frame loaded successfully');
+        }
+      };
+
+      frame.onerror = () => {
+        clearGuard();
+        fallback.style.display = 'block';
+      };
+
+      // Load the actual content after a brief delay
+      setTimeout(() => {
+        frame.src = app.url;
+      }, 100);
+
+      // Update button actions
       openNew.onclick = () => window.open(app.url, '_blank', 'noopener');
-      reloadB.onclick = () => { frame.contentWindow?.location?.reload?.() || (frame.src = app.url); };
+      reloadB.onclick = () => { 
+        frame.contentWindow?.location?.reload?.() || (frame.src = app.url); 
+      };
+
+      // Preload adjacent apps for better performance
+      preloadAdjacentApps(app.id);
     }
 
-    // ---- Init ----
-    window.addEventListener('hashchange', () => {
-      const id = new URLSearchParams(location.hash.replace('#','')).get('app');
-      if (id && byId(id)) selectApp(id);
+    // ---- Preloading for better performance ----
+    function preloadAdjacentApps(currentId) {
+      const currentIndex = APPS.findIndex(app => app.id === currentId);
+      const toPreload = [currentIndex - 1, currentIndex + 1].filter(idx => 
+        idx >= 0 && idx < APPS.length
+      );
+      
+      toPreload.forEach(idx => {
+        const preloadLink = document.createElement('link');
+        preloadLink.rel = 'prefetch';
+        preloadLink.href = APPS[idx].url;
+        preloadLink.crossOrigin = 'anonymous';
+        document.head.appendChild(preloadLink);
+      });
+    }
+
+    // ---- Keyboard Navigation ----
+    function setupKeyboardNavigation() {
+      document.addEventListener('keydown', (e) => {
+        if (e.altKey && !authOverlay.style.display !== 'none') {
+          const activeBtn = nav.querySelector('.nav-btn.active');
+          if (!activeBtn) return;
+          
+          const currentId = activeBtn.getAttribute('data-app');
+          const currentIndex = APPS.findIndex(app => app.id === currentId);
+          
+          if (e.key === 'ArrowDown' && currentIndex < APPS.length - 1) {
+            e.preventDefault();
+            selectApp(APPS[currentIndex + 1].id);
+          } else if (e.key === 'ArrowUp' && currentIndex > 0) {
+            e.preventDefault();
+            selectApp(APPS[currentIndex - 1].id);
+          }
+        }
+      });
+    }
+
+    // ---- Initialize Hub ----
+    function initializeHub() {
+      buildNavigation();
+      setupKeyboardNavigation();
+      
+      // Handle hash changes
+      window.addEventListener('hashchange', () => {
+        const id = new URLSearchParams(location.hash.replace('#','')).get('app');
+        if (id && byId(id)) selectApp(id);
+      });
+      
+      // Start with preferred app
+      selectApp(preferredStart());
+    }
+
+    // ---- Event Listeners ----
+    authSubmit.addEventListener('click', () => {
+      authenticate(authInput.value.trim());
     });
-    selectApp(preferredStart());
+
+    authInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        authenticate(authInput.value.trim());
+      }
+    });
+
+    // Allow Escape key to close auth overlay
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && authOverlay.style.display !== 'none') {
+        hideAuthOverlay();
+      }
+    });
+
+    // ---- Initialization ----
+    if (checkAuthentication()) {
+      initializeHub();
+    } else {
+      showAuthOverlay();
+    }
   </script>
 </body>
 </html>
