@@ -76,17 +76,19 @@
     .card{
       background:var(--card); border:1px solid var(--border);
       border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,.06);
-      padding:14px; display:flex; flex-direction:column; gap:10px; min-height:0;
+      padding:14px; display:flex; flex-direction:column; gap:10px; 
+      height:100%; min-height:0;
     }
     .card-header{
       display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+      padding-bottom:8px; border-bottom:1px solid var(--border);
     }
-    .card-title{font-weight:600}
+    .card-title{font-weight:600; font-size:18px;}
     .spacer{flex:1}
     .btn{
       border:0; background:var(--primary); color:#fff; border-radius:8px;
       padding:9px 12px; font-weight:600; cursor:pointer;
-      transition:background .18s ease;
+      transition:background .18s ease; font-size:14px;
     }
     .btn:hover{background:var(--primary-dark)}
     .btn.secondary{
@@ -94,7 +96,6 @@
       border:1px solid var(--primary-dark);
     }
     .btn.secondary:hover{background:var(--hover)}
-    .hint{font-size:12px; color:var(--muted)}
 
     iframe.appframe{
       width:100%; border:1px solid var(--border); border-radius:10px;
@@ -150,8 +151,7 @@
   <header>
     <div class="title">IPI Admin Hub</div>
     <div class="brand">
-      <span class="hint">All your tools, one cosy hallway.</span>
-      <img src="https://raw.githubusercontent.com/gmcglynn88/TimeoffApp/main/IPI_Primary%20Identity_Corporate_REVERSED_ECC.png" alt="IPI Logo">
+     <img src="https://raw.githubusercontent.com/gmcglynn88/TimeoffApp/main/IPI_Primary%20Identity_Corporate_REVERSED_ECC.png" alt="IPI Logo">
     </div>
   </header>
 
@@ -184,7 +184,7 @@
         </div>
 
         <iframe id="frame" class="appframe" src="about:blank" title="App"></iframe>
-        <div class="hint" id="urlHint"></div>
+        <!-- Removed URL hint div -->
       </div>
     </main>
   </div>
@@ -193,7 +193,7 @@
     // ---- Simple OAuth Redirect ----
     const OAUTH_CONFIG = {
       clientId: 'fe305808-b368-4547-8af9-325d28d552bb',
-      redirectUri: window.location.origin + window.location.pathname, // Current page
+      redirectUri: window.location.origin + window.location.pathname,
       genesysCloudEnv: 'mypurecloud.ie',
       scopes: 'conversations analytics users routing external_contacts coaching authorization'
     };
@@ -237,7 +237,7 @@
         name:'Activity Code Management', 
         url:'https://gmcglynn88.github.io/Bulk-Activity-Code-Creation/', 
         icon:'⚙️',
-        category: 'Configuration',
+        category: 'Planning',
         description: 'Manage activity codes in bulk'
       },
       { 
@@ -253,7 +253,7 @@
         name:'WFM Management Unit Search', 
         url:'https://gmcglynn88.github.io/Management-Unit-Search/', 
         icon:'📊',
-        category: 'Analytics',
+        category: 'Planning',
         description: 'Search and analyze management units'
       },
       { 
@@ -274,13 +274,11 @@
     const titleEl = document.getElementById('currentTitle');
     const iconEl = document.getElementById('currentIcon');
     const fallback = document.getElementById('fallback');
-    const urlHint = document.getElementById('urlHint');
     const loadingOverlay = document.getElementById('loadingOverlay');
     const mainWrap = document.querySelector('.wrap');
 
     // ---- Simple OAuth Redirect ----
     function initiateOAuthRedirect() {
-      // Build OAuth URL for implicit grant flow
       const authUrl = new URL(`https://login.${OAUTH_CONFIG.genesysCloudEnv}/oauth/authorize`);
       authUrl.searchParams.set('response_type', 'token');
       authUrl.searchParams.set('client_id', OAUTH_CONFIG.clientId);
@@ -292,18 +290,15 @@
     }
 
     function checkForOAuthResponse() {
-      // Check if we have an OAuth token in the URL hash
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
       const accessToken = hashParams.get('access_token');
       
       if (accessToken) {
-        // We have a token - remove it from URL and show the hub
         window.history.replaceState({}, document.title, window.location.pathname);
         showHub();
         return true;
       }
       
-      // No token found - need to authenticate
       return false;
     }
 
@@ -313,7 +308,7 @@
       initializeHub();
     }
 
-    // ---- Hub functionality (no authentication checks) ----
+    // ---- Hub functionality ----
     function buildNavigation() {
       nav.innerHTML = '';
       
@@ -373,12 +368,19 @@
       setHash(app.id);
       titleEl.textContent = app.name;
       iconEl.textContent = app.icon;
-      urlHint.textContent = app.url;
       fallback.style.display = 'none';
 
+      // Reset iframe for better rendering
       frame.style.opacity = '0.5';
       frame.src = 'about:blank';
-      frame.setAttribute('sandbox', 'allow-scripts allow-forms allow-same-origin allow-popups allow-modals');
+      
+      // Enhanced iframe attributes for better app display
+      frame.setAttribute('sandbox', 'allow-scripts allow-forms allow-same-origin allow-popups allow-modals allow-downloads');
+      frame.style.width = '100%';
+      frame.style.height = '100%';
+      frame.style.minHeight = '600px';
+      frame.style.border = '1px solid var(--border)';
+      frame.style.borderRadius = '10px';
 
       let loaded = false;
       const guardTimer = setTimeout(() => {
@@ -392,6 +394,32 @@
         loaded = true;
         clearTimeout(guardTimer);
         frame.style.opacity = '1';
+        
+        // Try to inject CSS to improve app layout within iframe
+        try {
+          const frameDoc = frame.contentDocument || frame.contentWindow.document;
+          // Add some basic styling to help with layout in the iframe
+          const style = frameDoc.createElement('style');
+          style.textContent = `
+            body { 
+              padding: 20px; 
+              margin: 0; 
+              font-family: 'Aptos', 'Segoe UI', sans-serif;
+            }
+            .container, .main-content, [class*="container"], [class*="content"] {
+              max-width: 100% !important;
+              padding: 20px !important;
+            }
+            table {
+              width: 100% !important;
+              max-width: 100% !important;
+            }
+          `;
+          frameDoc.head.appendChild(style);
+        } catch (e) {
+          // Cross-origin, can't modify content
+          console.log('Cross-origin iframe, cannot inject styles');
+        }
       };
 
       frame.onerror = () => {
@@ -401,9 +429,10 @@
         frame.style.opacity = '1';
       };
 
+      // Load the app with a slight delay
       setTimeout(() => {
         frame.src = app.url;
-      }, 100);
+      }, 150);
 
       openNew.onclick = () => window.open(app.url, '_blank', 'noopener');
       reloadB.onclick = () => { 
@@ -423,17 +452,34 @@
     }
 
     // ---- Initialization ----
-    // Check if we're returning from OAuth with a token
     if (checkForOAuthResponse()) {
-      // We have a token, show the hub
       showHub();
     } else {
-      // No token, redirect to OAuth
       console.log('No OAuth token found, initiating redirect...');
       setTimeout(() => {
         initiateOAuthRedirect();
       }, 1000);
     }
+
+    // Additional CSS to ensure proper iframe sizing
+    const additionalCSS = `
+      .appframe {
+        width: 100% !important;
+        height: calc(100vh - 200px) !important;
+        min-height: 600px !important;
+        border: none !important;
+        border-radius: 8px !important;
+      }
+      .card {
+        height: calc(100vh - 100px) !important;
+        display: flex !important;
+        flex-direction: column !important;
+      }
+    `;
+    const styleSheet = document.createElement("style");
+    styleSheet.type = "text/css";
+    styleSheet.innerText = additionalCSS;
+    document.head.appendChild(styleSheet);
   </script>
 </body>
 </html>
