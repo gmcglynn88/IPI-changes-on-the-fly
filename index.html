@@ -208,8 +208,9 @@
     const AUTH_CONFIG = {
       clientId: 'fe305808-b368-4547-8af9-325d28d552bb',
       authUri: 'https://gmcglynn88.github.io/IPI-changes-on-the-fly/',
-      validCode: 'fe305808-b368-4547-8af9-325d28d552bb', // The code users enter
-      storageKey: 'ipi-adminhub-auth'
+      validCode: 'fe305808-b368-4547-8af9-325d28d552bb',
+      storageKey: 'ipi-adminhub-auth',
+      tokenKey: 'ipi-adminhub-token'
     };
 
     // ---- App registry (edit here to add/remove apps) ----
@@ -294,7 +295,7 @@
     const authSubmit = document.getElementById('authSubmit');
     const authError = document.getElementById('authError');
 
-    // ---- Authentication ----
+    // ---- Authentication System ----
     function checkAuthentication() {
       const authData = localStorage.getItem(AUTH_CONFIG.storageKey);
       if (authData) {
@@ -303,13 +304,43 @@
           // Check if auth is still valid (24 hours)
           const isExpired = Date.now() - timestamp > 24 * 60 * 60 * 1000;
           if (code === AUTH_CONFIG.validCode && !isExpired) {
+            // Generate and store authentication token for apps
+            generateAuthToken();
             return true;
           }
         } catch (e) {
-          // Invalid stored data
+          console.error('Auth data parse error:', e);
         }
       }
       return false;
+    }
+
+    function generateAuthToken() {
+      // Create a secure token that can be verified by all apps
+      const tokenData = {
+        clientId: AUTH_CONFIG.clientId,
+        timestamp: Date.now(),
+        expires: Date.now() + (24 * 60 * 60 * 1000), // 24 hours
+        signature: btoa(`${AUTH_CONFIG.clientId}:${Date.now()}:${AUTH_CONFIG.validCode}`).slice(0, 32)
+      };
+      const token = btoa(JSON.stringify(tokenData));
+      localStorage.setItem(AUTH_CONFIG.tokenKey, token);
+      return token;
+    }
+
+    function getAuthToken() {
+      return localStorage.getItem(AUTH_CONFIG.tokenKey);
+    }
+
+    function validateAuthToken(token) {
+      try {
+        const tokenData = JSON.parse(atob(token));
+        return tokenData && 
+               tokenData.clientId === AUTH_CONFIG.clientId &&
+               tokenData.expires > Date.now();
+      } catch (e) {
+        return false;
+      }
     }
 
     function showAuthOverlay() {
@@ -330,6 +361,7 @@
           timestamp: Date.now()
         };
         localStorage.setItem(AUTH_CONFIG.storageKey, JSON.stringify(authData));
+        generateAuthToken();
         hideAuthOverlay();
         initializeHub();
         return true;
@@ -337,6 +369,18 @@
         authError.style.display = 'block';
         return false;
       }
+    }
+
+    // ---- Build Enhanced URLs with Authentication ----
+    function buildAuthenticatedUrl(baseUrl) {
+      const token = getAuthToken();
+      if (!token) return baseUrl;
+
+      // Add authentication parameters to the URL
+      const separator = baseUrl.includes('?') ? '&' : '?';
+      const authParams = `authToken=${encodeURIComponent(token)}&clientId=${encodeURIComponent(AUTH_CONFIG.clientId)}&source=ipi-adminhub`;
+      
+      return `${baseUrl}${separator}${authParams}`;
     }
 
     // ---- Build sidebar with categories ----
@@ -398,7 +442,7 @@
       return APPS[0].id;
     }
 
-    // ---- App selection with enhanced loading ----
+    // ---- App selection with Centralized Auth ----
     function selectApp(id){
       if (!checkAuthentication()) {
         showAuthOverlay();
@@ -410,12 +454,15 @@
       setHash(app.id);
       titleEl.textContent = app.name;
       iconEl.textContent = app.icon;
-      urlHint.textContent = app.url;
+      
+      // Build authenticated URL
+      const authenticatedUrl = buildAuthenticatedUrl(app.url);
+      urlHint.textContent = authenticatedUrl;
       fallback.style.display = 'none';
 
       // Show loading state
       frame.style.opacity = '0.5';
-      frame.src = 'about:blank'; // Clear previous content
+      frame.src = 'about:blank';
 
       // Configure iframe with security sandbox
       frame.setAttribute('sandbox', 'allow-scripts allow-forms allow-same-origin allow-popups allow-modals');
@@ -458,15 +505,15 @@
         fallback.style.display = 'block';
       };
 
-      // Load the actual content after a brief delay
+      // Load the authenticated URL
       setTimeout(() => {
-        frame.src = app.url;
+        frame.src = authenticatedUrl;
       }, 100);
 
-      // Update button actions
-      openNew.onclick = () => window.open(app.url, '_blank', 'noopener');
+      // Update button actions to use authenticated URLs
+      openNew.onclick = () => window.open(authenticatedUrl, '_blank', 'noopener');
       reloadB.onclick = () => { 
-        frame.contentWindow?.location?.reload?.() || (frame.src = app.url); 
+        frame.contentWindow?.location?.reload?.() || (frame.src = authenticatedUrl); 
       };
 
       // Preload adjacent apps for better performance
@@ -481,9 +528,10 @@
       );
       
       toPreload.forEach(idx => {
+        const authenticatedUrl = buildAuthenticatedUrl(APPS[idx].url);
         const preloadLink = document.createElement('link');
         preloadLink.rel = 'prefetch';
-        preloadLink.href = APPS[idx].url;
+        preloadLink.href = authenticatedUrl;
         preloadLink.crossOrigin = 'anonymous';
         document.head.appendChild(preloadLink);
       });
@@ -492,7 +540,7 @@
     // ---- Keyboard Navigation ----
     function setupKeyboardNavigation() {
       document.addEventListener('keydown', (e) => {
-        if (e.altKey && !authOverlay.style.display !== 'none') {
+        if (e.altKey && authOverlay.style.display === 'none') {
           const activeBtn = nav.querySelector('.nav-btn.active');
           if (!activeBtn) return;
           
@@ -510,10 +558,30 @@
       });
     }
 
+    // ---- Logout functionality ----
+    function setupLogout() {
+      // Add logout button to header
+      const logoutBtn = document.createElement('button');
+      logoutBtn.className = 'btn secondary';
+      logoutBtn.textContent = 'Logout';
+      logoutBtn.style.marginLeft = '10px';
+      logoutBtn.style.fontSize = '12px';
+      logoutBtn.style.padding = '6px 10px';
+      
+      logoutBtn.addEventListener('click', () => {
+        localStorage.removeItem(AUTH_CONFIG.storageKey);
+        localStorage.removeItem(AUTH_CONFIG.tokenKey);
+        location.reload();
+      });
+      
+      document.querySelector('.brand').prepend(logoutBtn);
+    }
+
     // ---- Initialize Hub ----
     function initializeHub() {
       buildNavigation();
       setupKeyboardNavigation();
+      setupLogout();
       
       // Handle hash changes
       window.addEventListener('hashchange', () => {
