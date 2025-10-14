@@ -156,15 +156,15 @@
   </header>
 
   <!-- Loading Overlay -->
-  <div id="loadingOverlay" class="loading-overlay" style="display:none;">
+  <div id="loadingOverlay" class="loading-overlay">
     <div class="loading-spinner"></div>
     <div style="text-align:center;">
-      <h3>Authenticating with Genesys Cloud...</h3>
-      <p style="color:var(--muted);">Please wait while we connect to your apps</p>
+      <h3>Connecting to Genesys Cloud...</h3>
+      <p style="color:var(--muted);">Redirecting to authentication</p>
     </div>
   </div>
 
-  <div class="wrap">
+  <div class="wrap" style="display:none;">
     <aside class="sidebar">
       <nav id="nav" class="nav"></nav>
     </aside>
@@ -190,13 +190,12 @@
   </div>
 
   <script>
-    // ---- OAuth Configuration ----
+    // ---- Simple OAuth Redirect ----
     const OAUTH_CONFIG = {
       clientId: 'fe305808-b368-4547-8af9-325d28d552bb',
-      redirectUri: 'https://gmcglynn88.github.io/IPI-changes-on-the-fly/',
-      genesysCloudEnv: 'mypurecloud.ie', // Change if different environment
-      scopes: 'conversations analytics users routing external_contacts coaching authorization',
-      storageKey: 'ipi-adminhub-oauth'
+      redirectUri: window.location.origin + window.location.pathname, // Current page
+      genesysCloudEnv: 'mypurecloud.ie',
+      scopes: 'conversations analytics users routing external_contacts coaching authorization'
     };
 
     // ---- App registry ----
@@ -277,89 +276,44 @@
     const fallback = document.getElementById('fallback');
     const urlHint = document.getElementById('urlHint');
     const loadingOverlay = document.getElementById('loadingOverlay');
+    const mainWrap = document.querySelector('.wrap');
 
-    // ---- OAuth Authentication ----
-    function checkOAuthStatus() {
-      const oauthData = localStorage.getItem(OAUTH_CONFIG.storageKey);
-      if (oauthData) {
-        try {
-          const { accessToken, expiresAt } = JSON.parse(oauthData);
-          // Check if token is still valid (with 5 minute buffer)
-          if (accessToken && expiresAt > (Date.now() + 300000)) {
-            return { isAuthenticated: true, accessToken };
-          }
-        } catch (e) {
-          console.error('OAuth data parse error:', e);
-        }
-      }
-      return { isAuthenticated: false };
-    }
-
-    function initiateOAuthFlow() {
-      loadingOverlay.style.display = 'flex';
-      
-      // Build OAuth URL
+    // ---- Simple OAuth Redirect ----
+    function initiateOAuthRedirect() {
+      // Build OAuth URL for implicit grant flow
       const authUrl = new URL(`https://login.${OAUTH_CONFIG.genesysCloudEnv}/oauth/authorize`);
       authUrl.searchParams.set('response_type', 'token');
       authUrl.searchParams.set('client_id', OAUTH_CONFIG.clientId);
       authUrl.searchParams.set('redirect_uri', OAUTH_CONFIG.redirectUri);
       authUrl.searchParams.set('scope', OAUTH_CONFIG.scopes);
       
-      // Redirect to Genesys Cloud login
+      console.log('Redirecting to OAuth:', authUrl.toString());
       window.location.href = authUrl.toString();
     }
 
-    function handleOAuthCallback() {
+    function checkForOAuthResponse() {
+      // Check if we have an OAuth token in the URL hash
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
       const accessToken = hashParams.get('access_token');
-      const expiresIn = hashParams.get('expires_in');
-      const error = hashParams.get('error');
-
-      if (error) {
-        console.error('OAuth error:', error);
-        loadingOverlay.style.display = 'none';
-        return false;
-      }
-
-      if (accessToken && expiresIn) {
-        // Store OAuth data
-        const oauthData = {
-          accessToken: accessToken,
-          expiresAt: Date.now() + (parseInt(expiresIn) * 1000),
-          timestamp: Date.now()
-        };
-        localStorage.setItem(OAUTH_CONFIG.storageKey, JSON.stringify(oauthData));
-        
-        // Clean URL by removing hash parameters
+      
+      if (accessToken) {
+        // We have a token - remove it from URL and show the hub
         window.history.replaceState({}, document.title, window.location.pathname);
-        
-        loadingOverlay.style.display = 'none';
+        showHub();
         return true;
       }
-
+      
+      // No token found - need to authenticate
       return false;
     }
 
-    function autoAuthenticate() {
-      // Check if we're returning from OAuth callback
-      if (window.location.hash.includes('access_token')) {
-        if (handleOAuthCallback()) {
-          initializeHub();
-        }
-        return;
-      }
-
-      // Check existing authentication
-      const authStatus = checkOAuthStatus();
-      if (authStatus.isAuthenticated) {
-        initializeHub();
-      } else {
-        // Start OAuth flow automatically
-        initiateOAuthFlow();
-      }
+    function showHub() {
+      loadingOverlay.style.display = 'none';
+      mainWrap.style.display = 'flex';
+      initializeHub();
     }
 
-    // ---- Build sidebar with categories ----
+    // ---- Hub functionality (no authentication checks) ----
     function buildNavigation() {
       nav.innerHTML = '';
       
@@ -376,7 +330,7 @@
         groupHeader.textContent = category;
         nav.appendChild(groupHeader);
 
-        appsByCategory[category].forEach((app, idx) => {
+        appsByCategory[category].forEach((app) => {
           const btn = document.createElement('button');
           btn.className = 'nav-btn';
           btn.setAttribute('data-app', app.id);
@@ -392,7 +346,6 @@
       });
     }
 
-    // ---- State & helpers ----
     function byId(id){ return APPS.find(a => a.id === id); }
     
     function setActive(id){
@@ -414,7 +367,6 @@
       return APPS[0].id;
     }
 
-    // ---- App selection ----
     function selectApp(id){
       const app = byId(id) || APPS[0];
       setActive(app.id);
@@ -424,23 +376,12 @@
       urlHint.textContent = app.url;
       fallback.style.display = 'none';
 
-      // Show loading state
       frame.style.opacity = '0.5';
       frame.src = 'about:blank';
-
-      // Configure iframe with security sandbox
       frame.setAttribute('sandbox', 'allow-scripts allow-forms allow-same-origin allow-popups allow-modals');
 
       let loaded = false;
-      let guardTimer;
-
-      const clearGuard = () => {
-        loaded = true;
-        clearTimeout(guardTimer);
-        frame.style.opacity = '1';
-      };
-
-      guardTimer = setTimeout(() => {
+      const guardTimer = setTimeout(() => {
         if (!loaded) {
           fallback.style.display = 'block';
           frame.style.opacity = '1';
@@ -448,21 +389,16 @@
       }, 5000);
 
       frame.onload = () => {
-        clearGuard();
-        try {
-          const frameDoc = frame.contentDocument || frame.contentWindow.document;
-          if (frameDoc.body.innerHTML.includes('refused to connect') || 
-              frameDoc.body.innerHTML.includes('X-Frame-Options')) {
-            fallback.style.display = 'block';
-          }
-        } catch (e) {
-          console.log('Cross-origin frame loaded successfully');
-        }
+        loaded = true;
+        clearTimeout(guardTimer);
+        frame.style.opacity = '1';
       };
 
       frame.onerror = () => {
-        clearGuard();
+        loaded = true;
+        clearTimeout(guardTimer);
         fallback.style.display = 'block';
+        frame.style.opacity = '1';
       };
 
       setTimeout(() => {
@@ -473,51 +409,10 @@
       reloadB.onclick = () => { 
         frame.contentWindow?.location?.reload?.() || (frame.src = app.url); 
       };
-
-      preloadAdjacentApps(app.id);
     }
 
-    // ---- Preloading ----
-    function preloadAdjacentApps(currentId) {
-      const currentIndex = APPS.findIndex(app => app.id === currentId);
-      const toPreload = [currentIndex - 1, currentIndex + 1].filter(idx => 
-        idx >= 0 && idx < APPS.length
-      );
-      
-      toPreload.forEach(idx => {
-        const preloadLink = document.createElement('link');
-        preloadLink.rel = 'prefetch';
-        preloadLink.href = APPS[idx].url;
-        preloadLink.crossOrigin = 'anonymous';
-        document.head.appendChild(preloadLink);
-      });
-    }
-
-    // ---- Keyboard Navigation ----
-    function setupKeyboardNavigation() {
-      document.addEventListener('keydown', (e) => {
-        if (e.altKey) {
-          const activeBtn = nav.querySelector('.nav-btn.active');
-          if (!activeBtn) return;
-          
-          const currentId = activeBtn.getAttribute('data-app');
-          const currentIndex = APPS.findIndex(app => app.id === currentId);
-          
-          if (e.key === 'ArrowDown' && currentIndex < APPS.length - 1) {
-            e.preventDefault();
-            selectApp(APPS[currentIndex + 1].id);
-          } else if (e.key === 'ArrowUp' && currentIndex > 0) {
-            e.preventDefault();
-            selectApp(APPS[currentIndex - 1].id);
-          }
-        }
-      });
-    }
-
-    // ---- Initialize Hub ----
     function initializeHub() {
       buildNavigation();
-      setupKeyboardNavigation();
       
       window.addEventListener('hashchange', () => {
         const id = new URLSearchParams(location.hash.replace('#','')).get('app');
@@ -528,8 +423,17 @@
     }
 
     // ---- Initialization ----
-    // Start auto-authentication process
-    autoAuthenticate();
+    // Check if we're returning from OAuth with a token
+    if (checkForOAuthResponse()) {
+      // We have a token, show the hub
+      showHub();
+    } else {
+      // No token, redirect to OAuth
+      console.log('No OAuth token found, initiating redirect...');
+      setTimeout(() => {
+        initiateOAuthRedirect();
+      }, 1000);
+    }
   </script>
 </body>
 </html>
