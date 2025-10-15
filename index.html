@@ -111,12 +111,6 @@
       transition:opacity 0.3s ease;
     }
 
-    .error{
-      padding:12px; border-radius:8px;
-      background:#fff7ed; border:1px solid #ffedd5; color:#6b4e16;
-      font-size:14px;
-    }
-
     /* Loading states */
     .loading-overlay{
       position:fixed; top:0; left:0; right:0; bottom:0;
@@ -185,7 +179,6 @@
           <div id="currentIcon" class="icon">🔧</div>
           <div id="currentTitle" class="card-title">Loading…</div>
           <div class="spacer"></div>
-          <!-- Removed Open in new tab button -->
           <button id="reload" class="btn secondary">Reload</button>
         </div>
 
@@ -285,7 +278,6 @@
     const reloadB = document.getElementById('reload');
     const titleEl = document.getElementById('currentTitle');
     const iconEl = document.getElementById('currentIcon');
-    const fallback = document.getElementById('fallback');
     const loadingOverlay = document.getElementById('loadingOverlay');
     const mainWrap = document.querySelector('.wrap');
 
@@ -380,7 +372,6 @@
       setHash(app.id);
       titleEl.textContent = app.name;
       iconEl.textContent = app.icon;
-      fallback.style.display = 'none';
 
       // Reset iframe for better rendering
       frame.style.opacity = '0.5';
@@ -397,7 +388,6 @@
       let loaded = false;
       const guardTimer = setTimeout(() => {
         if (!loaded) {
-          fallback.style.display = 'block';
           frame.style.opacity = '1';
         }
       }, 5000);
@@ -437,7 +427,6 @@
       frame.onerror = () => {
         loaded = true;
         clearTimeout(guardTimer);
-        fallback.style.display = 'block';
         frame.style.opacity = '1';
       };
 
