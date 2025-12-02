@@ -26,7 +26,17 @@
       box-shadow:0 2px 10px rgba(0,0,0,.08);
     }
     header .title{font-size:18px; font-weight:600; letter-spacing:.3px}
-    header .brand{margin-left:auto; display:flex; align-items:center; gap:10px}
+    header .feature-request-btn{
+      margin-left:auto; margin-right:20px;
+      background:rgba(255,255,255,0.2); color:white;
+      border:1px solid rgba(255,255,255,0.3); padding:6px 12px;
+      border-radius:4px; cursor:pointer; font-size:14px; font-weight:600;
+      display:flex; align-items:center; gap:6px; transition:all 0.2s ease;
+    }
+    header .feature-request-btn:hover{
+      background:rgba(255,255,255,0.3); transform:translateY(-1px);
+    }
+    header .brand{display:flex; align-items:center; gap:10px}
     header .brand img{height:34px}
 
     /* Layout */
@@ -140,6 +150,8 @@
       .nav-btn{font-size:13px}
       .nav-btn .app-tooltip{display:none;}
       .label{font-size:13px;}
+      header .feature-request-btn span{display:none;}
+      header .feature-request-btn{padding:6px 8px; margin-right:10px;}
     }
     @media (max-width: 760px){
       .wrap{flex-direction:column}
@@ -148,12 +160,17 @@
       .nav-btn{white-space:nowrap; min-width:auto; padding:8px 10px;}
       .nav-group{display:none;}
       .chev{display:none;}
+      header .feature-request-btn{position:absolute; right:50px; top:50%; transform:translateY(-50%);}
     }
   </style>
 </head>
 <body>
   <header>
     <div class="title">Operations Hub</div>
+    <button class="feature-request-btn" id="featureRequestBtn">
+      <span>💡</span>
+      <span>Feature Request</span>
+    </button>
     <div class="brand">
       <img src="https://raw.githubusercontent.com/gmcglynn88/TimeoffApp/main/IPI_Primary%20Identity_Corporate_REVERSED_ECC.png" alt="IPI Logo">
     </div>
@@ -196,6 +213,9 @@
       scopes: 'conversations analytics users routing external_contacts coaching authorization'
     };
 
+    // Feature Request URL - Update this to your actual URL
+    const FEATURE_REQUEST_URL = 'https://gmcglynn88.github.io/Transfer-Insights/feature-request.html';
+
     // ---- App registry ----
     const APPS = [
       { 
@@ -223,7 +243,7 @@
         category: 'Analytics',
         description: 'Explore and analyze conversations'
       },
-            { 
+      { 
         id:'Transfer Insights',   
         name:'Interaction Transfer Insights',      
         url:'https://gmcglynn88.github.io/Transfer-Insights/',   
@@ -295,6 +315,14 @@
         category: 'Customer Data Management',
         description: 'Extract customer data for GDPR requests'
       },
+      { 
+        id:'Feature Request Form',                   
+        name:'Feature Request Form',       
+        url: 'https://gmcglynn88.github.io/feature-request/',                  
+        icon:'💡',
+        category: 'IPI Admin',
+        description: 'Submit feature requests and enhancements'
+      },
     ];
 
     // ---- DOM elements ----
@@ -305,6 +333,12 @@
     const iconEl = document.getElementById('currentIcon');
     const loadingOverlay = document.getElementById('loadingOverlay');
     const mainWrap = document.querySelector('.wrap');
+    const featureRequestBtn = document.getElementById('featureRequestBtn');
+
+    // ---- Feature Request Button ----
+    featureRequestBtn.addEventListener('click', () => {
+      window.open(FEATURE_REQUEST_URL, '_blank');
+    });
 
     // ---- Simple OAuth Redirect ----
     function initiateOAuthRedirect() {
