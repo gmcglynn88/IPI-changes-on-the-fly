@@ -45,7 +45,12 @@
     }
     .sidebar{
       width:260px; background:#fff; border-right:1px solid var(--border);
-      padding:10px 8px; overflow-y:auto;
+      display:flex; flex-direction:column; overflow:hidden;
+      flex-shrink:0;
+    }
+    .sidebar-content {
+      flex:1; overflow-y:auto; padding:10px 8px;
+      display:flex; flex-direction:column;
     }
     .content{
       flex:1; min-width:0; padding:16px;
@@ -55,6 +60,7 @@
     /* Nav items */
     .nav{
       display:flex; flex-direction:column; gap:6px;
+      flex:1;
     }
     .nav-btn{
       display:flex; align-items:center; gap:10px;
@@ -62,6 +68,7 @@
       padding:10px 12px; border-radius:10px; font-size:14px; color:#1f2937;
       text-align:left; transition:background .18s ease, color .18s ease, transform .04s ease;
       position:relative;
+      flex-shrink:0;
     }
     .nav-btn:hover{background:var(--hover)}
     .nav-btn.active{
@@ -87,6 +94,7 @@
       text-overflow:ellipsis;
       font-size:13.5px;
       line-height:1.3;
+      min-width:0; /* Important for ellipsis to work */
     }
     .chev{opacity:.5; flex-shrink:0;}
 
@@ -142,6 +150,7 @@
       margin:16px 0 8px 0; padding:0 12px;
       font-size:12px; font-weight:600; color:var(--muted);
       text-transform:uppercase; letter-spacing:0.5px;
+      flex-shrink:0;
     }
 
     /* Feature Request Modal */
@@ -516,7 +525,7 @@
 
     /* Responsive */
     @media (max-width: 980px){
-      .sidebar{width:210px}
+      .sidebar{width:220px}
       .nav-btn{font-size:13px}
       .nav-btn .app-tooltip{display:none;}
       .label{font-size:13px;}
@@ -525,10 +534,35 @@
     }
     @media (max-width: 760px){
       .wrap{flex-direction:column}
-      .sidebar{width:auto; border-right:0; border-bottom:1px solid var(--border); display:flex; overflow:auto}
-      .nav{flex-direction:row; gap:8px; padding:8px}
-      .nav-btn{white-space:nowrap; min-width:auto; padding:8px 10px;}
-      .nav-group{display:none;}
+      .sidebar{
+        width:100%; 
+        border-right:0; 
+        border-bottom:1px solid var(--border); 
+        height:auto;
+        max-height:200px;
+        overflow:hidden;
+      }
+      .sidebar-content {
+        overflow-x: hidden;
+        overflow-y: auto;
+        flex-direction: row;
+        padding: 8px;
+      }
+      .nav{
+        flex-direction:row; 
+        gap:8px; 
+        flex-wrap:wrap;
+        align-content:flex-start;
+      }
+      .nav-btn{
+        white-space:nowrap; 
+        min-width:auto; 
+        padding:8px 10px;
+        flex: 0 0 auto;
+      }
+      .nav-group{
+        display:none;
+      }
       .chev{display:none;}
       header .feature-request-btn{position:absolute; right:50px; top:50%; transform:translateY(-50%);}
       
@@ -579,7 +613,9 @@
 
   <div class="wrap" style="display:none;">
     <aside class="sidebar">
-      <nav id="nav" class="nav"></nav>
+      <div class="sidebar-content">
+        <nav id="nav" class="nav"></nav>
+      </div>
     </aside>
 
     <main class="content">
@@ -612,11 +648,11 @@
     const APPS = [
       { 
         id: 'Welcome',
-        name: 'Welcome to Operations Hub',
+        name: 'Home Page',
         url: '#welcome',  // Special URL for welcome page
         icon: '🏠',
         category: 'Home',
-        description: 'Welcome and introduction to Operations Hub'
+        description: ''
       },
       { 
         id: 'Quality Insights',
@@ -842,12 +878,12 @@
       return `
         <div class="welcome-header">
           <h1 class="welcome-title">Welcome to Operations Hub</h1>
-          <p class="welcome-subtitle">Your centralized platform for operational excellence and real-time insights</p>
+          <p class="welcome-subtitle">Your centralised platform for operational excellence and real-time insights</p>
         </div>
         
         <h2 style="margin-top: 0; color: var(--primary);">About Operations Hub</h2>
         <p style="font-size: 1.1rem; line-height: 1.6;">
-          Operations Hub gathers the core operational applications your teams rely on every day, providing a unified environment for managing, analyzing, and optimizing your contact center operations.
+          Operations Hub brings together the core operational applications your teams rely on every day, providing a unified environment for managing, analysing, and optimising your contact centre operations.
         </p>
         
         <div class="feature-list">
@@ -894,7 +930,7 @@
         
         <div class="sidebar-note">
           <h3>Getting Started</h3>
-          <p>To navigate to an application, please select from the side bar. Each application is designed to work seamlessly with your Genesys environment and provide the insights you need to drive Exceptional Customer Contact.</p>
+          <p>To navigate to an application, please select from the side bar. Each application is designed to work seamlessly with your Genesys environment and provide the insights you need to drive operational excellence.</p>
         </div>
       `;
     }
