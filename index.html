@@ -237,6 +237,265 @@
       background: var(--primary-dark);
     }
 
+    /* Welcome Page Styles (inline) */
+    .welcome-content {
+      padding: 30px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .welcome-header {
+      text-align: center;
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid var(--primary);
+    }
+    
+    .welcome-title {
+      color: var(--primary);
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+    
+    .welcome-subtitle {
+      font-size: 1.2rem;
+      color: var(--muted);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    .feature-list {
+      list-style-type: none;
+      padding: 0;
+      margin: 30px 0;
+    }
+    
+    .feature-list li {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    
+    .feature-list li:last-child {
+      border-bottom: none;
+    }
+    
+    .feature-list li:before {
+      content: "•";
+      color: var(--primary);
+      font-size: 1.5rem;
+      line-height: 1;
+    }
+    
+    .feature-title {
+      font-weight: 600;
+      color: var(--primary-dark);
+      margin-bottom: 4px;
+    }
+    
+    .feature-description {
+      color: var(--text);
+    }
+    
+    .no-coding-note {
+      background: #e9f6f0;
+      border: 1px solid var(--primary);
+      border-radius: 8px;
+      padding: 20px;
+      margin: 30px 0;
+      text-align: center;
+    }
+    
+    .sidebar-note {
+      background: #f0f7ff;
+      border: 1px solid var(--primary-dark);
+      border-radius: 8px;
+      padding: 20px;
+      margin: 30px 0;
+    }
+    
+    /* Development Updates Styles */
+    .development-updates {
+      background: #FFF0EB;
+      border: 1px solid #FF6B35;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 30px 0;
+      animation: fadeIn 0.5s ease-in;
+    }
+    
+    .development-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      color: #FF6B35;
+    }
+    
+    .development-header h3 {
+      margin: 0;
+      font-size: 1.4rem;
+    }
+    
+    .development-badge {
+      background: #FF6B35;
+      color: white;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-left: auto;
+    }
+    
+    .development-items {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .development-item {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 15px;
+      display: flex;
+      gap: 15px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .development-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .dev-status {
+      min-width: 100px;
+      text-align: center;
+    }
+    
+    .status-badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    
+    .status-planning {
+      background: #e3f2fd;
+      color: #1565c0;
+      border: 1px solid #bbdefb;
+    }
+    
+    .status-development {
+      background: #fff3e0;
+      color: #ef6c00;
+      border: 1px solid #ffe0b2;
+    }
+    
+    .status-testing {
+      background: #e8f5e9;
+      color: #2e7d32;
+      border: 1px solid #c8e6c9;
+    }
+    
+    .status-deployment {
+      background: #f3e5f5;
+      color: #7b1fa2;
+      border: 1px solid #e1bee7;
+    }
+    
+    .dev-content {
+      flex: 1;
+    }
+    
+    .dev-title {
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 5px;
+      font-size: 1.1rem;
+    }
+    
+    .dev-description {
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+    
+    .dev-eta {
+      margin-top: 8px;
+      font-size: 0.85rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    .dev-eta:before {
+      content: "📅";
+      font-size: 0.9rem;
+    }
+    
+    .no-updates {
+      text-align: center;
+      padding: 30px;
+      color: var(--muted);
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Toggle for Development Updates */
+    .dev-toggle-container {
+      text-align: center;
+      margin: 20px 0;
+    }
+    
+    .dev-toggle-btn {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .dev-toggle-btn:hover {
+      background: var(--border);
+      color: var(--text);
+    }
+    
+    .dev-toggle-btn.active {
+      background: #FF6B35;
+      color: white;
+      border-color: #FF6B35;
+    }
+    
+    .icon {
+      display: inline-block;
+      margin-right: 8px;
+    }
+    
+    @media (max-width: 768px) {
+      .welcome-title {
+        font-size: 2rem;
+      }
+      
+      .development-item {
+        flex-direction: column;
+        gap: 10px;
+      }
+      
+      .dev-status {
+        text-align: left;
+      }
+    }
+
     /* Responsive */
     @media (max-width: 980px){
       .sidebar{width:210px}
@@ -257,6 +516,10 @@
       
       .feature-request-modal .modal-content {
         padding: 10px;
+      }
+      
+      .welcome-content {
+        padding: 15px;
       }
     }
   </style>
@@ -328,11 +591,19 @@
       scopes: 'conversations analytics users routing external_contacts coaching authorization'
     };
 
-    // Feature Request URL - Update this to your actual URL
+    // Feature Request URL
     const FEATURE_REQUEST_URL = 'https://gmcglynn88.github.io/Feature-Request/';
 
     // ---- App registry ----
     const APPS = [
+      { 
+        id: 'Welcome',
+        name: 'Welcome to Operations Hub',
+        url: '#welcome',  // Special URL for welcome page
+        icon: '🏠',
+        category: 'Home',
+        description: 'Welcome and introduction to Operations Hub'
+      },
       { 
         id: 'Quality Insights',
         name: 'Quality Insights',
@@ -341,7 +612,6 @@
         category: 'Analytics',
         description: 'Quality reporting & insights'
       },
-      
       { 
         id:'ExternalWorkCreation',   
         name:'External Work Creation',     
@@ -441,12 +711,51 @@
       { 
         id:'Feature Request Form',                   
         name:'Feature Request Form',       
-        url: 'https://gmcglynn88.github.io/Feature-Request/',                  
+        url: FEATURE_REQUEST_URL,                  
         icon:'💡',
         category: 'IPI Admin',
         description: 'Submit feature requests and enhancements'
       },
     ];
+
+    // Development Updates Configuration
+    const DEVELOPMENT_UPDATES = {
+      enabled: true,
+      showByDefault: true,
+      updates: [
+        {
+          id: 1,
+          title: "Real-Time Performance Analytics",
+          description: "Enhanced dashboard with real-time metrics and predictive analytics for agent performance and queue management.",
+          status: "development",
+          eta: "Q2 2024",
+          priority: "high"
+        },
+        {
+          id: 2,
+          title: "Automated Report Scheduling",
+          description: "Schedule automated report generation and distribution to stakeholders via email or Teams.",
+          status: "testing",
+          eta: "Q1 2024",
+          priority: "medium"
+        },
+        {
+          id: 3,
+          title: "Mobile Operations App",
+          description: "Mobile-friendly version of key dashboards for on-the-go monitoring and management.",
+          status: "planning",
+          eta: "Q3 2024",
+          priority: "medium"
+        }
+      ]
+    };
+
+    const STATUS_CONFIG = {
+      planning: { label: "Planning", class: "status-planning", icon: "📋" },
+      development: { label: "In Development", class: "status-development", icon: "👨‍💻" },
+      testing: { label: "Testing", class: "status-testing", icon: "🧪" },
+      deployment: { label: "Deployment", class: "status-deployment", icon: "🚀" }
+    };
 
     // ---- DOM elements ----
     const nav = document.getElementById('nav');
@@ -466,33 +775,193 @@
     function openFeatureRequestModal() {
       featureRequestModal.classList.add('active');
       featureRequestFrame.src = FEATURE_REQUEST_URL;
-      document.body.style.overflow = 'hidden'; // Prevent scrolling behind modal
+      document.body.style.overflow = 'hidden';
     }
 
     function closeFeatureRequestModal() {
       featureRequestModal.classList.remove('active');
       featureRequestFrame.src = 'about:blank';
-      document.body.style.overflow = 'auto'; // Re-enable scrolling
+      document.body.style.overflow = 'auto';
     }
 
-    // Event listeners for modal
     featureRequestBtn.addEventListener('click', openFeatureRequestModal);
     modalCloseBtn.addEventListener('click', closeFeatureRequestModal);
     backToAppBtn.addEventListener('click', closeFeatureRequestModal);
 
-    // Close modal when clicking outside the content
     featureRequestModal.addEventListener('click', (e) => {
       if (e.target === featureRequestModal) {
         closeFeatureRequestModal();
       }
     });
 
-    // Close modal with Escape key
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && featureRequestModal.classList.contains('active')) {
         closeFeatureRequestModal();
       }
     });
+
+    // ---- Welcome Page Rendering ----
+    function renderWelcomePage() {
+      frame.style.display = 'none';
+      const card = frame.parentElement;
+      
+      // Remove existing welcome content if present
+      const existingWelcome = card.querySelector('.welcome-content');
+      if (existingWelcome) {
+        existingWelcome.remove();
+      }
+      
+      // Create welcome content container
+      const welcomeContainer = document.createElement('div');
+      welcomeContainer.className = 'welcome-content';
+      welcomeContainer.innerHTML = generateWelcomeHTML();
+      
+      // Insert welcome content before the iframe
+      card.insertBefore(welcomeContainer, frame);
+      
+      // Initialize development updates functionality
+      initializeDevelopmentUpdates();
+    }
+
+    function generateWelcomeHTML() {
+      return `
+        <div class="welcome-header">
+          <h1 class="welcome-title">Welcome to Operations Hub</h1>
+          <p class="welcome-subtitle">Your centralized platform for operational excellence and real-time insights</p>
+        </div>
+        
+        <h2 style="margin-top: 0; color: var(--primary);">About Operations Hub</h2>
+        <p style="font-size: 1.1rem; line-height: 1.6;">
+          Operations Hub gathers the core operational applications your teams rely on every day, providing a unified environment for managing, analyzing, and optimizing your contact center operations.
+        </p>
+        
+        <div class="feature-list">
+          <li>
+            <div>
+              <div class="feature-title">Real-Time Communication Tools</div>
+              <div class="feature-description">Communicating directly with Genesys to make real time changes and view crucial decision-making data.</div>
+            </div>
+          </li>
+          <li>
+            <div>
+              <div class="feature-title">Comprehensive Reporting</div>
+              <div class="feature-description">Reporting tools that reveal trends, outcomes, and service performance across all channels.</div>
+            </div>
+          </li>
+          <li>
+            <div>
+              <div class="feature-title">Interactive Dashboards</div>
+              <div class="feature-description">Dashboards that present performance trends, agent performance and operational health at a glance.</div>
+            </div>
+          </li>
+          <li>
+            <div>
+              <div class="feature-title">Administration Tools</div>
+              <div class="feature-description">Administration tools for user management, configuration tasks, service tuning and resource oversight.</div>
+            </div>
+          </li>
+          <li>
+            <div>
+              <div class="feature-title">Additional Operational Apps</div>
+              <div class="feature-description">Additional operational apps that support analysis, planning, and continuous improvement initiatives.</div>
+            </div>
+          </li>
+        </div>
+        
+        <div class="no-coding-note">
+          <h3 style="margin-top: 0; color: var(--primary);">No Coding Required</h3>
+          <p style="margin-bottom: 0;">
+            Everything sits together in a single structured environment that supports daily operational activity without any need for complex coding.
+          </p>
+        </div>
+        
+        <div id="development-updates-container"></div>
+        
+        <div class="sidebar-note">
+          <h3>Getting Started</h3>
+          <p>To navigate to an application, please select from the side bar. Each application is designed to work seamlessly with your Genesys environment and provide the insights you need to drive operational excellence.</p>
+        </div>
+      `;
+    }
+
+    function initializeDevelopmentUpdates() {
+      const container = document.getElementById('development-updates-container');
+      if (!container) return;
+      
+      if (DEVELOPMENT_UPDATES.enabled && DEVELOPMENT_UPDATES.updates.length > 0) {
+        const sortedUpdates = [...DEVELOPMENT_UPDATES.updates].sort((a, b) => {
+          const priorityOrder = { high: 1, medium: 2, low: 3 };
+          const statusOrder = { deployment: 1, testing: 2, development: 3, planning: 4 };
+          
+          if (priorityOrder[a.priority] !== priorityOrder[b.priority]) {
+            return priorityOrder[a.priority] - priorityOrder[b.priority];
+          }
+          return statusOrder[a.status] - statusOrder[b.status];
+        });
+        
+        let html = `
+          <div class="development-updates">
+            <div class="development-header">
+              <span class="icon">🚧</span>
+              <h3>What's in Development</h3>
+              <span class="development-badge">${sortedUpdates.length} item${sortedUpdates.length !== 1 ? 's' : ''}</span>
+            </div>
+            <div class="development-items">
+        `;
+        
+        sortedUpdates.forEach(update => {
+          const status = STATUS_CONFIG[update.status];
+          html += `
+            <div class="development-item">
+              <div class="dev-status">
+                <div class="status-badge ${status.class}">
+                  ${status.icon} ${status.label}
+                </div>
+              </div>
+              <div class="dev-content">
+                <div class="dev-title">${update.title}</div>
+                <div class="dev-description">${update.description}</div>
+                <div class="dev-eta">ETA: ${update.eta}</div>
+              </div>
+            </div>
+          `;
+        });
+        
+        html += `
+            </div>
+          </div>
+        `;
+        
+        container.innerHTML = html;
+        
+        // Add toggle functionality if not shown by default
+        if (!DEVELOPMENT_UPDATES.showByDefault) {
+          const updatesSection = container.querySelector('.development-updates');
+          const toggleContainer = document.createElement('div');
+          toggleContainer.className = 'dev-toggle-container';
+          toggleContainer.innerHTML = `
+            <button id="dev-toggle-btn" class="dev-toggle-btn">
+              <span class="icon">👷</span> Show Development Updates
+            </button>
+          `;
+          
+          container.insertBefore(toggleContainer, updatesSection);
+          updatesSection.style.display = 'none';
+          
+          let showUpdates = false;
+          const toggleBtn = document.getElementById('dev-toggle-btn');
+          
+          toggleBtn.addEventListener('click', () => {
+            showUpdates = !showUpdates;
+            updatesSection.style.display = showUpdates ? 'block' : 'none';
+            toggleBtn.innerHTML = showUpdates 
+              ? '<span class="icon">👷</span> Hide Development Updates' 
+              : '<span class="icon">👷</span> Show Development Updates';
+            toggleBtn.classList.toggle('active', showUpdates);
+          });
+        }
+      }
+    }
 
     // ---- Simple OAuth Redirect ----
     function initiateOAuthRedirect() {
@@ -576,7 +1045,7 @@
       if (fromHash && byId(fromHash)) return fromHash;
       const last = localStorage.getItem('ipi-adminhub:last');
       if (last && byId(last)) return last;
-      return APPS[0].id;
+      return 'Welcome'; // Default to Welcome page
     }
 
     function selectApp(id){
@@ -586,70 +1055,82 @@
       titleEl.textContent = app.name;
       iconEl.textContent = app.icon;
 
-      // Reset iframe for better rendering
-      frame.style.opacity = '0.5';
-      frame.src = 'about:blank';
-      
-      // Enhanced iframe attributes for better app display
-      frame.setAttribute('sandbox', 'allow-scripts allow-forms allow-same-origin allow-popups allow-modals allow-downloads');
-      frame.style.width = '100%';
-      frame.style.height = '100%';
-      frame.style.minHeight = '600px';
-      frame.style.border = '1px solid var(--border)';
-      frame.style.borderRadius = '10px';
+      // Show reload button for non-welcome pages
+      reloadB.style.display = app.id === 'Welcome' ? 'none' : 'inline-block';
 
-      let loaded = false;
-      const guardTimer = setTimeout(() => {
-        if (!loaded) {
-          frame.style.opacity = '1';
+      if (app.id === 'Welcome') {
+        renderWelcomePage();
+      } else {
+        // Remove welcome content if exists
+        const card = frame.parentElement;
+        const welcomeContent = card.querySelector('.welcome-content');
+        if (welcomeContent) {
+          welcomeContent.remove();
         }
-      }, 5000);
-
-      frame.onload = () => {
-        loaded = true;
-        clearTimeout(guardTimer);
-        frame.style.opacity = '1';
         
-        // Try to inject CSS to improve app layout within iframe
-        try {
-          const frameDoc = frame.contentDocument || frame.contentWindow.document;
-          // Add some basic styling to help with layout in the iframe
-          const style = frameDoc.createElement('style');
-          style.textContent = `
-            body { 
-              padding: 20px; 
-              margin: 0; 
-              font-family: 'Aptos', 'Segoe UI', sans-serif;
-            }
-            .container, .main-content, [class*="container"], [class*="content"] {
-              max-width: 100% !important;
-              padding: 20px !important;
-            }
-            table {
-              width: 100% !important;
-              max-width: 100% !important;
-            }
-          `;
-          frameDoc.head.appendChild(style);
-        } catch (e) {
-          // Cross-origin, can't modify content
-          console.log('Cross-origin iframe, cannot inject styles');
-        }
-      };
+        // Show iframe and load app
+        frame.style.display = 'block';
+        frame.style.opacity = '0.5';
+        frame.src = 'about:blank';
+        
+        frame.setAttribute('sandbox', 'allow-scripts allow-forms allow-same-origin allow-popups allow-modals allow-downloads');
+        frame.style.width = '100%';
+        frame.style.height = '100%';
+        frame.style.minHeight = '600px';
+        frame.style.border = '1px solid var(--border)';
+        frame.style.borderRadius = '10px';
 
-      frame.onerror = () => {
-        loaded = true;
-        clearTimeout(guardTimer);
-        frame.style.opacity = '1';
-      };
+        let loaded = false;
+        const guardTimer = setTimeout(() => {
+          if (!loaded) {
+            frame.style.opacity = '1';
+          }
+        }, 5000);
 
-      // Load the app with a slight delay
-      setTimeout(() => {
-        frame.src = app.url;
-      }, 150);
+        frame.onload = () => {
+          loaded = true;
+          clearTimeout(guardTimer);
+          frame.style.opacity = '1';
+          
+          try {
+            const frameDoc = frame.contentDocument || frame.contentWindow.document;
+            const style = frameDoc.createElement('style');
+            style.textContent = `
+              body { 
+                padding: 20px; 
+                margin: 0; 
+                font-family: 'Aptos', 'Segoe UI', sans-serif;
+              }
+              .container, .main-content, [class*="container"], [class*="content"] {
+                max-width: 100% !important;
+                padding: 20px !important;
+              }
+              table {
+                width: 100% !important;
+                max-width: 100% !important;
+              }
+            `;
+            frameDoc.head.appendChild(style);
+          } catch (e) {
+            console.log('Cross-origin iframe, cannot inject styles');
+          }
+        };
+
+        frame.onerror = () => {
+          loaded = true;
+          clearTimeout(guardTimer);
+          frame.style.opacity = '1';
+        };
+
+        setTimeout(() => {
+          frame.src = app.url;
+        }, 150);
+      }
 
       reloadB.onclick = () => { 
-        frame.contentWindow?.location?.reload?.() || (frame.src = app.url); 
+        if (app.id !== 'Welcome') {
+          frame.contentWindow?.location?.reload?.() || (frame.src = app.url); 
+        }
       };
     }
 
