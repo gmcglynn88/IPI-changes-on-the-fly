@@ -242,6 +242,7 @@
       padding: 30px;
       max-width: 1200px;
       margin: 0 auto;
+      background: var(--bg);
     }
     
     .welcome-header {
@@ -481,6 +482,19 @@
       margin-right: 8px;
     }
     
+    /* Welcome page specific overrides */
+    .card.welcome-mode {
+      background: var(--bg) !important;
+      border: none !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+    }
+    
+    .card.welcome-mode .card-header {
+      background: var(--bg) !important;
+      border-bottom: 1px solid rgba(0,0,0,0.1) !important;
+    }
+    
     @media (max-width: 768px) {
       .welcome-title {
         font-size: 2rem;
@@ -493,6 +507,10 @@
       
       .dev-status {
         text-align: left;
+      }
+      
+      .welcome-content {
+        padding: 15px;
       }
     }
 
@@ -516,10 +534,6 @@
       
       .feature-request-modal .modal-content {
         padding: 10px;
-      }
-      
-      .welcome-content {
-        padding: 15px;
       }
     }
   </style>
@@ -569,7 +583,7 @@
     </aside>
 
     <main class="content">
-      <div class="card">
+      <div class="card" id="mainCard">
         <div class="card-header">
           <div id="currentIcon" class="icon">🔧</div>
           <div id="currentTitle" class="card-title">Loading…</div>
@@ -770,6 +784,7 @@
     const featureRequestFrame = document.getElementById('featureRequestFrame');
     const modalCloseBtn = document.getElementById('modalCloseBtn');
     const backToAppBtn = document.getElementById('backToAppBtn');
+    const mainCard = document.getElementById('mainCard');
 
     // ---- Feature Request Modal ----
     function openFeatureRequestModal() {
@@ -1059,8 +1074,13 @@
       reloadB.style.display = app.id === 'Welcome' ? 'none' : 'inline-block';
 
       if (app.id === 'Welcome') {
+        // Add welcome mode class to card
+        mainCard.classList.add('welcome-mode');
         renderWelcomePage();
       } else {
+        // Remove welcome mode class
+        mainCard.classList.remove('welcome-mode');
+        
         // Remove welcome content if exists
         const card = frame.parentElement;
         const welcomeContent = card.querySelector('.welcome-content');
