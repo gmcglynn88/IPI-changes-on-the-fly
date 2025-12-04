@@ -40,9 +40,10 @@
     header .brand img{height:34px}
 
     /* Layout */
-    .wrap{
-      display:flex; height:calc(100vh - 64px); margin-top:64px;
-    }
+.wrap{
+  display:flex; height:100%; margin-top:64px;
+  align-items: stretch;
+}
     .sidebar{
       width:290px; background:#fff; border-right:1px solid var(--border);
       display:flex; flex-direction:column;
@@ -95,11 +96,10 @@
     .chev{opacity:.5; flex-shrink:0;}
 
     /* Card + iframe area */
-    .card{
-      background:var(--card); border:1px solid var(--border);
-      border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,.06);
-      padding:14px; display:flex; flex-direction:column; gap:10px; 
-      height:100%; min-height:0;
+.card{
+  background:var(--card); border:1px solid var(--border);
+  border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,.06);
+  padding:14px; display:flex; flex-direction:column; gap:10px; 
     }
     .card-header{
       display:flex; align-items:center; gap:10px; flex-wrap:wrap;
