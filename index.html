@@ -41,14 +41,17 @@
 
     /* Layout */
 .wrap{
-  display:flex; height:100%; margin-top:64px;
+  display:flex; 
+  height: calc(100vh - 64px); /* Explicit viewport height minus header */
+  margin-top:64px;
   align-items: stretch;
+  min-height: 0; /* Important for flex children */
 }
 .sidebar{
   width:290px; background:#fff; border-right:1px solid var(--border);
   display:flex; flex-direction:column;
   flex-shrink:0;
-  height: calc(100vh - 64px); /* Full height minus header */
+  align-self: stretch; /* Stretch to parent height */
 }
     .content{
       flex:1; min-width:0; padding:16px;
