@@ -76,6 +76,8 @@
     .stat-card { background: #fff; border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
     .stat-card .value { font-size: 32px; font-weight: bold; color: var(--primary-color); }
     .stat-card .label { font-size: 14px; color: var(--text-light); margin-top: 8px; }
+    
+    .no-data { text-align: center; padding: 40px; color: var(--text-light); }
   </style>
 </head>
 <body>
@@ -117,7 +119,7 @@
 
     <div class="card">
       <h2 class="section-title">Survey Responses</h2>
-      <div id="surveysContainer"></div>
+      <div id="surveysContainer" class="no-data">Select date range and click "Load Surveys" to begin</div>
     </div>
   </div>
 
@@ -431,6 +433,8 @@
           try {
             const errorBody = await response.text();
             console.error('API Error (400):', errorBody);
+            console.error('Request URL:', url);
+            console.error('Request Body:', options.body);
           } catch(e) {
             console.error('Could not read error response');
           }
@@ -578,11 +582,11 @@
       
       const btn = document.getElementById('loadBtn'); 
       setLoading(btn, true); 
-      msg('Loading surveys...', 'info');
+      msg('Loading conversations and surveys...', 'info');
       
       try {
-        // First get conversation details with conversations details API
-        const conversations = await fetchConversationDetails(start, end, agentIds);
+        // Get conversations using the aggregates query
+        const conversations = await fetchConversations(start, end, agentIds);
         console.log(`Found ${conversations.length} conversations`);
         
         // Get surveys for these conversations
@@ -602,141 +606,69 @@
       }
     }
 
-    // NEW: Use conversations details query instead of aggregates
-    async function fetchConversationDetails(start, end, agentIds){
-      const url = `https://api.${config.REGION}/api/v2/analytics/conversations/details/query`;
+    // UPDATED: Using the correct schema for conversations aggregates
+    async function fetchConversations(start, end, agentIds){
+      const url = `https://api.${config.REGION}/api/v2/analytics/conversations/aggregates/query`;
       
-      // Build filter predicates
-      const predicates = [];
+      // Build the request body according to the schema
+      const body = {
+        "interval": `${start.toISOString()}/${end.toISOString()}`,
+        "granularity": "P1D",  // Daily granularity
+        "groupBy": [
+          "userId",
+          "conversationId"
+        ],
+        "metrics": [
+          "tHandle"  // This gives us conversation count
+        ],
+        "flattenMultivaluedDimensions": false
+      };
       
-      // Date filter
-      predicates.push({
-        "type": "and",
-        "predicates": [
-          {
-            "type": "dimension",
-            "dimension": "conversationStart",
-            "operator": "greaterThanOrEqual",
-            "value": start.toISOString()
-          },
-          {
-            "type": "dimension",
-            "dimension": "conversationStart",
-            "operator": "lessThanOrEqual",
-            "value": end.toISOString()
-          }
-        ]
-      });
-      
-      // Agent filter if agents are selected
+      // Add filter if agents are selected
       if(agentIds && agentIds.length > 0){
-        predicates.push({
+        body.filter = {
           "type": "or",
-          "predicates": agentIds.map(agentId => ({
+          "clauses": agentIds.map(agentId => ({
             "type": "dimension",
-            "dimension": "participantId",
+            "dimension": "userId",
             "operator": "matches",
             "value": agentId
           }))
-        });
+        };
       }
       
-      const body = {
-        "interval": `${start.toISOString()}/${end.toISOString()}`,
-        "order": "desc",
-        "orderBy": "conversationStart",
-        "paging": {
-          "pageSize": 100,
-          "pageNumber": 1
-        },
-        "segmentFilters": [{
-          "type": "and",
-          "predicates": predicates
-        }],
-        "conversationFilters": []
-      };
-      
       try {
-        console.log('Fetching conversation details with body:', JSON.stringify(body, null, 2));
+        console.log('Fetching conversations with body:', JSON.stringify(body, null, 2));
         const data = await fetchJsonWithRetry(url, {
           method: 'POST',
           body: JSON.stringify(body)
         });
         
         const conversations = [];
-        if(data && data.conversations && data.conversations.length > 0){
-          data.conversations.forEach(conversation => {
-            conversations.push({
-              conversationId: conversation.conversationId,
-              conversationStart: conversation.conversationStart,
-              conversationEnd: conversation.conversationEnd,
-              mediaType: conversation.mediaType || 'Unknown',
-              participants: conversation.participants || []
-            });
+        if(data && data.results && data.results.length > 0){
+          data.results.forEach(result => {
+            if(result.group && result.group.conversationId && result.group.userId){
+              conversations.push({
+                conversationId: result.group.conversationId,
+                agentId: result.group.userId,
+                // We'll enrich this with more details later
+              });
+            }
           });
+          
+          // Remove duplicates (same conversation might appear for different metrics)
+          const uniqueConversations = Array.from(
+            new Map(conversations.map(c => [c.conversationId, c])).values()
+          );
+          
+          console.log(`Found ${uniqueConversations.length} unique conversations`);
+          return uniqueConversations;
         }
         
-        return conversations;
-      } catch (error) {
-        console.error('Error fetching conversation details:', error);
-        // Try a simpler approach
-        return await fetchConversationsSimple(start, end, agentIds);
-      }
-    }
-
-    // Alternative simpler approach if the details query fails
-    async function fetchConversationsSimple(start, end, agentIds){
-      console.log('Trying simple conversation fetch...');
-      
-      // Since we can't easily get all conversations with agent filter,
-      // we'll use a different approach: get evaluations which have conversation info
-      const evaluations = await fetchEvaluationsWithConversations(start, end, agentIds);
-      
-      // Extract unique conversations from evaluations
-      const conversationMap = new Map();
-      
-      evaluations.forEach(evaluation => {
-        const conversationId = safeGet(evaluation, 'conversation.id') || 
-                               safeGet(evaluation, 'conversationId');
-        
-        if(conversationId && !conversationMap.has(conversationId)){
-          conversationMap.set(conversationId, {
-            conversationId: conversationId,
-            conversationStart: evaluation.releaseDate || evaluation.assignedDate || evaluation.creationDate,
-            conversationEnd: null,
-            mediaType: safeGet(evaluation, 'conversation.mediaType') || 'Unknown',
-            participants: [] // We'll populate this later
-          });
-        }
-      });
-      
-      return Array.from(conversationMap.values());
-    }
-
-    async function fetchEvaluationsWithConversations(start, end, agentIds){
-      const url = `https://api.${config.REGION}/api/v2/quality/evaluations/query`;
-      
-      // Build query parameters
-      const params = new URLSearchParams({
-        startTime: start.toISOString(),
-        endTime: end.toISOString(),
-        expand: ['answerTotalScores', 'conversation'].join(','),
-        pageSize: '100'
-      });
-      
-      if(agentIds && agentIds.length > 0){
-        // We can only query one agent at a time, so get all agents if none selected
-        params.set('agentUserId', agentIds[0]); // Just use first agent for now
-      }
-      
-      const fullUrl = `${url}?${params.toString()}`;
-      
-      try {
-        const data = await fetchJsonWithRetry(fullUrl, {method: 'GET'});
-        return data?.entities || [];
-      } catch (error) {
-        console.error('Error fetching evaluations:', error);
         return [];
+      } catch (error) {
+        console.error('Error fetching conversations:', error);
+        throw error;
       }
     }
 
@@ -747,7 +679,7 @@
       const url = `https://api.${config.REGION}/api/v2/analytics/surveys/aggregates/query`;
       
       // Process in smaller batches
-      const batchSize = 20;
+      const batchSize = 25;
       const batches = [];
       for(let i = 0; i < conversations.length; i += batchSize){
         batches.push(conversations.slice(i, i + batchSize));
@@ -755,19 +687,20 @@
       
       const allSurveys = [];
       
-      for(const batch of batches){
+      for(const [batchIndex, batch] of batches.entries()){
         const conversationIds = batch.map(c => c.conversationId).filter(Boolean);
         
         if(conversationIds.length === 0) continue;
         
         const body = {
-          "interval": "1900-01-01T00:00:00/2100-01-01T00:00:00", // Wide date range
-          "granularity": "DAY",
+          "interval": "1900-01-01T00:00:00/2100-01-01T00:00:00", // Wide date range to get all surveys
+          "granularity": "P1D",
           "groupBy": ["conversationId", "surveyId"],
           "metrics": ["nSurveys", "npsScore"],
+          "flattenMultivaluedDimensions": false,
           "filter": {
             "type": "or",
-            "predicates": conversationIds.map(conversationId => ({
+            "clauses": conversationIds.map(conversationId => ({
               "type": "dimension",
               "dimension": "conversationId",
               "operator": "matches",
@@ -777,22 +710,23 @@
         };
         
         try {
-          console.log('Fetching surveys for batch of', conversationIds.length, 'conversations');
+          console.log(`Fetching surveys for batch ${batchIndex + 1}/${batches.length} (${conversationIds.length} conversations)`);
           const data = await fetchJsonWithRetry(url, {
             method: 'POST',
             body: JSON.stringify(body)
           });
           
           if(data && data.results && data.results.length > 0){
-            // Match surveys with conversation details
+            // Process each survey result
             for(const result of data.results){
               const conversationId = result.group?.conversationId;
               const surveyId = result.group?.surveyId;
               
               if(conversationId && surveyId){
+                // Find the conversation to get agent info
                 const conversation = batch.find(c => c.conversationId === conversationId);
                 if(conversation){
-                  const survey = await createSurveyObject(conversation, surveyId, result);
+                  const survey = await enrichSurveyWithDetails(conversation, surveyId, result);
                   if(survey){
                     allSurveys.push(survey);
                   }
@@ -802,48 +736,117 @@
           }
         } catch (error) {
           console.error('Error fetching surveys batch:', error);
+          // Continue with next batch
         }
         
         // Small delay to avoid rate limiting
-        await sleep(300);
+        await sleep(500);
       }
       
       return allSurveys;
     }
 
-    async function createSurveyObject(conversation, surveyId, surveyResult){
+    async function enrichSurveyWithDetails(conversation, surveyId, surveyResult){
       try {
-        // Find agent and customer from conversation participants
-        const agentParticipant = conversation.participants?.find(p => 
-          p.purpose === 'agent' || p.purpose === 'acd' || 
-          (p.user && p.user.id)
-        );
+        // Get agent name from state.users
+        const agent = state.users.find(u => u.id === conversation.agentId);
+        const agentName = agent ? agent.name : 'Unknown Agent';
         
-        const customerParticipant = conversation.participants?.find(p => 
-          p.purpose === 'customer' || p.purpose === 'external'
-        );
+        // Try to get conversation details for more info
+        let conversationDetails = null;
+        try {
+          conversationDetails = await fetchConversationDetails(conversation.conversationId);
+        } catch(e) {
+          console.log('Could not fetch conversation details:', e.message);
+        }
         
-        // Get additional survey details
+        // Get survey question details
         const questionDetails = await fetchSurveyQuestions(surveyId, conversation.conversationId);
         
         return {
           conversationId: conversation.conversationId,
           surveyId: surveyId,
           npsScore: surveyResult.data[0]?.stats?.npsScore || 0,
-          conversationStart: conversation.conversationStart,
-          conversationEnd: conversation.conversationEnd,
-          mediaType: conversation.mediaType || 'Unknown',
-          agentId: agentParticipant?.user?.id || null,
-          agentName: agentParticipant?.user?.name || agentParticipant?.name || 'Unknown Agent',
-          customerInfo: customerParticipant ? {
-            name: customerParticipant.name,
-            address: customerParticipant.address,
-            phone: customerParticipant.phone
-          } : null,
+          conversationStart: conversationDetails?.conversationStart || null,
+          conversationEnd: conversationDetails?.conversationEnd || null,
+          mediaType: conversationDetails?.mediaType || 'Unknown',
+          agentId: conversation.agentId,
+          agentName: agentName,
+          customerInfo: conversationDetails?.customerInfo || null,
           questions: questionDetails
         };
       } catch (error) {
-        console.error('Error creating survey object:', error);
+        console.error('Error enriching survey:', error);
+        
+        // Return basic survey info even if enrichment fails
+        const agent = state.users.find(u => u.id === conversation.agentId);
+        return {
+          conversationId: conversation.conversationId,
+          surveyId: surveyId,
+          npsScore: surveyResult.data[0]?.stats?.npsScore || 0,
+          conversationStart: null,
+          conversationEnd: null,
+          mediaType: 'Unknown',
+          agentId: conversation.agentId,
+          agentName: agent ? agent.name : 'Unknown Agent',
+          customerInfo: null,
+          questions: []
+        };
+      }
+    }
+
+    async function fetchConversationDetails(conversationId){
+      try {
+        const url = `https://api.${config.REGION}/api/v2/analytics/conversations/details/query`;
+        const body = {
+          "interval": "1900-01-01T00:00:00/2100-01-01T00:00:00",
+          "granularity": "P1D",
+          "order": "asc",
+          "orderBy": "conversationStart",
+          "paging": {
+            "pageSize": 1,
+            "pageNumber": 1
+          },
+          "segmentFilters": [{
+            "type": "and",
+            "predicates": [{
+              "type": "dimension",
+              "dimension": "conversationId",
+              "operator": "matches",
+              "value": conversationId
+            }]
+          }]
+        };
+        
+        const data = await fetchJsonWithRetry(url, {
+          method: 'POST',
+          body: JSON.stringify(body)
+        });
+        
+        if(data && data.conversations && data.conversations.length > 0){
+          const conversation = data.conversations[0];
+          const participants = conversation.participants || [];
+          
+          // Find customer participant
+          const customerParticipant = participants.find(p => 
+            p.purpose === 'customer' || p.purpose === 'external'
+          );
+          
+          return {
+            conversationStart: conversation.conversationStart,
+            conversationEnd: conversation.conversationEnd,
+            mediaType: conversation.mediaType || 'Unknown',
+            customerInfo: customerParticipant ? {
+              name: customerParticipant.name,
+              address: customerParticipant.address,
+              phone: customerParticipant.phone
+            } : null
+          };
+        }
+        
+        return null;
+      } catch (error) {
+        console.error('Error fetching conversation details:', error);
         return null;
       }
     }
@@ -853,12 +856,13 @@
         const url = `https://api.${config.REGION}/api/v2/analytics/surveys/aggregates/query`;
         const body = {
           "interval": "1900-01-01T00:00:00/2100-01-01T00:00:00",
-          "granularity": "DAY",
-          "groupBy": ["surveyQuestionId", "surveyQuestionGroupId"],
+          "granularity": "P1D",
+          "groupBy": ["surveyQuestionId"],
           "metrics": ["npsScore"],
+          "flattenMultivaluedDimensions": false,
           "filter": {
             "type": "and",
-            "predicates": [
+            "clauses": [
               {
                 "type": "dimension",
                 "dimension": "surveyId",
@@ -886,7 +890,6 @@
             if(result.group && result.group.surveyQuestionId){
               questions.push({
                 questionId: result.group.surveyQuestionId,
-                questionGroupId: result.group.surveyQuestionGroupId,
                 score: result.data[0]?.stats?.npsScore || 0
               });
             }
@@ -966,7 +969,7 @@
       });
       
       sortedSurveys.forEach((survey, surveyIndex) => {
-        const date = survey.conversationStart ? toDateTime(survey.conversationStart) : 'Unknown';
+        const date = survey.conversationStart ? toDateTime(survey.conversationStart) : 'Unknown date';
         const score = survey.npsScore || 0;
         const rating = getRatingLabel(score);
         const roundedScore = Math.round(score);
@@ -976,6 +979,7 @@
           if(survey.customerInfo.phone) contactInfo += `Phone: ${survey.customerInfo.phone}<br>`;
           if(survey.customerInfo.address) contactInfo += `Contact: ${survey.customerInfo.address}`;
         }
+        if(!contactInfo) contactInfo = 'No contact info';
         
         html += `
           <tr class="expandable-row" onclick="toggleSurveyRow(${rowIndex})">
@@ -986,7 +990,7 @@
               <span class="rating-indicator rating-${roundedScore}"></span>
               <span class="badge ${rating.badge}">${score.toFixed(1)} - ${rating.label}</span>
             </td>
-            <td>${contactInfo || 'No contact info'}</td>
+            <td>${contactInfo}</td>
             <td><span class="expand-icon">▶</span> Click to expand</td>
           </tr>
           <tr id="survey-row-${rowIndex}" class="expandable-content">
@@ -998,7 +1002,7 @@
                   <h5>Question Responses:</h5>
                   ${survey.questions.map((q, qIndex) => `
                     <div class="survey-question">
-                      <div><strong>Question ${qIndex + 1}:</strong> ${q.questionId || 'Unknown'}</div>
+                      <div><strong>Question ${qIndex + 1}:</strong> ${q.questionId || 'Unknown question'}</div>
                       <div><strong>Score:</strong> ${q.score.toFixed(1)}</div>
                     </div>
                   `).join('')}
