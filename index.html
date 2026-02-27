@@ -11,618 +11,307 @@
       --bg:#F8F9FA; --card:#FFFFFF; --text:#2C3E50; --muted:#6C757D;
       --hover:rgba(99,171,143,0.10);
     }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0; background:var(--bg); color:var(--text);
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
       font-family:'Aptos','Segoe UI',system-ui,-apple-system,Arial,sans-serif;
+      background: var(--bg);
+      color: var(--text);
     }
 
-    /* Header */
-header{
-  position:fixed; top:0; left:0; right:0; height:64px; z-index:10;
-  background:var(--primary); color:#fff;
-  display:flex; align-items:center; padding:0 20px 0 12px;
-  box-shadow:0 2px 10px rgba(0,0,0,.08);
-}
-header .brand{display:flex; align-items:center; margin-right:16px;}
-header .brand img{height:54px; max-width:200px; object-fit:contain; display:block;}
-    header .title{font-size:18px; font-weight:600; letter-spacing:.3px; margin-left:0;}
-    header .feature-request-btn{
-      margin-left:auto; margin-right:20px;
-      background:rgba(255,255,255,0.2); color:white;
-      border:1px solid rgba(255,255,255,0.3); padding:6px 12px;
-      border-radius:4px; cursor:pointer; font-size:14px; font-weight:600;
-      display:flex; align-items:center; gap:6px; transition:all 0.2s ease;
+    /* ── Header ── */
+    header {
+      position: fixed; top: 0; left: 0; right: 0; height: 64px; z-index: 10;
+      background: var(--primary); color: #fff;
+      display: flex; align-items: center; padding: 0 20px 0 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.08);
     }
-    header .feature-request-btn:hover{
-      background:rgba(255,255,255,0.3); transform:translateY(-1px);
+    header .brand { display: flex; align-items: center; margin-right: 16px; }
+    header .brand img { height: 54px; max-width: 200px; object-fit: contain; display: block; }
+    header .feature-request-btn {
+      margin-left: auto; margin-right: 20px;
+      background: rgba(255,255,255,0.2); color: white;
+      border: 1px solid rgba(255,255,255,0.3); padding: 6px 12px;
+      border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 600;
+      display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;
+    }
+    header .feature-request-btn:hover { background: rgba(255,255,255,0.3); transform: translateY(-1px); }
+
+    /* ── Main layout — fixed below header, fills viewport ── */
+    .wrap {
+      position: fixed;
+      top: 64px; left: 0; right: 0; bottom: 0;
+      display: flex;
     }
 
-    /* Layout */
-.wrap{
-  display:flex; 
-  height: calc(100vh - 64px); /* Explicit viewport height minus header */
-  margin-top:64px;
-  align-items: stretch;
-  min-height: 0; /* Important for flex children */
-}
-.sidebar{
-  width:290px; background:#fff; border-right:1px solid var(--border);
-  display:flex; flex-direction:column;
-  flex-shrink:0;
-  align-self: stretch; /* Stretch to parent height */
-}
-    .content{
-      flex:1; min-width:0; padding:16px;
-      display:flex; flex-direction:column; gap:12px;
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 290px;
+      background: #fff;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      /* stretch top‑to‑bottom naturally via parent flex */
     }
 
-    /* Nav items */
-.nav{
-  display:flex; flex-direction:column; gap:6px;
-  padding:10px 8px;
-  overflow-y: auto; /* Keep scrolling as fallback */
-  overflow-x: hidden; /* Prevent horizontal scroll */
-  flex: 1;
-  min-height: 0; /* Important for flex overflow */
-}
-.nav-btn{
-  display:flex; align-items:center; gap:10px;
-  width:100%; border:0; background:transparent; cursor:pointer;
-  padding:5px 10px;
-  border-radius:8px; font-size:13px; color:#1f2937;
-  text-align:left; transition:background .18s ease, color .18s ease, transform .04s ease;
-  position:relative;
-}
-    .nav-btn:hover{background:var(--hover)}
-    .nav-btn.active{
-      background:rgba(99,171,143,.14); color:var(--primary-dark);
+    .nav {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 6px 8px 12px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .nav-group {
+      margin: 10px 0 2px;
+      padding: 0 12px;
+      font-size: 11px; font-weight: 600; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.5px;
+      flex-shrink: 0;
+    }
+
+    .nav-btn {
+      display: flex; align-items: center; gap: 10px;
+      width: 100%; border: 0; background: transparent; cursor: pointer;
+      padding: 7px 12px;
+      border-radius: 8px; font-size: 13.5px; color: #1f2937;
+      text-align: left;
+      transition: background .18s ease, color .18s ease;
+      position: relative; flex-shrink: 0;
+    }
+    .nav-btn:hover { background: var(--hover); }
+    .nav-btn.active {
+      background: rgba(99,171,143,.14); color: var(--primary-dark);
       box-shadow: inset 0 0 0 1px var(--primary);
     }
-    .nav-btn .app-tooltip{
-      position:absolute; left:100%; top:50%; transform:translateY(-50%);
-      background:#2C3E50; color:white; padding:8px 12px; border-radius:6px;
-      font-size:12px; white-space:nowrap; opacity:0; pointer-events:none;
-      transition:opacity 0.2s ease; margin-left:10px; z-index:100;
+    .nav-btn .app-tooltip {
+      position: absolute; left: 100%; top: 50%; transform: translateY(-50%);
+      background: #2C3E50; color: white; padding: 8px 12px; border-radius: 6px;
+      font-size: 12px; white-space: nowrap; opacity: 0; pointer-events: none;
+      transition: opacity 0.2s ease; margin-left: 10px; z-index: 100;
     }
-    .nav-btn:hover .app-tooltip{opacity:1;}
-    .icon{
-      width:28px; height:28px; display:grid; place-items:center;
-      border-radius:8px; background:#f0f5f3; font-size:16px;
-      flex-shrink:0;
-    }
-    .label{
-      flex:1; 
-      white-space:nowrap; 
-      overflow:hidden; 
-      text-overflow:ellipsis;
-      font-size:13.5px;
-      line-height:1.3;
-    }
-    .chev{opacity:.5; flex-shrink:0;}
+    .nav-btn:hover .app-tooltip { opacity: 1; }
 
-    /* Card + iframe area */
-.card{
-  background:var(--card); border:1px solid var(--border);
-  border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,.06);
-  padding:14px; display:flex; flex-direction:column; gap:10px; 
+    .icon {
+      width: 26px; height: 26px; display: grid; place-items: center;
+      border-radius: 8px; background: #f0f5f3; font-size: 14px; flex-shrink: 0;
     }
-    .card-header{
-      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
-      padding-bottom:8px; border-bottom:1px solid var(--border);
+    .label {
+      flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      font-size: 13px; line-height: 1.3;
     }
-    .card-title{font-weight:600; font-size:18px;}
-    .spacer{flex:1}
-    .btn{
-      border:0; background:var(--primary); color:#fff; border-radius:8px;
-      padding:9px 12px; font-weight:600; cursor:pointer;
-      transition:background .18s ease; font-size:14px;
-    }
-    .btn:hover{background:var(--primary-dark)}
-    .btn.secondary{
-      background:#fff; color:var(--primary-dark);
-      border:1px solid var(--primary-dark);
-    }
-    .btn.secondary:hover{background:var(--hover)}
+    .chev { opacity: .5; flex-shrink: 0; }
 
-    iframe.appframe{
-      width:100%; border:1px solid var(--border); border-radius:10px;
-      background:#fff; flex:1; min-height:400px;
-      transition:opacity 0.3s ease;
+    /* ── Content area ── */
+    .content {
+      flex: 1; min-width: 0;
+      padding: 16px;
+      display: flex; flex-direction: column; gap: 12px;
+      overflow: hidden;
     }
 
-    /* Loading states */
-    .loading-overlay{
-      position:fixed; top:0; left:0; right:0; bottom:0;
-      background:rgba(248,249,250,0.95); z-index:100;
-      display:flex; flex-direction:column; align-items:center; justify-content:center;
-      gap:20px;
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.06);
+      padding: 14px;
+      display: flex; flex-direction: column; gap: 10px;
+      flex: 1; overflow: hidden;
     }
-    .loading-spinner{
-      width:40px; height:40px; border:4px solid var(--primary);
-      border-left-color:transparent; border-radius:50%;
-      animation:spin 1s linear infinite;
+    .card-header {
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      padding-bottom: 8px; border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
     }
-    @keyframes spin{
-      0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)}
+    .card-title { font-weight: 600; font-size: 18px; }
+    .spacer { flex: 1; }
+    .btn {
+      border: 0; background: var(--primary); color: #fff; border-radius: 8px;
+      padding: 9px 12px; font-weight: 600; cursor: pointer;
+      transition: background .18s ease; font-size: 14px;
     }
+    .btn:hover { background: var(--primary-dark); }
+    .btn.secondary {
+      background: #fff; color: var(--primary-dark);
+      border: 1px solid var(--primary-dark);
+    }
+    .btn.secondary:hover { background: var(--hover); }
 
-    /* Nav groups */
-.nav-group {
-  margin: 6px 0 2px 0;  /* was: 16px 0 8px 0 */
-  padding: 0 12px;
-  font-size: 11px;       /* was: 12px */
-  font-weight: 600; color: var(--muted);
-  text-transform: uppercase; letter-spacing: 0.5px;
-}
-
-    /* Feature Request Modal */
-    .feature-request-modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.8);
-      z-index: 1000;
-      display: none;
-      opacity: 0;
+    iframe.appframe {
+      width: 100%; flex: 1;
+      border: 1px solid var(--border); border-radius: 10px;
+      background: #fff;
       transition: opacity 0.3s ease;
     }
-    
-    .feature-request-modal.active {
-      display: flex;
-      opacity: 1;
-      flex-direction: column;
-    }
-    
-    .modal-header {
-      background: var(--primary);
-      color: white;
-      padding: 16px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    
-    .modal-title {
-      font-weight: 600;
-      font-size: 18px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    
-    .modal-close-btn {
-      background: rgba(255, 255, 255, 0.2);
-      border: none;
-      color: white;
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      cursor: pointer;
-      font-size: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.2s ease;
-    }
-    
-    .modal-close-btn:hover {
-      background: rgba(255, 255, 255, 0.3);
-    }
-    
-    .modal-content {
-      flex: 1;
-      background: var(--bg);
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-    }
-    
-    .modal-iframe {
-      flex: 1;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: white;
-      width: 100%;
-    }
-    
-    .back-to-app-btn {
-      margin-top: 16px;
-      align-self: flex-end;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 16px;
-      background: var(--primary);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 14px;
-      transition: background 0.2s ease;
-    }
-    
-    .back-to-app-btn:hover {
-      background: var(--primary-dark);
-    }
 
-    /* Welcome Page Styles (inline) */
-    .welcome-content {
-      padding: 15px 30px 30px 30px;
-      max-width: 1200px;
-      margin: 0 auto;
-      background: var(--bg);
+    /* ── Loading overlay ── */
+    .loading-overlay {
+      position: fixed; inset: 0;
+      background: rgba(248,249,250,0.95); z-index: 100;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;
     }
-    
-    .welcome-header {
-      text-align: center;
-      margin-bottom: 30px;
-      padding-bottom: 15px;
-      border-bottom: 2px solid var(--primary);
+    .loading-spinner {
+      width: 40px; height: 40px; border: 4px solid var(--primary);
+      border-left-color: transparent; border-radius: 50%;
+      animation: spin 1s linear infinite;
     }
-    
-    .welcome-title {
-      color: var(--primary);
-      font-size: 2.5rem;
-      margin-bottom: 5px;
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Feature Request Modal ── */
+    .feature-request-modal {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.8); z-index: 1000;
+      display: none; flex-direction: column;
     }
-    
-    .welcome-subtitle {
-      font-size: 1.2rem;
-      color: var(--muted);
-      max-width: 600px;
-      margin: 0 auto;
+    .feature-request-modal.active { display: flex; }
+    .modal-header {
+      background: var(--primary); color: white;
+      padding: 16px 20px;
+      display: flex; align-items: center; justify-content: space-between;
     }
-    
-    .feature-list {
-      list-style-type: none;
-      padding: 0;
-      margin: 20px 0;
+    .modal-title { font-weight: 600; font-size: 18px; display: flex; align-items: center; gap: 10px; }
+    .modal-close-btn {
+      background: rgba(255,255,255,0.2); border: none; color: white;
+      width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
+      font-size: 18px; display: flex; align-items: center; justify-content: center;
     }
-    
-    .feature-list li {
-      padding: 12px 0;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
+    .modal-close-btn:hover { background: rgba(255,255,255,0.3); }
+    .modal-content {
+      flex: 1; background: var(--bg); padding: 20px;
+      display: flex; flex-direction: column;
     }
-    
-    .feature-list li:last-child {
-      border-bottom: none;
+    .modal-iframe {
+      flex: 1; border: 1px solid var(--border); border-radius: 8px;
+      background: white; width: 100%; min-height: 500px;
     }
-    
-    .feature-list li:before {
-      content: "•";
-      color: var(--primary);
-      font-size: 1.5rem;
-      line-height: 1;
+    .back-to-app-btn {
+      margin-top: 16px; align-self: flex-end;
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 16px; background: var(--primary); color: white;
+      border: none; border-radius: 8px; cursor: pointer;
+      font-weight: 600; font-size: 14px;
     }
-    
-    .feature-title {
-      font-weight: 600;
-      color: var(--primary-dark);
-      margin-bottom: 4px;
-    }
-    
-    .feature-description {
-      color: var(--text);
-    }
-    
-    /* Development Updates Styles */
-    .development-updates {
-      background: #FFF0EB;
-      border: 1px solid #FF6B35;
-      border-radius: 8px;
-      padding: 20px;
-      margin: 20px 0 0 0;
-      animation: fadeIn 0.5s ease-in;
-    }
-    
-    .development-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 20px;
-      color: #FF6B35;
-      cursor: pointer;
-    }
-    
-    .development-header h3 {
-      margin: 0;
-      font-size: 1.4rem;
-      cursor: pointer;
-    }
-    
-    .development-badge {
-      background: #FF6B35;
-      color: white;
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      margin-left: 0;
-    }
-    
-    .development-items {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-    
-    .development-item {
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 15px;
-      display: flex;
-      gap: 15px;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    
-    .development-item:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    
-    .dev-status {
-      min-width: 100px;
-      text-align: center;
-    }
-    
-    .status-badge {
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 0.8rem;
-      font-weight: 600;
-    }
-    
-    .status-planning {
-      background: #e3f2fd;
-      color: #1565c0;
-      border: 1px solid #bbdefb;
-    }
-    
-    .status-development {
-      background: #fff3e0;
-      color: #ef6c00;
-      border: 1px solid #ffe0b2;
-    }
-    
-    .status-testing {
-      background: #e8f5e9;
-      color: #2e7d32;
-      border: 1px solid #c8e6c9;
-    }
-    
-    .status-deployment {
-      background: #f3e5f5;
-      color: #7b1fa2;
-      border: 1px solid #e1bee7;
-    }
-    
-    .dev-content {
-      flex: 1;
-    }
-    
-    .dev-title {
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: 5px;
-      font-size: 1.1rem;
-    }
-    
-    .dev-description {
-      color: var(--muted);
-      font-size: 0.95rem;
-      line-height: 1.5;
-    }
-    
-    .dev-eta {
-      margin-top: 8px;
-      font-size: 0.85rem;
-      color: var(--muted);
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    
-    .dev-eta:before {
-      content: "📅";
-      font-size: 0.9rem;
-    }
-    
-    .no-updates {
-      text-align: center;
-      padding: 30px;
-      color: var(--muted);
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-.icon {
-  width: 22px; height: 22px;  /* was: 28px 28px */
-  font-size: 13px;             /* was: 16px */
-  ...
-}
-    
-    /* Welcome page specific overrides */
+    .back-to-app-btn:hover { background: var(--primary-dark); }
+
+    /* ── Welcome page ── */
     .card.welcome-mode {
       background: var(--bg) !important;
       border: none !important;
       box-shadow: none !important;
       padding: 0 !important;
     }
-    
     .card.welcome-mode .card-header {
+      padding: 14px 14px 8px;
       background: var(--bg) !important;
       border-bottom: 1px solid rgba(0,0,0,0.1) !important;
     }
+    .welcome-content {
+      flex: 1; overflow-y: auto;
+      padding: 15px 30px 30px;
+    }
+    .welcome-header {
+      text-align: center; margin-bottom: 30px;
+      padding-bottom: 15px; border-bottom: 2px solid var(--primary);
+    }
+    .welcome-title { color: var(--primary); font-size: 2.5rem; margin-bottom: 5px; }
+    .welcome-subtitle { font-size: 1.2rem; color: var(--muted); max-width: 600px; margin: 0 auto; }
+    .feature-list { list-style-type: none; padding: 0; margin: 20px 0; }
+    .feature-list li {
+      padding: 12px 0; border-bottom: 1px solid var(--border);
+      display: flex; align-items: flex-start; gap: 12px;
+    }
+    .feature-list li:last-child { border-bottom: none; }
+    .feature-list li::before { content: "•"; color: var(--primary); font-size: 1.5rem; line-height: 1; }
+    .feature-title { font-weight: 600; color: var(--primary-dark); margin-bottom: 4px; }
 
-    /* Collapse button for development updates - black arrow */
+    /* ── Development updates ── */
+    .development-updates {
+      background: #FFF0EB; border: 1px solid #FF6B35;
+      border-radius: 8px; padding: 20px; margin: 20px 0 0;
+    }
+    .development-header {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 20px; color: #FF6B35; cursor: pointer;
+    }
+    .development-header h3 { margin: 0; font-size: 1.4rem; }
+    .development-badge {
+      background: #FF6B35; color: white;
+      padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 600;
+    }
+    .development-items { display: flex; flex-direction: column; gap: 15px; }
+    .development-item {
+      background: white; border: 1px solid var(--border);
+      border-radius: 6px; padding: 15px; display: flex; gap: 15px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .development-item:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+    .dev-status { min-width: 100px; text-align: center; }
+    .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+    .status-planning  { background: #e3f2fd; color: #1565c0; border: 1px solid #bbdefb; }
+    .status-development { background: #fff3e0; color: #ef6c00; border: 1px solid #ffe0b2; }
+    .status-testing   { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+    .status-deployment { background: #f3e5f5; color: #7b1fa2; border: 1px solid #e1bee7; }
+    .dev-content { flex: 1; }
+    .dev-title { font-weight: 600; color: var(--text); margin-bottom: 5px; font-size: 1.1rem; }
+    .dev-description { color: var(--muted); font-size: 0.95rem; line-height: 1.5; }
+    .dev-eta { margin-top: 8px; font-size: 0.85rem; color: var(--muted); display: flex; align-items: center; gap: 5px; }
+    .dev-eta::before { content: "📅"; }
     .dev-collapse-btn {
-      background: rgba(255, 255, 255, 0.2);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      color: #000000;
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      cursor: pointer;
-      font-size: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-left: auto;
-      margin-right: 10px;
-      transition: all 0.2s ease;
+      background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);
+      color: #000; width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+      font-size: 12px; display: flex; align-items: center; justify-content: center;
+      margin-left: auto; margin-right: 10px; transition: all 0.2s ease;
     }
+    .dev-collapse-btn .collapse-icon { transition: transform 0.2s; display: inline-block; }
+    .dev-collapse-btn.collapsed .collapse-icon { transform: rotate(-90deg); }
 
-    .dev-collapse-btn:hover {
-      background: rgba(255, 255, 255, 0.3);
-      transform: scale(1.1);
-    }
+    /* hidden preload */
+    #preload-frame { position: absolute; width: 1px; height: 1px; opacity: 0.01; pointer-events: none; border: none; }
 
-    .dev-collapse-btn.collapsed {
-      background: rgba(255, 255, 255, 0.1);
+    /* ── Responsive ── */
+    @media (max-width: 980px) {
+      .sidebar { width: 220px; }
+      .nav-btn { font-size: 13px; }
+      .nav-btn .app-tooltip { display: none; }
+      header .feature-request-btn span:last-child { display: none; }
+      header .feature-request-btn { padding: 6px 8px; margin-right: 10px; }
     }
-
-    .dev-collapse-btn .collapse-icon {
-      transition: transform 0.2s ease;
-      display: inline-block;
-      color: #000000;
-    }
-
-    .dev-collapse-btn.collapsed .collapse-icon {
-      transform: rotate(-90deg);
-    }
-
-    /* Make the entire header clickable */
-    .development-header:not(.no-collapse) {
-      cursor: pointer;
-    }
-
-    .development-header:not(.no-collapse):hover {
-      opacity: 0.9;
-    }
-    
-    /* Hidden iframe for preloading apps */
-    #preload-frame {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      opacity: 0.01;
-      pointer-events: none;
-      border: none;
-    }
-    
-    /* Responsive */
-    @media (max-width: 980px){
-      .sidebar{width:220px}
-      .nav-btn{font-size:13px}
-      .nav-btn .app-tooltip{display:none;}
-      .label{font-size:13px;}
-      header .feature-request-btn span{display:none;}
-      header .feature-request-btn{padding:6px 8px; margin-right:10px;}
-    }
-    @media (max-width: 768px) {
-      .welcome-title {
-        font-size: 2rem;
-      }
-      
-      .development-item {
-        flex-direction: column;
-        gap: 10px;
-      }
-      
-      .dev-status {
-        text-align: left;
-      }
-      
-      .welcome-content {
-        padding: 10px 15px 20px 15px;
-      }
-      
-      .development-header {
-        flex-wrap: wrap;
-      }
-      
-      .dev-collapse-btn {
-        order: 3;
-        margin-left: 0;
-        margin-top: 5px;
-      }
-      
-      .development-badge {
-        margin-left: auto;
-      }
-    }
-    @media (max-width: 760px){
-      .wrap{flex-direction:column}
-      .sidebar{
-        width:100%; 
-        border-right:0; 
-        border-bottom:1px solid var(--border); 
-        height:auto;
-        max-height:200px;
-      }
-      .nav{
-        flex-direction:row; 
-        gap:8px; 
-        flex-wrap:wrap;
-        align-content:flex-start;
-        padding: 8px;
-      }
-      .nav-btn{
-        white-space:nowrap; 
-        min-width:auto; 
-        padding:8px 10px;
-        flex: 0 0 auto;
-      }
-      .nav-group{
-        display:none;
-      }
-      .chev{display:none;}
-      header .feature-request-btn{position:absolute; right:50px; top:50%; transform:translateY(-50%);}
-      
-      .feature-request-modal .modal-content {
-        padding: 10px;
-      }
+    @media (max-width: 760px) {
+      html, body { overflow: auto; }
+      .wrap { position: static; margin-top: 64px; flex-direction: column; height: auto; }
+      .sidebar { width: 100%; height: auto; border-right: 0; border-bottom: 1px solid var(--border); }
+      .nav { flex-direction: row; flex-wrap: wrap; gap: 8px; padding: 8px; overflow-y: visible; }
+      .nav-group { display: none; }
+      .nav-btn { white-space: nowrap; flex: 0 0 auto; padding: 8px 10px; }
+      .chev { display: none; }
+      .content { height: auto; overflow: visible; }
+      .card { flex: none; height: auto; overflow: visible; }
+      iframe.appframe { min-height: 500px; flex: none; }
     }
   </style>
 </head>
 <body>
+
   <header>
     <div class="brand">
       <img src="https://raw.githubusercontent.com/gmcglynn88/TimeoffApp/main/Designer.png" alt="IPI Logo">
     </div>
     <button class="feature-request-btn" id="featureRequestBtn">
-      <span>💡</span>
-      <span>Feature Request</span>
+      <span>💡</span><span>Feature Request</span>
     </button>
   </header>
 
   <!-- Feature Request Modal -->
   <div id="featureRequestModal" class="feature-request-modal">
     <div class="modal-header">
-      <div class="modal-title">
-        <span>💡</span>
-        Feature Request Form
-      </div>
+      <div class="modal-title"><span>💡</span> Feature Request Form</div>
       <button class="modal-close-btn" id="modalCloseBtn">×</button>
     </div>
     <div class="modal-content">
       <iframe id="featureRequestFrame" class="modal-iframe" src="about:blank" title="Feature Request Form"></iframe>
-      <button class="back-to-app-btn" id="backToAppBtn">
-        <span>←</span>
-        Back to Operations Hub
-      </button>
+      <button class="back-to-app-btn" id="backToAppBtn"><span>←</span> Back to Operations Hub</button>
     </div>
   </div>
 
@@ -635,14 +324,12 @@ header .brand img{height:54px; max-width:200px; object-fit:contain; display:bloc
     </div>
   </div>
 
-  <!-- Hidden iframe for preloading apps to trigger OAuth -->
   <iframe id="preload-frame" src="about:blank" title="Preload"></iframe>
 
   <div class="wrap" style="display:none;">
     <aside class="sidebar">
       <nav id="nav" class="nav"></nav>
     </aside>
-
     <main class="content">
       <div class="card" id="mainCard">
         <div class="card-header">
@@ -651,14 +338,12 @@ header .brand img{height:54px; max-width:200px; object-fit:contain; display:bloc
           <div class="spacer"></div>
           <button id="reload" class="btn secondary">Reload</button>
         </div>
-
         <iframe id="frame" class="appframe" src="about:blank" title="App"></iframe>
       </div>
     </main>
   </div>
 
   <script>
-    // ---- Simple OAuth Redirect ----
     const OAUTH_CONFIG = {
       clientId: 'fe305808-b368-4547-8af9-325d28d552bb',
       redirectUri: window.location.origin + window.location.pathname,
@@ -666,289 +351,94 @@ header .brand img{height:54px; max-width:200px; object-fit:contain; display:bloc
       scopes: 'conversations analytics users routing external_contacts coaching authorization'
     };
 
-    // Feature Request URL
     const FEATURE_REQUEST_URL = 'https://gmcglynn88.github.io/Feature-Request/';
 
-    // ---- App registry ----
     const APPS = [
-      { 
-        id: 'Welcome',
-        name: 'Home Page',
-        url: '#welcome',  // Special URL for welcome page
-        icon: '🏠',
-        category: 'Home',
-        description: ''
-      },
-      { 
-        id: 'Quality Insights',
-        name: 'Quality Insights',
-        url: 'https://gmcglynn88.github.io/QualityReporting/',
-        icon: '⭐',
-        category: 'Analytics',
-        description: 'Quality reporting & insights'
-      },
-            { 
-        id: 'CSAT Insights',
-        name: 'CSAT Insights',
-        url: 'https://gmcglynn88.github.io/CSAT-Insights/',
-        icon: '❤️',
-        category: 'Analytics',
-        description: 'CSAT reporting & insights'
-      },
-      { 
-        id:'ExternalWorkCreation',   
-        name:'External Work Creation',     
-        url:'https://gmcglynn88.github.io/ExternalWorkCreation/',   
-        icon:'✉️',
-        category: 'Work Management',
-        description: 'Create and manage external work items'
-      },
-      { 
-        id:'Gamification Upload',   
-        name:'Gamification Metric Upload',     
-        url:'https://gmcglynn88.github.io/Gamification-Upload',   
-        icon:'🎲',
-        category: 'Analytics',
-        description: 'Uploads External Metric data from CSV'
-      },
-      { 
-        id:'Interaction Insights',   
-        name:'Interaction Insights',      
-        url:'https://gmcglynn88.github.io/ConversationExplorer/',   
-        icon:'🧭',
-        category: 'Analytics',
-        description: 'Explore and analyze conversations'
-      },
-      { 
-        id:'Transfer Insights',   
-        name:'Transfer Insights',      
-        url:'https://gmcglynn88.github.io/Transfer-Insights/',   
-        icon:'🔄',
-        category: 'Analytics',
-        description: 'Interaction Transfer Analytics'
-      },
-      { 
-        id:'Queue-updater',          
-        name:'Bulk Queue Changes',         
-        url:'https://gmcglynn88.github.io/Queue-updater/',          
-        icon:'🗂️',
-        category: 'Bulk Operations',
-        description: 'Make bulk changes to queues'
-      },
-      { 
-        id:'Skills-Updater',         
-        name:'Bulk Skill Changes',         
-        url:'https://gmcglynn88.github.io/Skills-Updater/',         
-        icon:'🎯',
-        category: 'Bulk Operations', 
-        description: 'Update skills in bulk'
-      },
-      { 
-        id:'Bulk-Activity-Code-Creation', 
-        name:'Activity Code Management', 
-        url:'https://gmcglynn88.github.io/Bulk-Activity-Code-Creation/', 
-        icon:'⚙️',
-        category: 'Planning',
-        description: 'Manage activity codes in bulk'
-      },
-      { 
-        id:'WorkTeamManagement',     
-        name:'Work Team Management',       
-        url:'https://gmcglynn88.github.io/WorkTeamManagement/',     
-        icon:'👥',
-        category: 'Team Management',
-        description: 'Manage work teams and assignments'
-      },
-            { 
-        id:'Profiles Management',     
-        name:'Profiles Management',       
-        url:'https://gmcglynn88.github.io/Profiles/',     
-        icon:'👥',
-        category: 'Team Management',
-        description: 'Manage work teams and assignments'
-      },
-      { 
-        id:'Management-Unit-Search', 
-        name:'WFM Management Unit Search', 
-        url:'https://gmcglynn88.github.io/Management-Unit-Search/', 
-        icon:'📊',
-        category: 'Planning',
-        description: 'Search and analyze management units'
-      },
-      { 
-        id:'Intraday-Plan',          
-        name:'Intraday Weekly Plan',       
-        url:'https://gmcglynn88.github.io/Intraday-Plan/',          
-        icon:'📅',
-        category: 'Planning',
-        description: 'Create and manage intraday weekly plans'
-      },
-      { 
-        id:'WFM Helper',          
-        name:'WFM Helper',       
-        url:'https://gmcglynn88.github.io/Late_Break-Report/',          
-        icon:'❤️',
-        category: 'Planning',
-        description: 'Understand WFM metrics'
-      },
-      { 
-        id:'GDPR',                   
-        name:'GDPR Data Extraction',       
-        url:'https://gmcglynn88.github.io/GDPR/',                  
-        icon:'🔒',
-        category: 'Customer Data Management',
-        description: 'Extract customer data for GDPR requests'
-      },
-      { 
-        id:'Feature Request Form',                   
-        name:'Feature Request Form',       
-        url: FEATURE_REQUEST_URL,                  
-        icon:'💡',
-        category: 'IPI Admin',
-        description: 'Submit feature requests and enhancements'
-      },
+      { id:'Welcome', name:'Home Page', url:'#welcome', icon:'🏠', category:'Home', description:'' },
+      { id:'Quality Insights', name:'Quality Insights', url:'https://gmcglynn88.github.io/QualityReporting/', icon:'⭐', category:'Analytics', description:'Quality reporting & insights' },
+      { id:'CSAT Insights', name:'CSAT Insights', url:'https://gmcglynn88.github.io/CSAT-Insights/', icon:'❤️', category:'Analytics', description:'CSAT reporting & insights' },
+      { id:'ExternalWorkCreation', name:'External Work Creation', url:'https://gmcglynn88.github.io/ExternalWorkCreation/', icon:'✉️', category:'Work Management', description:'Create and manage external work items' },
+      { id:'Gamification Upload', name:'Gamification Metric Upload', url:'https://gmcglynn88.github.io/Gamification-Upload', icon:'🎲', category:'Analytics', description:'Uploads External Metric data from CSV' },
+      { id:'Interaction Insights', name:'Interaction Insights', url:'https://gmcglynn88.github.io/ConversationExplorer/', icon:'🧭', category:'Analytics', description:'Explore and analyze conversations' },
+      { id:'Transfer Insights', name:'Transfer Insights', url:'https://gmcglynn88.github.io/Transfer-Insights/', icon:'🔄', category:'Analytics', description:'Interaction Transfer Analytics' },
+      { id:'Queue-updater', name:'Bulk Queue Changes', url:'https://gmcglynn88.github.io/Queue-updater/', icon:'🗂️', category:'Bulk Operations', description:'Make bulk changes to queues' },
+      { id:'Skills-Updater', name:'Bulk Skill Changes', url:'https://gmcglynn88.github.io/Skills-Updater/', icon:'🎯', category:'Bulk Operations', description:'Update skills in bulk' },
+      { id:'Bulk-Activity-Code-Creation', name:'Activity Code Management', url:'https://gmcglynn88.github.io/Bulk-Activity-Code-Creation/', icon:'⚙️', category:'Planning', description:'Manage activity codes in bulk' },
+      { id:'WorkTeamManagement', name:'Work Team Management', url:'https://gmcglynn88.github.io/WorkTeamManagement/', icon:'👥', category:'Team Management', description:'Manage work teams and assignments' },
+      { id:'Profiles Management', name:'Profiles Management', url:'https://gmcglynn88.github.io/Profiles/', icon:'👥', category:'Team Management', description:'Manage profiles' },
+      { id:'Management-Unit-Search', name:'WFM Management Unit Search', url:'https://gmcglynn88.github.io/Management-Unit-Search/', icon:'📊', category:'Planning', description:'Search and analyze management units' },
+      { id:'Intraday-Plan', name:'Intraday Weekly Plan', url:'https://gmcglynn88.github.io/Intraday-Plan/', icon:'📅', category:'Planning', description:'Create and manage intraday weekly plans' },
+      { id:'WFM Helper', name:'WFM Helper', url:'https://gmcglynn88.github.io/Late_Break-Report/', icon:'❤️', category:'Planning', description:'Understand WFM metrics' },
+      { id:'GDPR', name:'GDPR Data Extraction', url:'https://gmcglynn88.github.io/GDPR/', icon:'🔒', category:'Customer Data Management', description:'Extract customer data for GDPR requests' },
+      { id:'Feature Request Form', name:'Feature Request Form', url:FEATURE_REQUEST_URL, icon:'💡', category:'IPI Admin', description:'Submit feature requests and enhancements' },
     ];
 
-    // Development Updates Configuration
     const DEVELOPMENT_UPDATES = {
       enabled: true,
-      showByDefault: true,
       updates: [
-        {
-          id: 1,
-          title: "Unlimited Holiday for everyone!",
-          description: "Get Paid for not coming into work! FUN!.",
-          status: "development",
-          eta: "Q2 2026",
-          priority: "high"
-        },
-        {
-          id: 2,
-          title: "Intraday Weekly Plans",
-          description: "Provides Intraday views over a daily, weekly and monthly period.",
-          status: "testing",
-          eta: "Q1 2026",
-          priority: "medium"
-        },
-        {
-          id: 3,
-          title: "Movers and Shakers Report",
-          description: "See trends on key performance and use it for reward and recognition though the points store!!.",
-          status: "planning",
-          eta: "Q4 2026",
-          priority: "medium"
-        }
+        { id:1, title:"Unlimited Holiday for everyone!", description:"Get Paid for not coming into work! FUN!", status:"development", eta:"Q2 2026", priority:"high" },
+        { id:2, title:"Intraday Weekly Plans", description:"Provides Intraday views over a daily, weekly and monthly period.", status:"testing", eta:"Q1 2026", priority:"medium" },
+        { id:3, title:"Movers and Shakers Report", description:"See trends on key performance and use it for reward and recognition though the points store!!", status:"planning", eta:"Q4 2026", priority:"medium" }
       ]
     };
 
     const STATUS_CONFIG = {
-      planning: { label: "Planning", class: "status-planning", icon: "📋" },
-      development: { label: "In Development", class: "status-development", icon: "👨‍💻" },
-      testing: { label: "Testing", class: "status-testing", icon: "🧪" },
-      deployment: { label: "Deployment", class: "status-deployment", icon: "🚀" }
+      planning:    { label:"Planning",        class:"status-planning",    icon:"📋" },
+      development: { label:"In Development",  class:"status-development", icon:"👨‍💻" },
+      testing:     { label:"Testing",         class:"status-testing",     icon:"🧪" },
+      deployment:  { label:"Deployment",      class:"status-deployment",  icon:"🚀" }
     };
 
-    // ---- DOM elements ----
-    const nav = document.getElementById('nav');
-    const frame = document.getElementById('frame');
-    const reloadB = document.getElementById('reload');
-    const titleEl = document.getElementById('currentTitle');
-    const iconEl = document.getElementById('currentIcon');
-    const loadingOverlay = document.getElementById('loadingOverlay');
-    const mainWrap = document.querySelector('.wrap');
-    const featureRequestBtn = document.getElementById('featureRequestBtn');
-    const featureRequestModal = document.getElementById('featureRequestModal');
-    const featureRequestFrame = document.getElementById('featureRequestFrame');
-    const modalCloseBtn = document.getElementById('modalCloseBtn');
-    const backToAppBtn = document.getElementById('backToAppBtn');
-    const mainCard = document.getElementById('mainCard');
-    const preloadFrame = document.getElementById('preload-frame');
+    const nav        = document.getElementById('nav');
+    const frame      = document.getElementById('frame');
+    const reloadB    = document.getElementById('reload');
+    const titleEl    = document.getElementById('currentTitle');
+    const iconEl     = document.getElementById('currentIcon');
+    const loadingOverlay     = document.getElementById('loadingOverlay');
+    const mainWrap           = document.querySelector('.wrap');
+    const featureRequestBtn  = document.getElementById('featureRequestBtn');
+    const featureRequestModal= document.getElementById('featureRequestModal');
+    const featureRequestFrame= document.getElementById('featureRequestFrame');
+    const modalCloseBtn      = document.getElementById('modalCloseBtn');
+    const backToAppBtn       = document.getElementById('backToAppBtn');
+    const mainCard           = document.getElementById('mainCard');
+    const preloadFrame       = document.getElementById('preload-frame');
 
-    // ---- Feature Request Modal ----
+    /* ── Feature request modal ── */
     function openFeatureRequestModal() {
       featureRequestModal.classList.add('active');
       featureRequestFrame.src = FEATURE_REQUEST_URL;
-      document.body.style.overflow = 'hidden';
     }
-
     function closeFeatureRequestModal() {
       featureRequestModal.classList.remove('active');
       featureRequestFrame.src = 'about:blank';
-      document.body.style.overflow = 'auto';
     }
-
     featureRequestBtn.addEventListener('click', openFeatureRequestModal);
     modalCloseBtn.addEventListener('click', closeFeatureRequestModal);
     backToAppBtn.addEventListener('click', closeFeatureRequestModal);
+    featureRequestModal.addEventListener('click', e => { if (e.target === featureRequestModal) closeFeatureRequestModal(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && featureRequestModal.classList.contains('active')) closeFeatureRequestModal(); });
 
-    featureRequestModal.addEventListener('click', (e) => {
-      if (e.target === featureRequestModal) {
-        closeFeatureRequestModal();
-      }
-    });
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && featureRequestModal.classList.contains('active')) {
-        closeFeatureRequestModal();
-      }
-    });
-
-    // ---- Preload all apps to trigger OAuth ----
+    /* ── Preload apps ── */
     function preloadAllApps() {
-      // Get all apps that have actual URLs (exclude Welcome)
-      const appsToPreload = APPS.filter(app => app.id !== 'Welcome' && app.url && !app.url.startsWith('#'));
-      
-      console.log(`Preloading ${appsToPreload.length} apps to trigger OAuth...`);
-      
-      // Load each app in sequence with delays to prevent overwhelming
-      let index = 0;
-      
-      function loadNextApp() {
-        if (index < appsToPreload.length) {
-          const app = appsToPreload[index];
-          console.log(`Preloading ${app.name}...`);
-          
-          // Set a timeout to load the next app regardless
-          setTimeout(() => {
-            index++;
-            loadNextApp();
-          }, 2000); // 2 second delay between apps
-          
-          // Load current app in hidden iframe
-          preloadFrame.src = app.url;
-        } else {
-          console.log('Finished preloading all apps');
-          // Clear the preload frame
-          setTimeout(() => {
-            preloadFrame.src = 'about:blank';
-          }, 5000);
-        }
+      const list = APPS.filter(a => a.id !== 'Welcome' && a.url && !a.url.startsWith('#'));
+      let i = 0;
+      function next() {
+        if (i < list.length) { preloadFrame.src = list[i++].url; setTimeout(next, 2000); }
+        else setTimeout(() => { preloadFrame.src = 'about:blank'; }, 5000);
       }
-      
-      // Start preloading after a short delay
-      setTimeout(loadNextApp, 1000);
+      setTimeout(next, 1000);
     }
 
-    // ---- Welcome Page Rendering ----
+    /* ── Welcome page ── */
     function renderWelcomePage() {
       frame.style.display = 'none';
-      const card = frame.parentElement;
-      
-      // Remove existing welcome content if present
-      const existingWelcome = card.querySelector('.welcome-content');
-      if (existingWelcome) {
-        existingWelcome.remove();
-      }
-      
-      // Create welcome content container
-      const welcomeContainer = document.createElement('div');
-      welcomeContainer.className = 'welcome-content';
-      welcomeContainer.innerHTML = generateWelcomeHTML();
-      
-      // Insert welcome content before the iframe
-      card.insertBefore(welcomeContainer, frame);
-      
-      // Initialize development updates functionality
+      const existing = mainCard.querySelector('.welcome-content');
+      if (existing) existing.remove();
+      const div = document.createElement('div');
+      div.className = 'welcome-content';
+      div.innerHTML = generateWelcomeHTML();
+      mainCard.insertBefore(div, frame);
       initializeDevelopmentUpdates();
     }
 
@@ -958,171 +448,99 @@ header .brand img{height:54px; max-width:200px; object-fit:contain; display:bloc
           <h1 class="welcome-title">Welcome to Operations Hub</h1>
           <p class="welcome-subtitle">Your centralised platform for operational excellence and real-time insights</p>
         </div>
-        
-        <h2 style="margin-top: 0; color: var(--primary);">About Operations Hub</h2>
-        <p style="font-size: 1.1rem; line-height: 1.6;">
-          Operations Hub brings together the core operational applications your teams rely on every day, providing a unified environment for managing, analysing, and optimising your contact centre operations.
+        <h2 style="margin-top:0;color:var(--primary);">About Operations Hub</h2>
+        <p style="font-size:1.1rem;line-height:1.6;margin-bottom:0;">
+          Operations Hub brings together the core operational applications your teams rely on every day,
+          providing a unified environment for managing, analysing, and optimising your contact centre operations.
         </p>
-        
-        <div class="feature-list">
-          <li>
-            <div>
-              <div class="feature-title">Real-Time Communication Tools</div>
-              <div class="feature-description">Communicating directly with Genesys to make real time changes and view crucial decision-making data.</div>
-            </div>
-          </li>
-          <li>
-            <div>
-              <div class="feature-title">Comprehensive Reporting</div>
-              <div class="feature-description">Reporting tools that reveal trends, outcomes, and service performance across all channels.</div>
-            </div>
-          </li>
-          <li>
-            <div>
-              <div class="feature-title">Interactive Dashboards</div>
-              <div class="feature-description">Dashboards that present performance trends, agent performance and operational health at a glance.</div>
-            </div>
-          </li>
-          <li>
-            <div>
-              <div class="feature-title">Administration Tools</div>
-              <div class="feature-description">Administration tools for user management, configuration tasks, service tuning and resource oversight.</div>
-            </div>
-          </li>
-          <li>
-            <div>
-              <div class="feature-title">Additional Operational Apps</div>
-              <div class="feature-description">Additional operational apps that support analysis, planning, and continuous improvement initiatives.</div>
-            </div>
-          </li>
-        </div>
-        
+        <ul class="feature-list">
+          <li><div><div class="feature-title">Real-Time Communication Tools</div><div class="feature-description">Communicating directly with Genesys to make real time changes and view crucial decision-making data.</div></div></li>
+          <li><div><div class="feature-title">Comprehensive Reporting</div><div class="feature-description">Reporting tools that reveal trends, outcomes, and service performance across all channels.</div></div></li>
+          <li><div><div class="feature-title">Interactive Dashboards</div><div class="feature-description">Dashboards that present performance trends, agent performance and operational health at a glance.</div></div></li>
+          <li><div><div class="feature-title">Administration Tools</div><div class="feature-description">Administration tools for user management, configuration tasks, service tuning and resource oversight.</div></div></li>
+          <li><div><div class="feature-title">Additional Operational Apps</div><div class="feature-description">Additional operational apps that support analysis, planning, and continuous improvement initiatives.</div></div></li>
+        </ul>
         <div id="development-updates-container"></div>
       `;
     }
 
     function initializeDevelopmentUpdates() {
       const container = document.getElementById('development-updates-container');
-      if (!container) return;
-      
-      if (DEVELOPMENT_UPDATES.enabled && DEVELOPMENT_UPDATES.updates.length > 0) {
-        const sortedUpdates = [...DEVELOPMENT_UPDATES.updates].sort((a, b) => {
-          const priorityOrder = { high: 1, medium: 2, low: 3 };
-          const statusOrder = { deployment: 1, testing: 2, development: 3, planning: 4 };
-          
-          if (priorityOrder[a.priority] !== priorityOrder[b.priority]) {
-            return priorityOrder[a.priority] - priorityOrder[b.priority];
-          }
-          return statusOrder[a.status] - statusOrder[b.status];
-        });
-        
-        // Create collapsible container
-        let html = `
-          <div class="development-updates">
-            <div class="development-header">
-              <span class="icon">🚧</span>
-              <h3>What's in Development</h3>
-              <span class="development-badge">${sortedUpdates.length} item${sortedUpdates.length !== 1 ? 's' : ''}</span>
-              <button id="dev-collapse-btn" class="dev-collapse-btn" aria-label="Collapse development updates">
-                <span class="collapse-icon">▼</span>
-              </button>
-            </div>
-            <div class="development-items" id="development-items">
-        `;
-        
-        sortedUpdates.forEach(update => {
-          const status = STATUS_CONFIG[update.status];
-          html += `
-            <div class="development-item">
-              <div class="dev-status">
-                <div class="status-badge ${status.class}">
-                  ${status.icon} ${status.label}
-                </div>
-              </div>
-              <div class="dev-content">
-                <div class="dev-title">${update.title}</div>
-                <div class="dev-description">${update.description}</div>
-                <div class="dev-eta">ETA: ${update.eta}</div>
-              </div>
-            </div>
-          `;
-        });
-        
-        html += `
-            </div>
+      if (!container || !DEVELOPMENT_UPDATES.enabled || !DEVELOPMENT_UPDATES.updates.length) return;
+
+      const sorted = [...DEVELOPMENT_UPDATES.updates].sort((a, b) => {
+        const p = { high:1, medium:2, low:3 };
+        const s = { deployment:1, testing:2, development:3, planning:4 };
+        return (p[a.priority] - p[b.priority]) || (s[a.status] - s[b.status]);
+      });
+
+      let html = `
+        <div class="development-updates">
+          <div class="development-header">
+            <span>🚧</span>
+            <h3>What's in Development</h3>
+            <span class="development-badge">${sorted.length} item${sorted.length !== 1 ? 's' : ''}</span>
+            <button id="dev-collapse-btn" class="dev-collapse-btn" aria-label="Toggle development updates">
+              <span class="collapse-icon">▼</span>
+            </button>
           </div>
-        `;
-        
-        container.innerHTML = html;
-        
-        // Add collapse/expand functionality
-        const collapseBtn = document.getElementById('dev-collapse-btn');
-        const devItems = document.getElementById('development-items');
-        const collapseIcon = collapseBtn.querySelector('.collapse-icon');
-        
-        let isCollapsed = false;
-        
-        collapseBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          isCollapsed = !isCollapsed;
-          
-          if (isCollapsed) {
-            devItems.style.display = 'none';
-            collapseIcon.textContent = '▶';
-            collapseBtn.setAttribute('aria-label', 'Expand development updates');
-            collapseBtn.classList.add('collapsed');
-          } else {
-            devItems.style.display = 'flex';
-            collapseIcon.textContent = '▼';
-            collapseBtn.setAttribute('aria-label', 'Collapse development updates');
-            collapseBtn.classList.remove('collapsed');
-          }
-          
-          // Save collapsed state
-          localStorage.setItem('ipi-dev-updates-collapsed', isCollapsed);
-        });
-        
-        // Make the entire header clickable to collapse/expand
-        const devHeader = document.querySelector('.development-header');
-        devHeader.addEventListener('click', (e) => {
-          if (e.target !== collapseBtn && !collapseBtn.contains(e.target)) {
-            collapseBtn.click();
-          }
-        });
-        
-        // Check for saved collapsed state
-        const savedState = localStorage.getItem('ipi-dev-updates-collapsed');
-        if (savedState === 'true') {
-          isCollapsed = true;
-          devItems.style.display = 'none';
-          collapseIcon.textContent = '▶';
-          collapseBtn.classList.add('collapsed');
-        }
+          <div class="development-items" id="development-items">
+      `;
+      sorted.forEach(u => {
+        const st = STATUS_CONFIG[u.status];
+        html += `
+          <div class="development-item">
+            <div class="dev-status"><span class="status-badge ${st.class}">${st.icon} ${st.label}</span></div>
+            <div class="dev-content">
+              <div class="dev-title">${u.title}</div>
+              <div class="dev-description">${u.description}</div>
+              <div class="dev-eta">ETA: ${u.eta}</div>
+            </div>
+          </div>`;
+      });
+      html += `</div></div>`;
+      container.innerHTML = html;
+
+      const btn      = document.getElementById('dev-collapse-btn');
+      const items    = document.getElementById('development-items');
+      const icon     = btn.querySelector('.collapse-icon');
+      let collapsed  = localStorage.getItem('ipi-dev-updates-collapsed') === 'true';
+
+      function apply() {
+        items.style.display = collapsed ? 'none' : 'flex';
+        icon.textContent    = collapsed ? '▶' : '▼';
+        btn.classList.toggle('collapsed', collapsed);
       }
+      apply();
+
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        collapsed = !collapsed;
+        localStorage.setItem('ipi-dev-updates-collapsed', collapsed);
+        apply();
+      });
+      document.querySelector('.development-header').addEventListener('click', e => {
+        if (e.target !== btn && !btn.contains(e.target)) btn.click();
+      });
     }
 
-    // ---- Simple OAuth Redirect ----
+    /* ── OAuth ── */
     function initiateOAuthRedirect() {
-      const authUrl = new URL(`https://login.${OAUTH_CONFIG.genesysCloudEnv}/oauth/authorize`);
-      authUrl.searchParams.set('response_type', 'token');
-      authUrl.searchParams.set('client_id', OAUTH_CONFIG.clientId);
-      authUrl.searchParams.set('redirect_uri', OAUTH_CONFIG.redirectUri);
-      authUrl.searchParams.set('scope', OAUTH_CONFIG.scopes);
-      
-      console.log('Redirecting to OAuth:', authUrl.toString());
-      window.location.href = authUrl.toString();
+      const url = new URL(`https://login.${OAUTH_CONFIG.genesysCloudEnv}/oauth/authorize`);
+      url.searchParams.set('response_type', 'token');
+      url.searchParams.set('client_id', OAUTH_CONFIG.clientId);
+      url.searchParams.set('redirect_uri', OAUTH_CONFIG.redirectUri);
+      url.searchParams.set('scope', OAUTH_CONFIG.scopes);
+      window.location.href = url.toString();
     }
 
     function checkForOAuthResponse() {
-      const hashParams = new URLSearchParams(window.location.hash.substring(1));
-      const accessToken = hashParams.get('access_token');
-      
-      if (accessToken) {
+      const params = new URLSearchParams(window.location.hash.substring(1));
+      if (params.get('access_token')) {
         window.history.replaceState({}, document.title, window.location.pathname);
         showHub();
         return true;
       }
-      
       return false;
     }
 
@@ -1130,34 +548,29 @@ header .brand img{height:54px; max-width:200px; object-fit:contain; display:bloc
       loadingOverlay.style.display = 'none';
       mainWrap.style.display = 'flex';
       initializeHub();
-      
-      // Start preloading all apps to trigger OAuth
       preloadAllApps();
     }
 
-    // ---- Hub functionality ----
+    /* ── Navigation ── */
     function buildNavigation() {
       nav.innerHTML = '';
-      
-      const appsByCategory = APPS.reduce((acc, app) => {
-        const category = app.category || 'Other';
-        if (!acc[category]) acc[category] = [];
-        acc[category].push(app);
+      const byCategory = APPS.reduce((acc, app) => {
+        (acc[app.category || 'Other'] ??= []).push(app);
         return acc;
       }, {});
 
-      Object.keys(appsByCategory).forEach(category => {
-        const groupHeader = document.createElement('div');
-        groupHeader.className = 'nav-group';
-        groupHeader.textContent = category;
-        nav.appendChild(groupHeader);
+      Object.keys(byCategory).forEach(cat => {
+        const g = document.createElement('div');
+        g.className = 'nav-group';
+        g.textContent = cat;
+        nav.appendChild(g);
 
-        appsByCategory[category].forEach((app) => {
+        byCategory[cat].forEach(app => {
           const btn = document.createElement('button');
           btn.className = 'nav-btn';
           btn.setAttribute('data-app', app.id);
           btn.innerHTML = `
-            <span class="icon" aria-hidden="true">${app.icon}</span>
+            <span class="icon">${app.icon}</span>
             <span class="label">${app.name}</span>
             <span class="chev">›</span>
             ${app.description ? `<span class="app-tooltip">${app.description}</span>` : ''}
@@ -1168,166 +581,71 @@ header .brand img{height:54px; max-width:200px; object-fit:contain; display:bloc
       });
     }
 
-    function byId(id){ return APPS.find(a => a.id === id); }
-    
-    function setActive(id){
-      [...nav.querySelectorAll('.nav-btn')].forEach(b => {
-        b.classList.toggle('active', b.getAttribute('data-app') === id);
-      });
+    const byId = id => APPS.find(a => a.id === id);
+
+    function setActive(id) {
+      nav.querySelectorAll('.nav-btn').forEach(b =>
+        b.classList.toggle('active', b.getAttribute('data-app') === id));
     }
 
-    function setHash(id){
+    function setHash(id) {
       history.replaceState(null, '', '#app=' + encodeURIComponent(id));
       localStorage.setItem('ipi-adminhub:last', id);
     }
 
-    function preferredStart(){
-      const fromHash = new URLSearchParams(location.hash.replace('#','')).get('app');
+    function preferredStart() {
+      const fromHash = new URLSearchParams(location.hash.replace('#', '')).get('app');
       if (fromHash && byId(fromHash)) return fromHash;
       const last = localStorage.getItem('ipi-adminhub:last');
       if (last && byId(last)) return last;
-      return 'Welcome'; // Default to Welcome page
+      return 'Welcome';
     }
 
-    function selectApp(id){
+    function selectApp(id) {
       const app = byId(id) || APPS[0];
       setActive(app.id);
       setHash(app.id);
       titleEl.textContent = app.name;
-      iconEl.textContent = app.icon;
-
-      // Show reload button for non-welcome pages
+      iconEl.textContent  = app.icon;
       reloadB.style.display = app.id === 'Welcome' ? 'none' : 'inline-block';
 
       if (app.id === 'Welcome') {
-        // Add welcome mode class to card
         mainCard.classList.add('welcome-mode');
         renderWelcomePage();
       } else {
-        // Remove welcome mode class
         mainCard.classList.remove('welcome-mode');
-        
-        // Remove welcome content if exists
-        const card = frame.parentElement;
-        const welcomeContent = card.querySelector('.welcome-content');
-        if (welcomeContent) {
-          welcomeContent.remove();
-        }
-        
-        // Show iframe and load app
+        const wc = mainCard.querySelector('.welcome-content');
+        if (wc) wc.remove();
+
         frame.style.display = 'block';
         frame.style.opacity = '0.5';
         frame.src = 'about:blank';
-        
         frame.setAttribute('sandbox', 'allow-scripts allow-forms allow-same-origin allow-popups allow-modals allow-downloads');
-        frame.style.width = '100%';
-        frame.style.height = '100%';
-        frame.style.minHeight = '600px';
-        frame.style.border = '1px solid var(--border)';
-        frame.style.borderRadius = '10px';
 
         let loaded = false;
-        const guardTimer = setTimeout(() => {
-          if (!loaded) {
-            frame.style.opacity = '1';
-          }
-        }, 5000);
-
-        frame.onload = () => {
-          loaded = true;
-          clearTimeout(guardTimer);
-          frame.style.opacity = '1';
-          
-          try {
-            const frameDoc = frame.contentDocument || frame.contentWindow.document;
-            const style = frameDoc.createElement('style');
-            style.textContent = `
-              body { 
-                padding: 20px; 
-                margin: 0; 
-                font-family: 'Aptos', 'Segoe UI', sans-serif;
-              }
-              .container, .main-content, [class*="container"], [class*="content"] {
-                max-width: 100% !important;
-                padding: 20px !important;
-              }
-              table {
-                width: 100% !important;
-                max-width: 100% !important;
-              }
-            `;
-            frameDoc.head.appendChild(style);
-          } catch (e) {
-            console.log('Cross-origin iframe, cannot inject styles');
-          }
-        };
-
-        frame.onerror = () => {
-          loaded = true;
-          clearTimeout(guardTimer);
-          frame.style.opacity = '1';
-        };
-
-        setTimeout(() => {
-          frame.src = app.url;
-        }, 150);
+        const guard = setTimeout(() => { if (!loaded) frame.style.opacity = '1'; }, 5000);
+        frame.onload  = () => { loaded = true; clearTimeout(guard); frame.style.opacity = '1'; };
+        frame.onerror = () => { loaded = true; clearTimeout(guard); frame.style.opacity = '1'; };
+        setTimeout(() => { frame.src = app.url; }, 150);
       }
 
-      reloadB.onclick = () => { 
-        if (app.id !== 'Welcome') {
-          frame.contentWindow?.location?.reload?.() || (frame.src = app.url); 
-        }
+      reloadB.onclick = () => {
+        if (app.id !== 'Welcome') frame.contentWindow?.location?.reload?.() || (frame.src = app.url);
       };
     }
 
     function initializeHub() {
       buildNavigation();
-      
       window.addEventListener('hashchange', () => {
-        const id = new URLSearchParams(location.hash.replace('#','')).get('app');
+        const id = new URLSearchParams(location.hash.replace('#', '')).get('app');
         if (id && byId(id)) selectApp(id);
       });
-      
       selectApp(preferredStart());
     }
 
-    // ---- Initialization ----
-    if (checkForOAuthResponse()) {
-      showHub();
-    } else {
-      console.log('No OAuth token found, initiating redirect...');
-      setTimeout(() => {
-        initiateOAuthRedirect();
-      }, 1000);
+    if (!checkForOAuthResponse()) {
+      setTimeout(initiateOAuthRedirect, 1000);
     }
-
-    // Additional CSS to ensure proper iframe sizing
-    const additionalCSS = `
-      .appframe {
-        width: 100% !important;
-        height: calc(100vh - 200px) !important;
-        min-height: 600px !important;
-        border: none !important;
-        border-radius: 8px !important;
-      }
-      .card {
-        height: calc(100vh - 100px) !important;
-        display: flex !important;
-        flex-direction: column !important;
-      }
-      .modal-iframe {
-        min-height: 500px;
-      }
-      @media (max-width: 760px) {
-        .modal-iframe {
-          min-height: 400px;
-        }
-      }
-    `;
-    const styleSheet = document.createElement("style");
-    styleSheet.type = "text/css";
-    styleSheet.innerText = additionalCSS;
-    document.head.appendChild(styleSheet);
   </script>
 </body>
 </html>
