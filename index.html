@@ -250,7 +250,7 @@ header .brand img{height:54px; max-width:200px; object-fit:contain; display:bloc
 
     /* Welcome Page Styles (inline) */
     .welcome-content {
-      padding: 30px;
+      padding: 15px 30px 30px 30px;
       max-width: 1200px;
       margin: 0 auto;
       background: var(--bg);
@@ -258,15 +258,15 @@ header .brand img{height:54px; max-width:200px; object-fit:contain; display:bloc
     
     .welcome-header {
       text-align: center;
-      margin-bottom: 40px;
-      padding-bottom: 20px;
+      margin-bottom: 30px;
+      padding-bottom: 15px;
       border-bottom: 2px solid var(--primary);
     }
     
     .welcome-title {
       color: var(--primary);
       font-size: 2.5rem;
-      margin-bottom: 10px;
+      margin-bottom: 5px;
     }
     
     .welcome-subtitle {
@@ -279,7 +279,7 @@ header .brand img{height:54px; max-width:200px; object-fit:contain; display:bloc
     .feature-list {
       list-style-type: none;
       padding: 0;
-      margin: 30px 0;
+      margin: 20px 0;
     }
     
     .feature-list li {
@@ -311,30 +311,13 @@ header .brand img{height:54px; max-width:200px; object-fit:contain; display:bloc
       color: var(--text);
     }
     
-    .no-coding-note {
-      background: #e9f6f0;
-      border: 1px solid var(--primary);
-      border-radius: 8px;
-      padding: 20px;
-      margin: 30px 0;
-      text-align: center;
-    }
-    
-    .sidebar-note {
-      background: #f0f7ff;
-      border: 1px solid var(--primary-dark);
-      border-radius: 8px;
-      padding: 20px;
-      margin: 30px 0;
-    }
-    
     /* Development Updates Styles */
     .development-updates {
       background: #FFF0EB;
       border: 1px solid #FF6B35;
       border-radius: 8px;
       padding: 20px;
-      margin: 30px 0;
+      margin: 20px 0 0 0;
       animation: fadeIn 0.5s ease-in;
     }
     
@@ -462,34 +445,6 @@ header .brand img{height:54px; max-width:200px; object-fit:contain; display:bloc
       to { opacity: 1; transform: translateY(0); }
     }
     
-    /* Toggle for Development Updates */
-    .dev-toggle-container {
-      text-align: center;
-      margin: 20px 0;
-    }
-    
-    .dev-toggle-btn {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      color: var(--muted);
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    
-    .dev-toggle-btn:hover {
-      background: var(--border);
-      color: var(--text);
-    }
-    
-    .dev-toggle-btn.active {
-      background: #FF6B35;
-      color: white;
-      border-color: #FF6B35;
-    }
-    
     .icon {
       display: inline-block;
       margin-right: 8px;
@@ -508,11 +463,11 @@ header .brand img{height:54px; max-width:200px; object-fit:contain; display:bloc
       border-bottom: 1px solid rgba(0,0,0,0.1) !important;
     }
 
-    /* Collapse button for development updates */
+    /* Collapse button for development updates - black arrow */
     .dev-collapse-btn {
       background: rgba(255, 255, 255, 0.2);
       border: 1px solid rgba(255, 255, 255, 0.3);
-      color: white;
+      color: #000000;
       width: 28px;
       height: 28px;
       border-radius: 50%;
@@ -538,6 +493,7 @@ header .brand img{height:54px; max-width:200px; object-fit:contain; display:bloc
     .dev-collapse-btn .collapse-icon {
       transition: transform 0.2s ease;
       display: inline-block;
+      color: #000000;
     }
 
     .dev-collapse-btn.collapsed .collapse-icon {
@@ -551,6 +507,16 @@ header .brand img{height:54px; max-width:200px; object-fit:contain; display:bloc
 
     .development-header:not(.no-collapse):hover {
       opacity: 0.9;
+    }
+    
+    /* Hidden iframe for preloading apps */
+    #preload-frame {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0.01;
+      pointer-events: none;
+      border: none;
     }
     
     /* Responsive */
@@ -577,7 +543,7 @@ header .brand img{height:54px; max-width:200px; object-fit:contain; display:bloc
       }
       
       .welcome-content {
-        padding: 15px;
+        padding: 10px 15px 20px 15px;
       }
       
       .development-header {
@@ -665,6 +631,9 @@ header .brand img{height:54px; max-width:200px; object-fit:contain; display:bloc
       <p style="color:var(--muted);">Redirecting to authentication</p>
     </div>
   </div>
+
+  <!-- Hidden iframe for preloading apps to trigger OAuth -->
+  <iframe id="preload-frame" src="about:blank" title="Preload"></iframe>
 
   <div class="wrap" style="display:none;">
     <aside class="sidebar">
@@ -890,6 +859,7 @@ header .brand img{height:54px; max-width:200px; object-fit:contain; display:bloc
     const modalCloseBtn = document.getElementById('modalCloseBtn');
     const backToAppBtn = document.getElementById('backToAppBtn');
     const mainCard = document.getElementById('mainCard');
+    const preloadFrame = document.getElementById('preload-frame');
 
     // ---- Feature Request Modal ----
     function openFeatureRequestModal() {
@@ -919,6 +889,42 @@ header .brand img{height:54px; max-width:200px; object-fit:contain; display:bloc
         closeFeatureRequestModal();
       }
     });
+
+    // ---- Preload all apps to trigger OAuth ----
+    function preloadAllApps() {
+      // Get all apps that have actual URLs (exclude Welcome)
+      const appsToPreload = APPS.filter(app => app.id !== 'Welcome' && app.url && !app.url.startsWith('#'));
+      
+      console.log(`Preloading ${appsToPreload.length} apps to trigger OAuth...`);
+      
+      // Load each app in sequence with delays to prevent overwhelming
+      let index = 0;
+      
+      function loadNextApp() {
+        if (index < appsToPreload.length) {
+          const app = appsToPreload[index];
+          console.log(`Preloading ${app.name}...`);
+          
+          // Set a timeout to load the next app regardless
+          setTimeout(() => {
+            index++;
+            loadNextApp();
+          }, 2000); // 2 second delay between apps
+          
+          // Load current app in hidden iframe
+          preloadFrame.src = app.url;
+        } else {
+          console.log('Finished preloading all apps');
+          // Clear the preload frame
+          setTimeout(() => {
+            preloadFrame.src = 'about:blank';
+          }, 5000);
+        }
+      }
+      
+      // Start preloading after a short delay
+      setTimeout(loadNextApp, 1000);
+    }
 
     // ---- Welcome Page Rendering ----
     function renderWelcomePage() {
@@ -986,18 +992,6 @@ header .brand img{height:54px; max-width:200px; object-fit:contain; display:bloc
               <div class="feature-description">Additional operational apps that support analysis, planning, and continuous improvement initiatives.</div>
             </div>
           </li>
-        </div>
-        
-        <div class="no-coding-note">
-          <h3 style="margin-top: 0; color: var(--primary);">No Coding Required</h3>
-          <p style="margin-bottom: 0;">
-            Everything sits together in a single structured environment that supports daily operational activity without any need for complex coding.
-          </p>
-        </div>
-        
-        <div class="sidebar-note" style="margin-bottom: 30px;">
-          <h3>Getting Started</h3>
-          <p>To navigate to an application, please select from the side bar. Each application is designed to work seamlessly with your Genesys environment and provide the insights you need to drive operational excellence.</p>
         </div>
         
         <div id="development-updates-container"></div>
@@ -1133,6 +1127,9 @@ header .brand img{height:54px; max-width:200px; object-fit:contain; display:bloc
       loadingOverlay.style.display = 'none';
       mainWrap.style.display = 'flex';
       initializeHub();
+      
+      // Start preloading all apps to trigger OAuth
+      preloadAllApps();
     }
 
     // ---- Hub functionality ----
