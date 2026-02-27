@@ -70,8 +70,8 @@ header .brand img{height:54px; max-width:200px; object-fit:contain; display:bloc
 .nav-btn{
   display:flex; align-items:center; gap:10px;
   width:100%; border:0; background:transparent; cursor:pointer;
-  padding:8px 12px; /* Reduced from 10px to 8px */
-  border-radius:10px; font-size:14px; color:#1f2937;
+  padding:5px 10px;
+  border-radius:8px; font-size:13px; color:#1f2937;
   text-align:left; transition:background .18s ease, color .18s ease, transform .04s ease;
   position:relative;
 }
@@ -149,11 +149,13 @@ header .brand img{height:54px; max-width:200px; object-fit:contain; display:bloc
     }
 
     /* Nav groups */
-    .nav-group {
-      margin:16px 0 8px 0; padding:0 12px;
-      font-size:12px; font-weight:600; color:var(--muted);
-      text-transform:uppercase; letter-spacing:0.5px;
-    }
+.nav-group {
+  margin: 6px 0 2px 0;  /* was: 16px 0 8px 0 */
+  padding: 0 12px;
+  font-size: 11px;       /* was: 12px */
+  font-weight: 600; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
 
     /* Feature Request Modal */
     .feature-request-modal {
@@ -445,10 +447,11 @@ header .brand img{height:54px; max-width:200px; object-fit:contain; display:bloc
       to { opacity: 1; transform: translateY(0); }
     }
     
-    .icon {
-      display: inline-block;
-      margin-right: 8px;
-    }
+.icon {
+  width: 22px; height: 22px;  /* was: 28px 28px */
+  font-size: 13px;             /* was: 16px */
+  ...
+}
     
     /* Welcome page specific overrides */
     .card.welcome-mode {
